@@ -1,7 +1,7 @@
 # Hermes Prototype
 
 **status_authority:** `NONE`
-**State:** `PROPOSAL_ONLY` — nothing installed, nothing run.
+**State:** `FIRST_SWEEP_COMPLETE` — installed, configured, and confirmed working end to end. See `RESULTS_2026-07-23.md`.
 
 Operator layer (Hermes Agent, MIT) + terminal multiplexer (Herdr, Apache-2.0) for orchestrating "vanilla" terminal AI agents (Claude Code, Codex, an xAI terminal agent) alongside DeepSeek API and local Ollama models as reasoning backends. No Anthropic/OpenAI/OpenRouter dependency by design.
 
