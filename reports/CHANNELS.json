@@ -1,0 +1,19 @@
+{
+  "schema": "fastfoodai.channels/v0",
+  "status": "CONFIGURATION_PENDING",
+  "reddit": {
+    "name": "FastFoodAI",
+    "url": "CHANNEL_URL_PENDING",
+    "publish_mode": "DRAFT_ONLY"
+  },
+  "x": {
+    "name": "FastFoodAI",
+    "url": "CHANNEL_URL_PENDING",
+    "publish_mode": "DRAFT_ONLY"
+  },
+  "video": {
+    "name": "operator-build-record",
+    "url": "CHANNEL_URL_PENDING",
+    "publish_mode": "DRAFT_ONLY"
+  }
+}

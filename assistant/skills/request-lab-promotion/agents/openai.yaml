@@ -1,0 +1,4 @@
+interface:
+  display_name: "Request Lab Promotion"
+  short_description: "Package evidence for protected Lab review"
+  default_prompt: "Use $request-lab-promotion to package this Sandbox result for Lab review."

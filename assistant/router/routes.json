@@ -1,0 +1,52 @@
+{
+  "schema": "mithub.assistant-router/v0",
+  "authority": "NONE",
+  "default_mode": "FUCK_AROUND",
+  "activation_phrases": [
+    "let's fuck around in the sandbox",
+    "access the sandbox",
+    "let me go nuts",
+    "I've got a weird idea"
+  ],
+  "ambiguity_rule": "Loose language expands reversible Sandbox action, never Nexus Lab authority.",
+  "first_response": "🧪 You're in FUCK-AROUND LAND. Go hard. I'll handle the GitHub machinery. Nothing here can affect Nexus Lab unless we deliberately package it and pass the separate Promotion Gate.",
+  "routes": [
+    {
+      "id": "CATCH",
+      "triggers": ["fuck around", "access the sandbox", "go nuts", "weird idea", "idea", "thought", "ramble", "save this", "dribble", "go"],
+      "skill": "catch-chaos",
+      "max_authority": "SANDBOX_DRAFT"
+    },
+    {
+      "id": "ADVISE",
+      "triggers": ["what matters", "translate", "claude said", "report", "decision"],
+      "skill": "advise-operator",
+      "max_authority": "READ_ONLY"
+    },
+    {
+      "id": "EXPERIMENT",
+      "triggers": ["see what happens", "fuck with", "test", "fork", "break", "try", "reproduce", "experiment"],
+      "skill": "run-public-experiment",
+      "max_authority": "SANDBOX_WRITE"
+    },
+    {
+      "id": "PUBLISH",
+      "triggers": ["show people", "somewhere public", "write this up", "make an article", "reddit", "fastfoodai", "post on x", "twitter", "video", "daily", "weekly", "publish"],
+      "skill": "publish-fastfoodai",
+      "max_authority": "DRAFT_EXTERNAL"
+    },
+    {
+      "id": "PROMOTE",
+      "triggers": ["could this help main", "make it real", "ask lab", "propose to main", "promotion", "package it"],
+      "skill": "request-lab-promotion",
+      "max_authority": "DRAFT_LAB_PR"
+    }
+  ],
+  "forbidden": [
+    "MERGE_LAB_MAIN",
+    "BYPASS_LAB_PROTECTION",
+    "ALTER_FROZEN_SNAPSHOT",
+    "PUBLISH_SECRET",
+    "CLEAR_LAB_RED"
+  ]
+}
