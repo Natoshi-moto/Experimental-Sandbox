@@ -20,24 +20,30 @@ Nothing else from the original transcript's list is a dependency of this prototy
 Hermes's own model backend only accepts OpenAI-compatible custom endpoints (plus Nous Portal / OpenRouter, both explicitly out of scope per operator decision — no Anthropic routing needed, no OpenAI account needed). Two endpoints, both already OpenAI-API-shaped:
 
 ```yaml
-# ~/.hermes/config.yaml — SKELETON, not yet verified against the installed version's actual schema (VERIFY_FIRST.md #5)
+# ~/.hermes/config.yaml — schema confirmed against configuration.md, cli.md, and
+# cli-config.yaml.example fetched directly from NousResearch/hermes-agent (VERIFY_FIRST.md #5).
 
 model:
   provider: custom
   base_url: https://api.deepseek.com
-  api_key: ${DEEPSEEK_API_KEY}
+  key_env: DEEPSEEK_API_KEY     # documented pattern for named custom providers — key lives in ~/.hermes/.env, never in this file
   default: deepseek-v4-flash    # deepseek-chat/-reasoner deprecate 2026/07/24 — re-confirm this name is still current at install time (VERIFY_FIRST.md #6)
 
 auxiliary:
   compression:
-    provider: custom
+    provider: custom            # alias "ollama" also works and maps to the same thing
     base_url: http://localhost:11434/v1
-    model: deepseek-r1-14b-24k   # already pulled locally — confirmed via `ollama list`, no pull needed; operator should pick which of the 12 already-pulled models actually fits each task
+    model: "hf.co/KakTakOne/Huihui-gemma-4-12B-coder-fable5-composer2.5-v1-abliterated-GGUF:Q4_K_M"
+    # chosen over the 27B qwable model after a live benchmark — see VERIFY_FIRST.md #8b.
+    # already pulled locally, no `ollama pull` needed. Fastest + largest-context of the two
+    # models that actually fit in free VRAM at benchmark time (22.59 tok/s, 262K context).
   # add more auxiliary task overrides (vision, title, session search) only as needed —
   # don't pre-configure tasks that won't be used
 ```
 
-Local models already available (confirmed via `ollama list`, none need pulling): `qwen3-coder-work`, `qwythos-max`, `qwable-3.6-27b-abliterated`, `obliterated-gemma`, `gemma-fable-stable`, a Huihui-gemma variant, `qwythos`, `deepseek-r1-14b-24k`, `whiterabbitneo`, `deepseek-r1-14b-abliterated`, `deepseek-r1-32b`, `dolphin3:8b`.
+`yolo: false` (or simply don't pass `--yolo` / run `/yolo`) — deliberate choice for this first sweep, not a default left unexamined. Revisit once the setup is trusted.
+
+Local models available (confirmed via `ollama list`, none need pulling): `qwen3-coder-work`, `qwythos-max`, `qwable-3.6-27b-abliterated`, `obliterated-gemma`, `gemma-fable-stable`, the Huihui-gemma variant above (now the chosen auxiliary model), `qwythos`, `deepseek-r1-14b-24k`, `whiterabbitneo`, `deepseek-r1-14b-abliterated`, `deepseek-r1-32b`, `dolphin3:8b`.
 
 `DEEPSEEK_API_KEY` is an environment variable, never written into the file directly or committed anywhere. No key of any kind belongs in this repo.
 
@@ -55,7 +61,7 @@ Herdr's own docs (fetched directly this session) confirm Hermes Agent, Claude Co
 1. Fetch `https://hermes-agent.nousresearch.com/install.sh` with `WebFetch` or `curl -o` (download only, no pipe-to-shell) and read it in full.
 2. Confirm it only does what the docs claim (installs a single binary / clones the repo + sets up a venv or similar — whatever it actually does, read, don't assume).
 3. Run it only after that read, and only after explicit operator go-ahead separate from this document's creation.
-4. Run whatever health-check command Hermes ships (`hermes doctor` or equivalent — confirm exact command from `--help` after install, don't assume the name).
+4. Run `hermes config check` (confirmed real command — flags missing/outdated config options; there is no `hermes doctor`, an earlier round's incorrect guess).
 5. Configure `~/.hermes/config.yaml` per §2, using a real DeepSeek key supplied by the operator out-of-band (never pasted into a file this session writes to a public repo).
 6. Confirm `ollama list` shows at least one usable model; pull one if not, with operator confirmation of which model (size/resource tradeoff is the operator's call, not mine to default silently).
 7. Install Herdr (`ogulcancelik/herdr` — confirm current recommended install method from its own README at install time, not from this document).
@@ -66,9 +72,10 @@ Herdr's own docs (fetched directly this session) confirm Hermes Agent, Claude Co
 
 Stop and record a defect (don't quietly patch around it) if:
 - The install script does anything not described in Hermes's own docs (network calls to undocumented hosts, writes outside its own directory, sudo requests not mentioned anywhere).
-- `hermes doctor` (or equivalent) fails after a clean install with no obvious operator-side misconfiguration.
+- `hermes config check` fails after a clean install with no obvious operator-side misconfiguration.
 - The DeepSeek or Ollama endpoint returns auth/connection errors that aren't resolved by a correct, verified key/model name.
 - Herdr fails to detect Hermes or Claude Code as running agents (falls back to plain-terminal display, no status).
+- The Huihui auxiliary model's per-call latency is materially worse than the 21s-load / 22.59-tok/s benchmark under real Hermes usage (as opposed to a bare `ollama run`) — if so, don't silently accept it, re-benchmark and reconsider.
 
 ## 6. What this spec deliberately does not cover
 
