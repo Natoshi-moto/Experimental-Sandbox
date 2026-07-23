@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operator Adviser"
+  short_description: "Translate evidence into blunt operator choices"
+  default_prompt: "Use $advise-operator to tell me what matters and what I should do next."

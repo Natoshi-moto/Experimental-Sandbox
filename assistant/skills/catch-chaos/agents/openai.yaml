@@ -1,0 +1,4 @@
+interface:
+  display_name: "Catch Chaos"
+  short_description: "Catch and route raw operator thoughts safely"
+  default_prompt: "Use $catch-chaos to preserve and route this thought without slowing me down."

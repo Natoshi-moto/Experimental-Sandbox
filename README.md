@@ -10,6 +10,7 @@ This is the public chaos engine behind **Mithub** and **Full Spectrum University
 
 Use one of these doors:
 
+- 🤖 **ADJACENT** — [open the assistant source](assistant/app/) or run its local browser prototype
 - 🧠 **DRIBBLE** — [post a raw idea](https://github.com/Natoshi-moto/Experimental-Sandbox/discussions/categories/ideas)
 - 🧪 **TEST IT** — [propose the smallest experiment](../../issues/new?template=experiment.yml)
 - 🍴 **FORK IT** — [open a fork-research record](../../issues/new?template=fork-research.yml)
@@ -18,6 +19,12 @@ Use one of these doors:
 - 🚨 **ASK LAB** — [prepare a promotion package](templates/PROMOTION.md)
 
 Say what you mean in ordinary language. Boring agents handle branches, commits, checks, receipts and packaging.
+
+Fresh AI session? Say only:
+
+> **Let’s fuck around in the sandbox.**
+
+The provider-neutral contract is in [`HANDOFF_ANY_AI.md`](HANDOFF_ANY_AI.md).
 
 ## The only three inherited rules
 

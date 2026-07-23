@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run Public Experiment"
+  short_description: "Turn a radical idea into a public test"
+  default_prompt: "Use $run-public-experiment to make the smallest public test of this idea."

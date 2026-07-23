@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish FastFoodAI"
+  short_description: "Create disciplined daily and weekly reports"
+  default_prompt: "Use $publish-fastfoodai to turn my findings into Reddit, X, and video reports."

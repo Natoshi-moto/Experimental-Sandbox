@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mithub Adjacent: a no-authority assistant for Experimental Sandbox and Full Spectrum public research." />
+  <title>Mithub Adjacent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="mode-banner">🧪 EXPERIMENTAL SANDBOX · LAB AUTHORITY: NONE</div>
+
+  <dialog id="entry-dialog">
+    <p class="kicker">LOCAL PROFILE GATE</p>
+    <h1>Who’s entering?</h1>
+    <p>This changes the language and available Sandbox routes. It does not grant GitHub or Nexus Lab permissions.</p>
+    <div class="profiles">
+      <button type="button" data-profile="operator"><strong>🔥 Operator</strong><span>Catch everything. Hide the plumbing.</span></button>
+      <button type="button" data-profile="contributor"><strong>🧠 Contributor</strong><span>Bring an idea. No coding required.</span></button>
+      <button type="button" data-profile="reader"><strong>👀 Reader</strong><span>Explore experiments and course routes.</span></button>
+    </div>
+  </dialog>
+
+  <header>
+    <a class="brand" href="#top"><span>M/</span> Mithub Adjacent</a>
+    <nav>
+      <a href="#assistant">Assistant</a>
+      <a href="#routes">Routes</a>
+      <a href="#reports">Reports</a>
+      <a href="#boundary">Boundary</a>
+    </nav>
+    <button id="profile-button" type="button">Profile</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="kicker">FULL SPECTRUM · PERSONAL CHAOS ENGINE</p>
+      <h1>You think. It catches, routes, tests and explains.</h1>
+      <p class="hero-copy">
+        Take the good from Nexus Lab. Go violently fast in the Sandbox. Publish what happened.
+        Ask Lab to consider the survivors. Never let this assistant mistake a proposal for authority.
+      </p>
+      <div class="truth-grid">
+        <article><strong>Reads Lab</strong><span>Public accepted state</span></article>
+        <article><strong>Writes Sandbox</strong><span>Thoughts, forks, tests, reports</span></article>
+        <article><strong>Proposes only</strong><span>Draft Lab promotion packages</span></article>
+      </div>
+    </section>
+
+    <section class="assistant-section" id="assistant">
+      <div class="assistant-shell">
+        <aside>
+          <p class="kicker">ROUTER</p>
+          <div id="route-list"></div>
+          <div class="authority-card">
+            <span>MAXIMUM AUTHORITY</span>
+            <strong id="authority">SANDBOX_DRAFT</strong>
+          </div>
+        </aside>
+        <div class="conversation">
+          <div class="conversation-header">
+            <div>
+              <span class="online-dot"></span>
+              <strong>Adjacent is listening</strong>
+            </div>
+            <button id="where-button" type="button">Where am I?</button>
+          </div>
+          <div class="messages" id="messages">
+            <article class="assistant-message">
+              <span>ADJACENT</span>
+              <p>Give me the messy version. I’ll preserve it, tell you where it’s going, and keep Lab out of reach.</p>
+            </article>
+          </div>
+          <form id="prompt-form">
+            <label for="prompt">What’s in your head?</label>
+            <textarea id="prompt" placeholder="I’ve got a fucking idea…" required></textarea>
+            <div class="prompt-actions">
+              <span>Auto-saved locally</span>
+              <button type="submit">Catch this →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="routes-section" id="routes">
+      <p class="kicker">FIVE BORING SKILLS</p>
+      <h2>One human sentence in. One bounded route out.</h2>
+      <div class="route-cards">
+        <article><span>01</span><h3>Catch chaos</h3><p>Preserve your words. Route without interrogating you about Git.</p></article>
+        <article><span>02</span><h3>Advise operator</h3><p>Strip other AI reports into facts, real pushback, fluff and the next move.</p></article>
+        <article><span>03</span><h3>Run experiment</h3><p>Claim, falsifier, smallest test, evidence, wreckage and lesson.</p></article>
+        <article><span>04</span><h3>Publish FastFoodAI</h3><p>Daily, weekly, Reddit, X and video reports from durable evidence.</p></article>
+        <article><span>05</span><h3>Request Lab</h3><p>Package a survivor for protected review. Never approve or merge it.</p></article>
+      </div>
+    </section>
+
+    <section class="reports-section" id="reports">
+      <div>
+        <p class="kicker">FASTFOODAI PUBLICATION DESK</p>
+        <h2>Chaotic research. Disciplined public record.</h2>
+        <p>One evidence-backed source report becomes five honest public formats.</p>
+      </div>
+      <div class="report-stack">
+        <article><span>DAILY</span><strong>What changed today?</strong><p>Observed · broke · inferred · next test</p></article>
+        <article><span>WEEKLY</span><strong>What survived the week?</strong><p>Claims · evidence · corrections · disagreements</p></article>
+        <article><span>REDDIT</span><strong>Invite an actual discussion</strong><p>Context · method · result · limitations · questions</p></article>
+        <article><span>X</span><strong>Finding first</strong><p>Durable link · clear inference · visible correction</p></article>
+        <article><span>VIDEO</span><strong>Bind the build record</strong><p>Chapters · commits · claims · cuts · artifacts</p></article>
+      </div>
+    </section>
+
+    <section class="boundary-section" id="boundary">
+      <p class="kicker">THE LINE IT CANNOT CROSS</p>
+      <h2>Adjacent can knock on Lab’s door. It cannot possess the key.</h2>
+      <div class="boundary-flow">
+        <span>SBX evidence</span><b>→</b><span>adversarial review</span><b>→</b><span>lay card</span><b>→</b><span>draft Lab PR</span><b>⛔</b><span>human gate</span>
+      </div>
+      <ul>
+        <li>No direct push to Lab main.</li>
+        <li>No approval or merge authority.</li>
+        <li>No protection bypass, snapshot rewrite or red-clearing.</li>
+        <li>No claim that AI agreement equals truth.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <span>Mithub Adjacent · Experimental Sandbox</span>
+    <button id="export-log" type="button">Export router log</button>
+  </footer>
+
+  <dialog id="where-dialog">
+    <button class="close" type="button">×</button>
+    <p class="kicker">WHERE AM I?</p>
+    <h2>🧪 Experimental Sandbox</h2>
+    <p>This browser prototype stores your profile, draft and router log locally. It has no GitHub credentials and no authority over Nexus Lab.</p>
+    <dl>
+      <div><dt>Profile</dt><dd id="where-profile"></dd></div>
+      <div><dt>Current route</dt><dd id="where-route"></dd></div>
+      <div><dt>Lab impact</dt><dd>None</dd></div>
+    </dl>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
