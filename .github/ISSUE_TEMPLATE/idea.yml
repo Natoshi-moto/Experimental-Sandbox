@@ -1,0 +1,32 @@
+name: "🧠 Raw idea"
+description: "You do not need to code. Bring the idea and what would change your mind."
+title: "SBX-IDEA: "
+labels: ["raw-idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🧪 You are in Experimental Sandbox. This cannot change Nexus Lab.
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: Say it in your language. Mess and profanity are allowed.
+    validations:
+      required: true
+  - type: textarea
+    id: falsifier
+    attributes:
+      label: What would make you change your mind?
+    validations:
+      required: true
+  - type: textarea
+    id: test
+    attributes:
+      label: Smallest test
+      description: A guess is enough.
+  - type: textarea
+    id: needs
+    attributes:
+      label: What do you need?
+      description: Skills, tools, people, data or translation.

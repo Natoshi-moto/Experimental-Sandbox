@@ -1,0 +1,27 @@
+name: Sandbox checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sandbox-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+      - name: Verify repository boundaries
+        run: bash scripts/verify.sh
+      - name: Explain a red sandbox
+        if: failure()
+        run: |
+          echo "::warning::This experiment is sick. Nexus Lab is unaffected."

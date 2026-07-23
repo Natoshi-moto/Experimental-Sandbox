@@ -1,0 +1,36 @@
+name: "🍴 Fork research"
+description: "Study, alter or attack a public project with provenance intact."
+title: "SBX-FORK: "
+labels: ["fork-research"]
+body:
+  - type: input
+    id: upstream
+    attributes:
+      label: Upstream repository
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: Licence
+      description: Write UNKNOWN if you have not checked yet.
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Research purpose
+    validations:
+      required: true
+  - type: textarea
+    id: divergence
+    attributes:
+      label: What will you change or test?
+    validations:
+      required: true
+  - type: textarea
+    id: falsifier
+    attributes:
+      label: What result would change your mind?
+    validations:
+      required: true

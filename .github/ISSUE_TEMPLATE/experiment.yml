@@ -1,0 +1,35 @@
+name: "🧪 Experiment"
+description: "Turn an idea into the smallest falsifiable public test."
+title: "SBX-EXP: "
+labels: ["experiment"]
+body:
+  - type: input
+    id: origin
+    attributes:
+      label: Raw idea or origin
+      placeholder: Discussion, issue, fork or article URL
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: Claim
+      description: One falsifiable sentence.
+    validations:
+      required: true
+  - type: textarea
+    id: falsifier
+    attributes:
+      label: Falsifier
+    validations:
+      required: true
+  - type: textarea
+    id: test
+    attributes:
+      label: Smallest test
+    validations:
+      required: true
+  - type: textarea
+    id: help
+    attributes:
+      label: Help wanted
