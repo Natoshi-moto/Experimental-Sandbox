@@ -10,10 +10,10 @@ This is the public chaos engine behind **Mithub** and **Full Spectrum University
 
 Use one of these doors:
 
-- 🧠 **DRIBBLE** — [post a raw idea](../../discussions/categories/raw-ideas)
+- 🧠 **DRIBBLE** — [post a raw idea](https://github.com/Natoshi-moto/Experimental-Sandbox/discussions/categories/ideas)
 - 🧪 **TEST IT** — [propose the smallest experiment](../../issues/new?template=experiment.yml)
 - 🍴 **FORK IT** — [open a fork-research record](../../issues/new?template=fork-research.yml)
-- 🧨 **BREAK IT** — [request adversarial review](../../discussions/categories/break-my-idea)
+- 🧨 **BREAK IT** — [request adversarial review](https://github.com/Natoshi-moto/Experimental-Sandbox/discussions/categories/show-and-tell)
 - ✍️ **TEACH IT** — [turn the wreckage into a Full Spectrum lesson](course/README.md)
 - 🚨 **ASK LAB** — [prepare a promotion package](templates/PROMOTION.md)
 
