@@ -24,18 +24,20 @@ Hermes's own model backend only accepts OpenAI-compatible custom endpoints (plus
 
 model:
   provider: custom
-  base_url: https://api.deepseek.com/v1
+  base_url: https://api.deepseek.com
   api_key: ${DEEPSEEK_API_KEY}
-  default: deepseek-chat        # confirm current model name at install time
+  default: deepseek-v4-flash    # deepseek-chat/-reasoner deprecate 2026/07/24 — re-confirm this name is still current at install time (VERIFY_FIRST.md #6)
 
 auxiliary:
   compression:
     provider: custom
     base_url: http://localhost:11434/v1
-    model: <model already pulled via `ollama list`>
+    model: deepseek-r1-14b-24k   # already pulled locally — confirmed via `ollama list`, no pull needed; operator should pick which of the 12 already-pulled models actually fits each task
   # add more auxiliary task overrides (vision, title, session search) only as needed —
   # don't pre-configure tasks that won't be used
 ```
+
+Local models already available (confirmed via `ollama list`, none need pulling): `qwen3-coder-work`, `qwythos-max`, `qwable-3.6-27b-abliterated`, `obliterated-gemma`, `gemma-fable-stable`, a Huihui-gemma variant, `qwythos`, `deepseek-r1-14b-24k`, `whiterabbitneo`, `deepseek-r1-14b-abliterated`, `deepseek-r1-32b`, `dolphin3:8b`.
 
 `DEEPSEEK_API_KEY` is an environment variable, never written into the file directly or committed anywhere. No key of any kind belongs in this repo.
 
@@ -46,7 +48,7 @@ Herdr multiplexes:
 - one pane running the operator's active Claude Code session,
 - additional panes for Codex / the xAI agent as the operator brings them in.
 
-Herdr's own agent-detection registry (per its docs, not yet independently fetched — `VERIFY_FIRST.md` #8) already includes `hermes`, `claude`, `codex`, and `grok` as recognized process names. No custom Herdr configuration should be needed for basic detection; if a pane shows as unrecognized, that's a signal something in this table is stale, not a cue to fork Herdr.
+Herdr's own docs (fetched directly this session) confirm Hermes Agent, Claude Code, Codex, and Grok CLI are all supported agents in prose, but do **not** expose the literal process-name strings it matches on (`VERIFY_FIRST.md` #8 — downgraded from an earlier, over-specific claim sourced only from third-party blog summaries). Expect basic detection to work for these four; if a pane shows as unrecognized, check Herdr's actual source/config before assuming a fork is needed — the exact match strings are a source-level fact, not a docs-level one.
 
 ## 4. Install sequence (not yet executed)
 
