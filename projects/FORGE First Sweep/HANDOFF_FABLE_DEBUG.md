@@ -37,22 +37,26 @@ been proven. The last clean run (50 tests: hashutil 10, artifacts 5, workflow
 | Component | Built by | Family |
 |---|---|---|
 | types, hashutil, artifacts, capability, broker_read, workflow, adapter_fake, canon, api | Codex Ultra | OpenAI |
-| ledger, reduce | **nobody yet** | — |
+| ledger, reduce | **Grok** (to `LEDGER_SPEC_FOR_GROK.md`) | xAI |
 | debug / adversarial pass | **you** | Anthropic |
 
-If you debug the nine modules Codex built, that is **genuine cross-family
-review** — the first in this project. Protect it.
+**Three families, no seat marking its own homework.** This is the strongest
+verification setup this project has had — protect it. You wrote none of this
+code; attack all of it.
 
-⚠️ **If you also write `ledger.py` and `reduce.py`, you will be debugging your
-own ledger.** That is the exact failure the two-seat split exists to prevent.
-Two honest ways to handle it:
+Two caveats to carry into your report:
 
-- **Preferred:** another seat writes the two modules; you attack everything.
-- **Acceptable:** you write them, and you **say so explicitly** in your
-  results — "modules X and Y are self-reviewed, not independently verified" —
-  and you flag them as the weakest evidence in the run.
+1. **Grok implemented Codex's design.** The implementation is independently
+   produced; the *contract* is not. Implementation bugs get caught by this
+   split — an inherited design flaw does not. You are the only seat positioned
+   to question the design itself.
+2. **Any test Grok wrote to make the suite run is self-written.** Its report
+   lists them under `SELF_WRITTEN_TESTS`. **Attack those first** — a builder's
+   own tests are the weakest evidence in the run.
 
-Do not quietly do the second and report it as the first.
+If the plan changes and you end up writing production code yourself, say so
+explicitly in your results ("modules X and Y are self-reviewed, not
+independently verified"). Do not quietly build and then report as reviewer.
 
 ---
 
