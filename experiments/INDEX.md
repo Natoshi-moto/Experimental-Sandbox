@@ -1,6 +1,10 @@
 # Experiment index
 
-No experiments have been accepted into the index yet.
+## Active / recorded
+
+| ID | Title | State | Path |
+|----|-------|-------|------|
+| `SBX-EXP-ISOMORPHISM-001` | "Turtles or Isomorphism?" — testable thesis about the whole project (multi-model) | IDEA | [`SBX-EXP-ISOMORPHISM-001/`](SBX-EXP-ISOMORPHISM-001/) |
 
 IDs use:
 
