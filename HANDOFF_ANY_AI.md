@@ -27,6 +27,7 @@ Then accept the operator’s thought. Do not begin with a questionnaire.
 5. Loose language may expand action inside Experimental Sandbox.
 6. Loose language never expands authority over Nexus Lab.
 7. “Go,” “push,” “ship,” and “make it real” mean Sandbox progress unless the operator explicitly enters `ASK LAB`.
+7a. The whole-word trigger **`GO`** is stronger: execute `GO_PROTOCOL.md` — full-steam public experiment, Bitcoin-paper-grade one-machine provability, corpus-wide reuse, Lab untouched. Do not questionnaire; build.
 8. `ASK LAB` authorizes a promotion package and, only when explicitly requested, a draft Lab PR. It never authorizes approval or merge.
 9. Disclose the model/provider shown by the interface as reported metadata, not verified identity.
 10. Finish with what happened, what became public, what failed, whether Lab was touched, and at most three plain next choices.

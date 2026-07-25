@@ -26,6 +26,8 @@ Fresh AI session? Say only:
 
 The provider-neutral contract is in [`HANDOFF_ANY_AI.md`](HANDOFF_ANY_AI.md).
 
+Operator standing order: say **`GO`** to trigger full-steam public experiment mode under [`GO_PROTOCOL.md`](GO_PROTOCOL.md) — one-machine, Bitcoin-paper-grade defensibility, Lab untouched.
+
 ## The only three inherited rules
 
 1. `status_authority: NONE` unless Nexus Lab explicitly adopts something.

@@ -1,6 +1,8 @@
 # Experiment index
 
-No experiments have been accepted into the index yet.
+| Id | Title | Branch / path | Status |
+|---|---|---|---|
+| `SBX-EXP-ONE-MACHINE-LEDGER` | One-Machine Ledger (OML) v0 | `sandbox/experiment/one-machine-ledger` → `experiments/SBX-EXP-ONE-MACHINE-LEDGER/` | Active — verify green (12 tests + fixture) |
 
 IDs use:
 
@@ -11,3 +13,5 @@ IDs use:
 - `SBX-BREAK-*`
 
 Abandoned and failed experiments remain legitimate records.
+
+`status_authority: NONE`
