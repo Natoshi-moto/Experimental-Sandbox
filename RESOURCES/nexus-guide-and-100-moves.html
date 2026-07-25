@@ -1,0 +1,339 @@
+<title>Nexus — A Calm Guide + 100 Moves</title>
+<style>
+  :root{
+    --bg:#15171c; --bg2:#1b1e25; --bg3:#212630; --panel:#191c22;
+    --text:#d7dbe2; --dim:#9aa2b1; --faint:#727a8b; --hair:#2a2f3a;
+    --accent:#6fd0c0; --accent-soft:#2b3a3a; --blue:#9db4e8; --blue-soft:#28303f;
+    --quick:#7fc9a6; --medium:#dcb877; --deep:#c58fb8;
+    --sans:"Segoe UI","Noto Sans","Helvetica Neue",-apple-system,BlinkMacSystemFont,Roboto,ui-sans-serif,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); font-size:17px; line-height:1.7;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    letter-spacing:0.005em;
+  }
+  .wrap{max-width:46rem; margin:0 auto; padding:0 28px;}
+  p{margin:0 0 1rem; max-width:66ch;}
+  strong{color:#eef1f5; font-weight:650;}
+  em{color:var(--accent); font-style:normal;}
+  a{color:var(--accent);}
+
+  /* cover */
+  .cover{padding:14vh 0 8vh; border-bottom:1px solid var(--hair);}
+  .kicker{font-size:12.5px; letter-spacing:0.24em; text-transform:uppercase; color:var(--accent); margin:0 0 20px;}
+  h1{font-size:clamp(34px,7vw,58px); line-height:1.06; margin:0 0 14px; font-weight:700; letter-spacing:-0.015em; color:#f2f4f8; text-wrap:balance;}
+  .sub{font-size:clamp(17px,2.4vw,21px); color:var(--dim); max-width:52ch; margin:0;}
+  .meta{margin-top:26px; font-size:13px; color:var(--faint); letter-spacing:0.03em;}
+
+  /* how-to box */
+  .box{background:var(--panel); border:1px solid var(--hair); border-radius:14px; padding:24px 26px; margin:26px 0;}
+  .box.tealedge{border-left:3px solid var(--accent);}
+  .box.blueedge{border-left:3px solid var(--blue);}
+  .box h3{margin:0 0 12px; font-size:13px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); font-weight:650;}
+  .box.blueedge h3{color:var(--blue);}
+  .box ul{margin:0; padding-left:1.15em;} .box li{margin:0 0 8px;}
+  .box li::marker{color:var(--faint);}
+
+  /* section headings */
+  h2.part{font-size:12.5px; letter-spacing:0.24em; text-transform:uppercase; color:var(--faint); margin:56px 0 4px; font-weight:650;}
+  h2.part + .lead{font-size:clamp(23px,3.4vw,30px); color:#eef1f5; font-weight:680; margin:0 0 8px; line-height:1.2; letter-spacing:-0.01em; text-wrap:balance;}
+
+  /* glossary */
+  dl.gloss{margin:18px 0 0; display:grid; gap:0;}
+  dl.gloss div{padding:14px 0; border-top:1px solid var(--hair); display:grid; grid-template-columns:9.5rem 1fr; gap:6px 20px;}
+  dl.gloss div:last-child{border-bottom:1px solid var(--hair);}
+  dl.gloss dt{color:var(--accent); font-weight:650; font-size:15.5px;}
+  dl.gloss dd{margin:0; color:var(--dim); font-size:15.5px; line-height:1.6;}
+
+  /* status snapshot */
+  .snap{display:grid; gap:10px; margin:16px 0 0;}
+  .snap .row{display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:baseline; padding:11px 14px; background:var(--bg2); border:1px solid var(--hair); border-radius:10px;}
+  .snap .tag{font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700; padding:2px 8px; border-radius:5px; white-space:nowrap;}
+  .t-done{color:#0f1512; background:var(--quick);}
+  .t-open{color:#1a1206; background:var(--medium);}
+  .t-live{color:#f2f4f8; background:var(--blue-soft); border:1px solid var(--blue);}
+  .snap .row span:last-child{color:var(--text); font-size:15px;}
+
+  /* five box */
+  .five{background:linear-gradient(180deg,#1c2a28,#191c22); border:1px solid var(--accent-soft); border-left:3px solid var(--accent); border-radius:14px; padding:24px 26px; margin:26px 0;}
+  .five h3{margin:0 0 14px; font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); font-weight:700;}
+  .five ol{margin:0; padding-left:1.3em;} .five li{margin:0 0 10px; color:var(--text);} .five li::marker{color:var(--accent); font-weight:700;}
+  .five li b{color:#f2f4f8;}
+
+  /* theme + items */
+  .theme{margin:44px 0 0; break-inside:avoid;}
+  .theme-h{display:flex; gap:16px; align-items:baseline; padding-bottom:12px; border-bottom:1px solid var(--hair); margin-bottom:18px;}
+  .theme-n{font-size:13px; font-weight:700; color:var(--accent); letter-spacing:0.05em; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .theme-t{font-size:20px; color:#eef1f5; font-weight:650; line-height:1.25; letter-spacing:-0.01em;}
+  .theme-sub{color:var(--faint); font-size:13.5px; margin:-10px 0 18px;}
+
+  .item{display:grid; grid-template-columns:2.6rem 1fr; gap:2px 14px; padding:12px 0; border-top:1px solid var(--hair); break-inside:avoid;}
+  .item:first-of-type{border-top:none;}
+  .item .num{font-variant-numeric:tabular-nums; color:var(--faint); font-weight:650; font-size:15px; padding-top:1px;}
+  .item .body .t{color:var(--text); font-size:16px; line-height:1.5;}
+  .item .body .t b{color:#eef1f5; font-weight:650;}
+  .item .body .why{color:var(--dim); font-size:14px; line-height:1.55; margin-top:3px;}
+  .eff{display:inline-block; font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; font-weight:700; padding:1.5px 7px; border-radius:5px; margin-left:8px; vertical-align:1.5px;}
+  .e-q{color:var(--quick); background:rgba(127,201,166,0.12);}
+  .e-m{color:var(--medium); background:rgba(220,184,119,0.12);}
+  .e-d{color:var(--deep); background:rgba(197,143,184,0.14);}
+
+  .legend{display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--dim); margin:14px 0 0;}
+  .legend span b{color:var(--text);}
+
+  footer{margin:64px 0 0; padding:28px 0 80px; border-top:1px solid var(--hair); color:var(--faint); font-size:13.5px;}
+  footer b{color:var(--dim);}
+
+  @media print{
+    @page{margin:16mm 14mm; size:A4;}
+    body{font-size:11.5pt;}
+    .wrap{max-width:none; padding:0;}
+    .cover{padding:8vh 0 6vh; min-height:auto;}
+    .theme, .item, .box, .five, .snap .row{break-inside:avoid;}
+    h2.part{margin-top:34px;}
+    a{color:var(--accent); text-decoration:none;}
+  }
+</style>
+
+<div class="wrap">
+
+  <section class="cover">
+    <p class="kicker">Nexus Lab &amp; Sandbox · orientation + roadmap</p>
+    <h1>A calm guide to all this,<br>and 100 ways to make it better.</h1>
+    <p class="sub">Read the guide first — it explains the whole thing in plain words. Then pick from 100 concrete moves, grouped in tens and tagged by how much effort each takes. You do not have to do them in order. You do not have to do them all.</p>
+    <p class="meta">Prepared 2026-07-25 · a synthesis from inside the project · status_authority: NONE (this is advice, not accepted truth)</p>
+  </section>
+
+  <div class="box blueedge">
+    <h3>How to read this without getting overwhelmed</h3>
+    <ul>
+      <li><strong>Start with the guide (Part 1).</strong> If a word is new, it's in the glossary right there.</li>
+      <li><strong>If you only have five minutes,</strong> read the "If you only do five things" box. That's enough.</li>
+      <li><strong>The 100 are a menu, not a to-do list.</strong> Ten themes, ten each. Skim the theme titles, dive only where you feel pull.</li>
+      <li><strong>Every move has an effort tag</strong> — <em>Quick</em>, <em>Medium</em>, or <em>Deep</em> — so you can match your energy to the day.</li>
+      <li><strong>Nothing here is urgent except one thing,</strong> and it's already flagged on the front door of the Lab. The rest can wait for a fresh head.</li>
+    </ul>
+  </div>
+
+  <h2 class="part">Part 1 — The guide</h2>
+  <p class="lead">What all this actually is</p>
+  <p>You're building two connected things. The first is a <strong>way of working with AI honestly</strong> — a lab where you and several AI "seats" collaborate, and where the system is built to always show <em>what's been proven</em> versus <em>what's only been claimed</em>. The second is a <strong>vision</strong>: a commons for creative work, where who-made-what is proven by cryptography and social recognition instead of by lawyers, platforms, or money.</p>
+  <p>Here's the thing worth being proud of: the lab's real invention isn't the app or the economy or the creatures. It's the <strong>honesty machinery</strong> — a discipline that keeps its own mistakes visible and refuses to let a nice-sounding claim pass as a fact. Most people hide their cracks. You made showing them the whole point.</p>
+
+  <div class="box tealedge">
+    <h3>The words, in plain language</h3>
+    <dl class="gloss">
+      <div><dt>The Lab</dt><dd>Your main, careful project. What's on its "main" line is treated as accepted and real.</dd></div>
+      <div><dt>The Sandbox</dt><dd>A separate, messier playground where wild ideas can be tried and broken without risking the Lab.</dd></div>
+      <div><dt>Honesty machinery</dt><dd>The habits that keep the project truthful: evidence tags, a mistakes log, "not trusted until proven."</dd></div>
+      <div><dt>Evidence tiers</dt><dd>Labels on every claim: proven-in-code, actually-run, someone-said-so, or can't-be-checked.</dd></div>
+      <div><dt>status_authority: NONE</dt><dd>A stamp meaning "this is a draft/opinion, not official." Stops good writing from pretending to be truth.</dd></div>
+      <div><dt>The emergency stop</dt><dd>A loud note at the front of the Lab saying serious work is paused until one specific hole is decided.</dd></div>
+      <div><dt>The commons</dt><dd>The long-term dream: proof of authorship for art, held by you, not for sale, seceded from finance.</dd></div>
+      <div><dt>A seat</dt><dd>One AI (Claude, Grok, Codex, Fable…) doing work in the project. They share one account, so none is truly independent.</dd></div>
+      <div><dt>The thesis</dt><dd>The open question we just shipped for every model to test: is the project deeply structured ("isomorphism") or just talking to itself ("turtles")?</dd></div>
+    </dl>
+  </div>
+
+  <p class="lead" style="margin-top:40px;">Where you are right now</p>
+  <div class="snap">
+    <div class="row"><span class="tag t-done">Done</span><span>The two vision artifacts, the emergency stop, and the honest Noted assessment are all merged and live on the Lab's main line.</span></div>
+    <div class="row"><span class="tag t-live">Live</span><span>The "Turtles or Isomorphism?" thesis is public in the Sandbox (PR #6), ready for every model you can reach to test.</span></div>
+    <div class="row"><span class="tag t-live">Live</span><span>Noted is genuinely built — ~30,000 lines, a real build, 18 studios. It's on the real side of the line.</span></div>
+    <div class="row"><span class="tag t-open">Open</span><span>The one real hole: the Agent's "Pop out" / "Open tab" buttons can reach your stored notes. It's flagged, not fixed — your decision.</span></div>
+    <div class="row"><span class="tag t-open">Open</span><span>PR #122 (the security fix branch) is held on purpose, waiting for that decision and a fresh head.</span></div>
+  </div>
+
+  <div class="five">
+    <h3>If you only do five things</h3>
+    <ol>
+      <li><b>Decide the pop-out hole</b> — remove the two buttons, move the Agent to its own address, or disclose it. This lifts the emergency stop. <em>(#1)</em></li>
+      <li><b>Make one declared promise actually enforced</b> — build the "no-sale" scanner the spec already demands, so a headline claim becomes true, not just written. <em>(#3)</em></li>
+      <li><b>Narrow Noted to its three real studios</b> (Prompts, Canvas, Projects) so a stranger isn't handed eighteen doors. <em>(#31)</em></li>
+      <li><b>Put one real artist + one real artwork</b> through the commons idea — that single external test is what turns "turtles" into "isomorphism." <em>(#53, #62)</em></li>
+      <li><b>Get one genuinely outside reviewer</b> — a person who isn't you — to try to break it. It's the one thing the whole method can't do for itself. <em>(#21)</em></li>
+    </ol>
+  </div>
+
+  <h2 class="part">Part 2 — The journey, briefly</h2>
+  <p class="lead">How we got here</p>
+  <p>We started with a routine health-check of your tools, and you asked to look deeper. That turned into a real tour: I traced the Lab from its genesis commit, we built two artifacts that carry your intent honestly, we made the security hole a visible emergency stop instead of a buried footnote, and we shipped a falsifiable thesis about whether the whole project's self-similarity is a strength or a trap. Along the way we hardened your workflow so you can't act in the wrong folder by accident.</p>
+  <p>The honest through-line: <strong>the project is real and its values are genuinely built into it, not just written down</strong> — and its recurring weakness is that it <em>declares</em> things faster than it <em>enforces</em> them. Almost every move below is a way to close that one gap, in one corner of the project or another.</p>
+
+  <h2 class="part">Part 3 — The 100 moves</h2>
+  <p class="lead">A menu, grouped in tens</p>
+  <div class="legend">
+    <span><span class="eff e-q">Quick</span> <b>an afternoon</b></span>
+    <span><span class="eff e-m">Medium</span> <b>a few sessions</b></span>
+    <span><span class="eff e-d">Deep</span> <b>a real project</b></span>
+  </div>
+
+  <!-- THEME 1 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">01 · 1–10</span><span class="theme-t">Make what's declared actually true</span></div>
+    <p class="theme-sub">The project's #1 pattern: promises written but not enforced. Close the gap.</p>
+    <div class="item"><span class="num">1</span><div class="body"><div class="t"><b>Decide the pop-out hole</b> — remove the buttons, separate origin, or disclose.<span class="eff e-m">Medium</span></div><div class="why">It's the current emergency stop. Nothing else in the security arc moves until you choose.</div></div></div>
+    <div class="item"><span class="num">2</span><div class="body"><div class="t"><b>Implement the fix and make <code>ods:sec003</code> go green.</b><span class="eff e-m">Medium</span></div><div class="why">Turn the deliberately-failing test into a passing one — proof, not intention.</div></div></div>
+    <div class="item"><span class="num">3</span><div class="body"><div class="t"><b>Build the forbidden-surface scanner the spec already mandates.</b><span class="eff e-d">Deep</span></div><div class="why">"STRICT NO SALE" is asserted everywhere with zero enforcement. This makes the headline claim real.</div></div></div>
+    <div class="item"><span class="num">4</span><div class="body"><div class="t"><b>Add a runtime test that rejects any no-sale / no-transfer surface.</b><span class="eff e-m">Medium</span></div><div class="why">A capability that can't exist beats a promise not to use it.</div></div></div>
+    <div class="item"><span class="num">5</span><div class="body"><div class="t"><b>Quarantine or delete the legacy Wallet / NEX / local-key paths.</b><span class="eff e-m">Medium</span></div><div class="why">Dead financial surfaces contradict the vision and invite the exact bug you fear.</div></div></div>
+    <div class="item"><span class="num">6</span><div class="body"><div class="t"><b>Fix CARD-11: stop storing provider keys in plain text at rest.</b><span class="eff e-m">Medium</span></div><div class="why">A standing red that undercuts every "private by default" claim.</div></div></div>
+    <div class="item"><span class="num">7</span><div class="body"><div class="t"><b>Wire each closed security test into an automatic gate.</b><span class="eff e-q">Quick</span></div><div class="why">Manual checks rot. If it isn't in CI, assume it isn't run.</div></div></div>
+    <div class="item"><span class="num">8</span><div class="body"><div class="t"><b>Re-probe the shipped <code>dist/</code> build, not just the dev server.</b><span class="eff e-m">Medium</span></div><div class="why">"dist parity UNKNOWN" means you don't yet know the real product is safe.</div></div></div>
+    <div class="item"><span class="num">9</span><div class="body"><div class="t"><b>Label every declared "MUST" as enforced or not-yet-enforced.</b><span class="eff e-q">Quick</span></div><div class="why">Honest bookkeeping that instantly shows the size of the gap.</div></div></div>
+    <div class="item"><span class="num">10</span><div class="body"><div class="t"><b>Add a per-release "declared vs enforced" checklist.</b><span class="eff e-q">Quick</span></div><div class="why">No privacy claim ships ahead of the mechanism that backs it.</div></div></div>
+  </div>
+
+  <!-- THEME 2 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">02 · 11–20</span><span class="theme-t">Keep the honesty machinery from becoming ritual</span></div>
+    <p class="theme-sub">Your best asset. Protect it from turning into paperwork with no teeth.</p>
+    <div class="item"><span class="num">11</span><div class="body"><div class="t"><b>Run a periodic "is this gate still real?" audit.</b><span class="eff e-m">Medium</span></div><div class="why">A green check that no longer tests anything is worse than a red one.</div></div></div>
+    <div class="item"><span class="num">12</span><div class="body"><div class="t"><b>Track the declared→enforced conversion rate over time.</b><span class="eff e-m">Medium</span></div><div class="why">One number that tells you if the project is closing its gap or widening it.</div></div></div>
+    <div class="item"><span class="num">13</span><div class="body"><div class="t"><b>Rotate a "red seat" whose only job is to make the machinery lie.</b><span class="eff e-m">Medium</span></div><div class="why">Adversarial pressure keeps honesty from drifting into self-congratulation.</div></div></div>
+    <div class="item"><span class="num">14</span><div class="body"><div class="t"><b>Keep the Whoopsie (mistakes) log on the front door.</b><span class="eff e-q">Quick</span></div><div class="why">Visible mistakes are the trust signal. Buried ones are just shame.</div></div></div>
+    <div class="item"><span class="num">15</span><div class="body"><div class="t"><b>Cap the process-doc-to-working-code ratio.</b><span class="eff e-q">Quick</span></div><div class="why">When docs outpace code, pause and build. You've been doc-heavy.</div></div></div>
+    <div class="item"><span class="num">16</span><div class="body"><div class="t"><b>Define exactly what promotes something out of <code>status_authority: NONE</code>.</b><span class="eff e-m">Medium</span></div><div class="why">If nothing ever leaves NONE, the stamp is decoration.</div></div></div>
+    <div class="item"><span class="num">17</span><div class="body"><div class="t"><b>Audit reports for "eloquence closing a red."</b><span class="eff e-q">Quick</span></div><div class="why">A well-written paragraph must never be allowed to clear a real failure.</div></div></div>
+    <div class="item"><span class="num">18</span><div class="body"><div class="t"><b>Flag every "no such thing exists" claim for a go-and-look check.</b><span class="eff e-q">Quick</span></div><div class="why">The T-01b lesson: negative-existence claims are the only kind you can't re-check by reading.</div></div></div>
+    <div class="item"><span class="num">19</span><div class="body"><div class="t"><b>Timebox audits-of-audits; declare diminishing returns out loud.</b><span class="eff e-q">Quick</span></div><div class="why">Rigor can recurse forever. Naming "enough" is part of the rigor.</div></div></div>
+    <div class="item"><span class="num">20</span><div class="body"><div class="t"><b>Keep one always-current "what's actually true today" file at root.</b><span class="eff e-q">Quick</span></div><div class="why">Generalize the emergency-stop pattern into a permanent honest snapshot.</div></div></div>
+  </div>
+
+  <!-- THEME 3 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">03 · 21–30</span><span class="theme-t">Break the closed loop (independence)</span></div>
+    <p class="theme-sub">One account, one human, AI witnesses only. The method can catch errors but can't create independence. This is the deepest limit.</p>
+    <div class="item"><span class="num">21</span><div class="body"><div class="t"><b>Recruit one genuinely external human reviewer.</b><span class="eff e-m">Medium</span></div><div class="why">Not a model, not your account. The single highest-value thing you can't do alone.</div></div></div>
+    <div class="item"><span class="num">22</span><div class="body"><div class="t"><b>Get a model run by someone else, on their machine, to attack it.</b><span class="eff e-m">Medium</span></div><div class="why">Different hands break the same-account illusion of independence.</div></div></div>
+    <div class="item"><span class="num">23</span><div class="body"><div class="t"><b>Never call same-account model agreement "corroboration."</b><span class="eff e-q">Quick</span></div><div class="why">You already wrote this rule. Enforce it everywhere, out loud.</div></div></div>
+    <div class="item"><span class="num">24</span><div class="body"><div class="t"><b>Keep a "why not to trust this" page a stranger reads first.</b><span class="eff e-q">Quick</span></div><div class="why">Leading with your own limits is disarming and rare.</div></div></div>
+    <div class="item"><span class="num">25</span><div class="body"><div class="t"><b>Invite a hostile outsider to attack the Lab; publish it unedited.</b><span class="eff e-m">Medium</span></div><div class="why">The unedited part is what makes it believable.</div></div></div>
+    <div class="item"><span class="num">26</span><div class="body"><div class="t"><b>Open a public "find a declared≠enforced gap" challenge.</b><span class="eff e-m">Medium</span></div><div class="why">Crowd-source the exact audit you most need, on your own terms.</div></div></div>
+    <div class="item"><span class="num">27</span><div class="body"><div class="t"><b>Separate "operator" from "reviewer" roles even within your own work.</b><span class="eff e-q">Quick</span></div><div class="why">On the record, distinct hats reduce the confusion of being both.</div></div></div>
+    <div class="item"><span class="num">28</span><div class="body"><div class="t"><b>Get the cryptography checked by an independent cryptographer.</b><span class="eff e-d">Deep</span></div><div class="why">The cage's post-quantum claims deserve a real outside eye.</div></div></div>
+    <div class="item"><span class="num">29</span><div class="body"><div class="t"><b>Everywhere, distinguish "verified by a seat in the loop" from "by an outside witness."</b><span class="eff e-q">Quick</span></div><div class="why">Same words, very different weight. Name which one you have.</div></div></div>
+    <div class="item"><span class="num">30</span><div class="body"><div class="t"><b>Treat the thesis responses from others' models as your first independence probe.</b><span class="eff e-q">Quick</span></div><div class="why">You just shipped the instrument — the responses are real outside signal.</div></div></div>
+  </div>
+
+  <!-- THEME 4 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">04 · 31–40</span><span class="theme-t">Ship the narrow real core (Noted)</span></div>
+    <p class="theme-sub">Noted is genuinely built. Focus beats breadth — don't hand a stranger 18 doors.</p>
+    <div class="item"><span class="num">31</span><div class="body"><div class="t"><b>Make the three working studios the product</b> (Prompts, Canvas, Projects).<span class="eff e-m">Medium</span></div><div class="why">They're substantial and real. Lead with them.</div></div></div>
+    <div class="item"><span class="num">32</span><div class="body"><div class="t"><b>Demote the thin studios to "experimental."</b><span class="eff e-q">Quick</span></div><div class="why">Honest labeling stops a stranger judging you by your weakest corner.</div></div></div>
+    <div class="item"><span class="num">33</span><div class="body"><div class="t"><b>Write an honest capability table: works / partial / aspirational.</b><span class="eff e-q">Quick</span></div><div class="why">The most trustworthy marketing you can make.</div></div></div>
+    <div class="item"><span class="num">34</span><div class="body"><div class="t"><b>Make local-first + portability the headline — with enforcement behind it.</b><span class="eff e-m">Medium</span></div><div class="why">True and rare. Just make sure it's true on the shipped build.</div></div></div>
+    <div class="item"><span class="num">35</span><div class="body"><div class="t"><b>Ship an export/import that provably round-trips a whole workspace.</b><span class="eff e-m">Medium</span></div><div class="why">"Portable by right" needs a button that proves it.</div></div></div>
+    <div class="item"><span class="num">36</span><div class="body"><div class="t"><b>Add a "your data never left this machine" indicator tied to real network behavior.</b><span class="eff e-m">Medium</span></div><div class="why">Show the privacy, don't just claim it.</div></div></div>
+    <div class="item"><span class="num">37</span><div class="body"><div class="t"><b>Decide the legacy <code>verse-studio:*</code> key situation and document it.</b><span class="eff e-q">Quick</span></div><div class="why">A known surprise is better than a hidden one.</div></div></div>
+    <div class="item"><span class="num">38</span><div class="body"><div class="t"><b>Get one real cold user through Noted; film where they get stuck.</b><span class="eff e-m">Medium</span></div><div class="why">The stuck points are your roadmap.</div></div></div>
+    <div class="item"><span class="num">39</span><div class="body"><div class="t"><b>Hide anything that reads as hype until the core lands.</b><span class="eff e-q">Quick</span></div><div class="why">"Attention without utility is not success" — your own line.</div></div></div>
+    <div class="item"><span class="num">40</span><div class="body"><div class="t"><b>Define "done for v0.1" as a short testable list; add no studios until met.</b><span class="eff e-q">Quick</span></div><div class="why">A finish line stops breadth from eating depth.</div></div></div>
+  </div>
+
+  <!-- THEME 5 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">05 · 41–50</span><span class="theme-t">The onboarding-AI tool (the cockpit)</span></div>
+    <p class="theme-sub">Your "AI onboards the user, no narration" idea. Its first words are the whole first impression.</p>
+    <div class="item"><span class="num">41</span><div class="body"><div class="t"><b>Commit the uncommitted cockpit work now.</b><span class="eff e-q">Quick</span></div><div class="why">It's the only at-risk thing in the Sandbox — a sponge left inside.</div></div></div>
+    <div class="item"><span class="num">42</span><div class="body"><div class="t"><b>Pressure-test onboarding cold — hand it to someone who knows nothing, film it.</b><span class="eff e-m">Medium</span></div><div class="why">The cold-start run is the jaw-dropping demo, if it holds.</div></div></div>
+    <div class="item"><span class="num">43</span><div class="body"><div class="t"><b>Craft the onboarding prompt with the care you'd give a manifesto.</b><span class="eff e-m">Medium</span></div><div class="why">If you say nothing, whatever it says <em>is</em> the pitch.</div></div></div>
+    <div class="item"><span class="num">44</span><div class="body"><div class="t"><b>Make the onboarding AI honest about limits.</b><span class="eff e-q">Quick</span></div><div class="why">Let it show the unfinished parts — that's the trust story, live.</div></div></div>
+    <div class="item"><span class="num">45</span><div class="body"><div class="t"><b>Verify the key vault actually keeps keys out of child processes.</b><span class="eff e-m">Medium</span></div><div class="why">It's claimed. Prove it, the way you proved the pop-out hole.</div></div></div>
+    <div class="item"><span class="num">46</span><div class="body"><div class="t"><b>Add a "what I can and can't do" screen before it acts.</b><span class="eff e-q">Quick</span></div><div class="why">Consent and clarity before capability.</div></div></div>
+    <div class="item"><span class="num">47</span><div class="body"><div class="t"><b>Show which model answered (solo / failover / council), visibly.</b><span class="eff e-q">Quick</span></div><div class="why">Transparency about routing is on-brand and reassuring.</div></div></div>
+    <div class="item"><span class="num">48</span><div class="body"><div class="t"><b>Prove the project-memory can't read outside its configured map.</b><span class="eff e-m">Medium</span></div><div class="why">Bounded memory is a safety claim — test the bound.</div></div></div>
+    <div class="item"><span class="num">49</span><div class="body"><div class="t"><b>Decide: separate product, or Noted's Agent grown up? Name it.</b><span class="eff e-q">Quick</span></div><div class="why">Clarity of what-it-is shapes everything downstream.</div></div></div>
+    <div class="item"><span class="num">50</span><div class="body"><div class="t"><b>Record a 60-second "just watch it onboard someone" clip.</b><span class="eff e-m">Medium</span></div><div class="why">The core video asset — no voiceover, just the thing working.</div></div></div>
+  </div>
+
+  <!-- THEME 6 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">06 · 51–60</span><span class="theme-t">Make the commons real (and keep the old words out)</span></div>
+    <p class="theme-sub">The north star. Its biggest risk is quietly rebuilding what it seceded from.</p>
+    <div class="item"><span class="num">51</span><div class="body"><div class="t"><b>Rename the router's "wallet module."</b><span class="eff e-q">Quick</span></div><div class="why">"Wallet" smuggles finance back in under STRICT NO SALE. Words carry logic.</div></div></div>
+    <div class="item"><span class="num">52</span><div class="body"><div class="t"><b>Fill the "artistic column" of the isomorphism map — or admit it's empty.</b><span class="eff e-m">Medium</span></div><div class="why">Either result is progress; a blank column is the honest turtle-tell.</div></div></div>
+    <div class="item"><span class="num">53</span><div class="body"><div class="t"><b>Put ONE real artist + ONE real artwork through an authorship flow.</b><span class="eff e-d">Deep</span></div><div class="why">The single act that gives the commons a real inhabitant instead of empty plumbing.</div></div></div>
+    <div class="item"><span class="num">54</span><div class="body"><div class="t"><b>Build the minimal sign → anchor → attribute primitive end-to-end.</b><span class="eff e-d">Deep</span></div><div class="why">The smallest thing that actually proves authorship for that one work.</div></div></div>
+    <div class="item"><span class="num">55</span><div class="body"><div class="t"><b>Test the social-capture failure mode on recognition with real people.</b><span class="eff e-d">Deep</span></div><div class="why">"Proof without power" relocates power to the crowd. See where it curdles.</div></div></div>
+    <div class="item"><span class="num">56</span><div class="body"><div class="t"><b>Decide the permanence policy: can an artist disown early work?</b><span class="eff e-m">Medium</span></div><div class="why">Forever-provenance can chill the risk-taking art needs.</div></div></div>
+    <div class="item"><span class="num">57</span><div class="body"><div class="t"><b>Write the commons as a "for" (beauty, merit), not just an "against" (banks).</b><span class="eff e-q">Quick</span></div><div class="why">Communities defined only by their enemy are fragile.</div></div></div>
+    <div class="item"><span class="num">58</span><div class="body"><div class="t"><b>Choose the first tribe deliberately, and say why.</b><span class="eff e-q">Quick</span></div><div class="why">Crypto financializes reflexively; the art/sovereignty crowd may fit your values better.</div></div></div>
+    <div class="item"><span class="num">59</span><div class="body"><div class="t"><b>Show the "NEX is wiped on launch" plan concretely.</b><span class="eff e-q">Quick</span></div><div class="why">Make the disposable-scaffolding promise checkable, not just stated.</div></div></div>
+    <div class="item"><span class="num">60</span><div class="body"><div class="t"><b>Study one downstream-impact scenario in writing before building more infra.</b><span class="eff e-m">Medium</span></div><div class="why">Know what the commons does to an ecosystem before you scale it.</div></div></div>
+  </div>
+
+  <!-- THEME 7 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">07 · 61–70</span><span class="theme-t">Research rigor &amp; the thesis</span></div>
+    <p class="theme-sub">You just shipped a falsifiable question about the whole project. Now use it well.</p>
+    <div class="item"><span class="num">61</span><div class="body"><div class="t"><b>Collect the multi-model thesis responses; synthesize the <em>pattern</em>.</b><span class="eff e-m">Medium</span></div><div class="why">Report where they agree and diverge — never treat agreement as proof.</div></div></div>
+    <div class="item"><span class="num">62</span><div class="body"><div class="t"><b>Actually run the thesis's external-object test (T3).</b><span class="eff e-d">Deep</span></div><div class="why">This is the move that turns "turtles" into "isomorphism," if anything does.</div></div></div>
+    <div class="item"><span class="num">63</span><div class="body"><div class="t"><b>Measure declared→enforced from git with a real script (T4).</b><span class="eff e-m">Medium</span></div><div class="why">Replace the vibe with a number and a trend line.</div></div></div>
+    <div class="item"><span class="num">64</span><div class="body"><div class="t"><b>Publish the thesis result even if it says "turtles."</b><span class="eff e-q">Quick</span></div><div class="why">The honest bad-news outcome is the one that builds the most trust.</div></div></div>
+    <div class="item"><span class="num">65</span><div class="body"><div class="t"><b>Turn the isomorphism map into a living document.</b><span class="eff e-q">Quick</span></div><div class="why">Update it as each layer moves from declared to enforced.</div></div></div>
+    <div class="item"><span class="num">66</span><div class="body"><div class="t"><b>Define project "success" in one falsifiable sentence.</b><span class="eff e-m">Medium</span></div><div class="why">If you can't say what winning is, you can't tell when you've won.</div></div></div>
+    <div class="item"><span class="num">67</span><div class="body"><div class="t"><b>Pre-register the next big experiment before running it.</b><span class="eff e-q">Quick</span></div><div class="why">The 07-22 pivot did this well. Make it the norm.</div></div></div>
+    <div class="item"><span class="num">68</span><div class="body"><div class="t"><b>Keep a "claims we retracted" log.</b><span class="eff e-q">Quick</span></div><div class="why">Retractions are the strongest trust signal you own.</div></div></div>
+    <div class="item"><span class="num">69</span><div class="body"><div class="t"><b>Ask each tested model for the single highest-value change; aggregate it.</b><span class="eff e-q">Quick</span></div><div class="why">Cheap, and it surfaces blind spots you can't see from inside.</div></div></div>
+    <div class="item"><span class="num">70</span><div class="body"><div class="t"><b>Preserve model disagreement as data, not noise.</b><span class="eff e-q">Quick</span></div><div class="why">Where they split is where the interesting truth usually hides.</div></div></div>
+  </div>
+
+  <!-- THEME 8 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">08 · 71–80</span><span class="theme-t">Repo hygiene &amp; process debt</span></div>
+    <p class="theme-sub">The plumbing that keeps velocity from becoming the next whoopsie.</p>
+    <div class="item"><span class="num">71</span><div class="body"><div class="t"><b>Prune stale worktrees; keep one-task-one-worktree.</b><span class="eff e-q">Quick</span></div><div class="why">The proliferation itself is a risk vector (and caused a near-miss today).</div></div></div>
+    <div class="item"><span class="num">72</span><div class="body"><div class="t"><b>Triage the open-PR backlog on a schedule.</b><span class="eff e-q">Quick</span></div><div class="why">It grows faster than it drains; good work rots in draft.</div></div></div>
+    <div class="item"><span class="num">73</span><div class="body"><div class="t"><b>Make a conscious call on PR #122.</b><span class="eff e-m">Medium</span></div><div class="why">The held security fix — merge it, split it, or close it, but decide.</div></div></div>
+    <div class="item"><span class="num">74</span><div class="body"><div class="t"><b>Fix the promotion-origin CI check so it stops red-flagging every normal PR.</b><span class="eff e-q">Quick</span></div><div class="why">Constant false reds train everyone to ignore reds.</div></div></div>
+    <div class="item"><span class="num">75</span><div class="body"><div class="t"><b>Update STATUS.json's stale reds.</b><span class="eff e-q">Quick</span></div><div class="why">The G-01 wording predates the pop-out finding — same declared-vs-real gap.</div></div></div>
+    <div class="item"><span class="num">76</span><div class="body"><div class="t"><b>Close the long-open URGENT items that are actually done.</b><span class="eff e-q">Quick</span></div><div class="why">"URGENT" that's been done for days teaches people to ignore the word.</div></div></div>
+    <div class="item"><span class="num">77</span><div class="body"><div class="t"><b>Publish a documented map of the ~15 similarly-named Lab folders.</b><span class="eff e-q">Quick</span></div><div class="why">Your new guards help; a map makes the sprawl legible.</div></div></div>
+    <div class="item"><span class="num">78</span><div class="body"><div class="t"><b>Keep an always-current "start here for a fresh head" one-pager.</b><span class="eff e-q">Quick</span></div><div class="why">Every session begins warm instead of re-deriving the world.</div></div></div>
+    <div class="item"><span class="num">79</span><div class="body"><div class="t"><b>Schedule a recurring "delete/quarantine what's dead" pass.</b><span class="eff e-q">Quick</span></div><div class="why">You did one on 07-24. Make it a monthly heartbeat.</div></div></div>
+    <div class="item"><span class="num">80</span><div class="body"><div class="t"><b>Add a dashboard of what's authorized vs actually merged.</b><span class="eff e-m">Medium</span></div><div class="why">Keeps the merge-authorization discipline visible at a glance.</div></div></div>
+  </div>
+
+  <!-- THEME 9 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">09 · 81–90</span><span class="theme-t">The stranger test, video &amp; public voice</span></div>
+    <p class="theme-sub">The moment the project meets someone who owes it nothing.</p>
+    <div class="item"><span class="num">81</span><div class="body"><div class="t"><b>Post the anchored Reddit stranger-test.</b><span class="eff e-q">Quick</span></div><div class="why">It's ready and waiting. The anchor already proves it existed before posting.</div></div></div>
+    <div class="item"><span class="num">82</span><div class="body"><div class="t"><b>Decide what you want a stranger to <em>do</em>.</b><span class="eff e-q">Quick</span></div><div class="why">Use / audit / believe / join — the answer changes the whole pitch.</div></div></div>
+    <div class="item"><span class="num">83</span><div class="body"><div class="t"><b>Lead public comms with the working thing, not the vision.</b><span class="eff e-q">Quick</span></div><div class="why">Show Noted first; the commons is the horizon, not the handshake.</div></div></div>
+    <div class="item"><span class="num">84</span><div class="body"><div class="t"><b>Show the emergency stop on camera on purpose.</b><span class="eff e-q">Quick</span></div><div class="why">"Here's a hole in my own thing, in plain sight" is the trust story only you can tell.</div></div></div>
+    <div class="item"><span class="num">85</span><div class="body"><div class="t"><b>Make the two artifacts public and link them from the post.</b><span class="eff e-q">Quick</span></div><div class="why">The journey + the commons manpage do a lot of explaining for you.</div></div></div>
+    <div class="item"><span class="num">86</span><div class="body"><div class="t"><b>Record the "why" as you build.</b><span class="eff e-q">Quick</span></div><div class="why">Your reasoning is more compelling than any finished feature.</div></div></div>
+    <div class="item"><span class="num">87</span><div class="body"><div class="t"><b>Write a 3-sentence version for someone with 30 seconds.</b><span class="eff e-q">Quick</span></div><div class="why">If you can't compress it, it isn't clear yet.</div></div></div>
+    <div class="item"><span class="num">88</span><div class="body"><div class="t"><b>Tag every public claim with its evidence tier, even in marketing.</b><span class="eff e-q">Quick</span></div><div class="why">Radical honesty in marketing is itself the marketing.</div></div></div>
+    <div class="item"><span class="num">89</span><div class="body"><div class="t"><b>Get one stranger's honest "I don't get it" — and fix the orientation.</b><span class="eff e-m">Medium</span></div><div class="why">Usually the problem is the framing, not the tech.</div></div></div>
+    <div class="item"><span class="num">90</span><div class="body"><div class="t"><b>Publish the thesis result as a public artifact when it lands.</b><span class="eff e-q">Quick</span></div><div class="why">Testing your own foundations in the open is the whole brand.</div></div></div>
+  </div>
+
+  <!-- THEME 10 -->
+  <div class="theme">
+    <div class="theme-h"><span class="theme-n">10 · 91–100</span><span class="theme-t">Continuity, sustainability &amp; your own workflow</span></div>
+    <p class="theme-sub">The project can't outlive the person running it if the person burns out.</p>
+    <div class="item"><span class="num">91</span><div class="body"><div class="t"><b>Sort the credits situation so work doesn't stop mid-review.</b><span class="eff e-q">Quick</span></div><div class="why">It stopped today. A steady runway protects the honesty machinery.</div></div></div>
+    <div class="item"><span class="num">92</span><div class="body"><div class="t"><b>Keep the memory/handoff system fed.</b><span class="eff e-q">Quick</span></div><div class="why">Every fresh head starts warm instead of cold.</div></div></div>
+    <div class="item"><span class="num">93</span><div class="body"><div class="t"><b>Finish the "fix the hole" handoff note for the next seat.</b><span class="eff e-q">Quick</span></div><div class="why">We started it. It's the entry point for whoever picks up the emergency.</div></div></div>
+    <div class="item"><span class="num">94</span><div class="body"><div class="t"><b>Define a sustainable pace.</b><span class="eff e-m">Medium</span></div><div class="why">The "fresh head" line suggests you feel the burn. Name a rhythm you can hold.</div></div></div>
+    <div class="item"><span class="num">95</span><div class="body"><div class="t"><b>Keep a "you are here" doc for yourself, not just for seats.</b><span class="eff e-q">Quick</span></div><div class="why">Reduces the cost of every re-entry after an interruption.</div></div></div>
+    <div class="item"><span class="num">96</span><div class="body"><div class="t"><b>Batch your decisions into deliberate sessions.</b><span class="eff e-q">Quick</span></div><div class="why">You make many merge/approve calls; batching cuts the load and the mistakes.</div></div></div>
+    <div class="item"><span class="num">97</span><div class="body"><div class="t"><b>Protect the honesty machinery from your own velocity.</b><span class="eff e-q">Quick</span></div><div class="why">The 07-22 whoopsie came from speed, not carelessness. Build in friction where it counts.</div></div></div>
+    <div class="item"><span class="num">98</span><div class="body"><div class="t"><b>Keep the plain-language gate — it's an accessibility feature, not just safety.</b><span class="eff e-q">Quick</span></div><div class="why">Explaining before acting protects you and anyone who ever joins.</div></div></div>
+    <div class="item"><span class="num">99</span><div class="body"><div class="t"><b>Decide what "done" looks like for the whole project.</b><span class="eff e-d">Deep</span></div><div class="why">So it can end or arrive — not just recurse forever. The anti-turtle move.</div></div></div>
+    <div class="item"><span class="num">100</span><div class="body"><div class="t"><b>Celebrate the real wins.</b><span class="eff e-q">Quick</span></div><div class="why">It's genuinely built and honestly documented. Momentum needs fuel — and you earned some.</div></div></div>
+  </div>
+
+  <footer>
+    <p><b>One last thing.</b> This is a menu written from inside the project by an AI that is part of the very loop it's assessing — so it is <b>not</b> independent, and it carries <b>status_authority: NONE</b>. Take what pulls at you, ignore the rest, and come back to it with a fresh head. The one genuinely urgent item — the pop-out hole — is already on the Lab's front door. Everything else is yours to pace.</p>
+    <p style="margin-top:14px; color:var(--faint);">Nexus Lab &amp; Sandbox · calm guide + 100 moves · 2026-07-25 · 🐢</p>
+  </footer>
+
+</div>
