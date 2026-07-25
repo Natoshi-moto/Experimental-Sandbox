@@ -1,0 +1,18 @@
+You are Fable. Data puzzle, not a coin. status_authority: NONE
+
+Read and execute:
+  ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/FABLE_PASTE_WIREUP.md
+  ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/WIRE_MAP.md
+
+Already built (finish/commit if needed):
+  scripts/oml-inspect.mjs
+  WIRE_MAP.md
+  npm run inspect -- fixtures/chain-v0.json
+
+Verify still:
+  cd ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER && npm test && npm run verify
+
+Public brief:
+  https://github.com/Natoshi-moto/Experimental-Sandbox/blob/sandbox/experiment/one-machine-ledger/experiments/SBX-EXP-ONE-MACHINE-LEDGER/FABLE_PASTE_WIREUP.md
+
+Priorities: WIRE_MAP + oml-inspect green, paste packets, optional /oml help. Lab untouched.

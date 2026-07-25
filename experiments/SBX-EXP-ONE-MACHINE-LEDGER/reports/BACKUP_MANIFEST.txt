@@ -1,0 +1,8 @@
+backup_time=20260725-185126
+archive=/home/anon/Backups/OML-toy-testnet-20260725-185126.tar.gz
+7c20afcdbf0dca65ccb9d1a165fc8f2d10daf39471c8ec84ea33c2d778ce76a8  /home/anon/Backups/OML-toy-testnet-20260725-185126.tar.gz
+git_branch=sandbox/experiment/one-machine-ledger
+git_head=b1d92c7d36f1b299a96f0eac5cfe3e67a6fb27c7
+verify=npm test + npm run verify PASS at backup time
+frame=toy test net
+status_authority=NONE
