@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
-# Launch Matrix Terminal (always-on-top floating chat)
+# Launch the NEXUS Linux project cockpit.
 set -euo pipefail
-DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$DIR"
+umask 077
+app_dir="$(cd "$(dirname "$0")" && pwd)"
+cd "$app_dir"
 export PYTHONUNBUFFERED=1
-# optional keys — set in your shell or ~/.config/matrix-terminal.env
-if [[ -f "$HOME/.config/matrix-terminal.env" ]]; then
-  # shellcheck disable=SC1091
-  source "$HOME/.config/matrix-terminal.env"
-fi
-exec python3 "$DIR/matrix_terminal.py"
+
+# Export optional provider keys. The NEXUS file wins over the legacy path.
+nexus_config_root="${XDG_CONFIG_HOME:-$HOME/.config}/nexus-assistant"
+for provider_env in \
+  "$HOME/.config/matrix-terminal.env" \
+  "$nexus_config_root/env"
+do
+  if [[ -f "$provider_env" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$provider_env"
+    set +a
+  fi
+done
+
+exec python3 "$app_dir/matrix_terminal.py"
