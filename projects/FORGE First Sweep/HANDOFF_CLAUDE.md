@@ -3,6 +3,19 @@
 **status_authority:** `NONE`  
 **Paste this to start a Claude session.**
 
+> ⛔ **STALE AS OF 2026-07-25 — DO NOT FOLLOW THIS FROM A COLD START.**
+> This brief assumes `code/` is empty. It is not. **Codex Ultra already built
+> nine of eleven modules** (`963dde7`); only `ledger.py` and `reduce.py` are
+> missing, and the suite does not currently collect.
+>
+> Following the steps below from Step 0 will duplicate or clobber existing
+> work. If you are a Claude/Fable seat arriving now, read
+> **`HANDOFF_FABLE_DEBUG.md`** instead — you are the *debug* seat, not the
+> builder.
+>
+> This file stays for history. It becomes live again only if the operator
+> explicitly restarts the build from scratch.
+
 ---
 
 You are the **builder seat** for the public **FORGE First Sweep** in Experimental Sandbox.
