@@ -122,19 +122,22 @@ Git is the primary public backup: branch `sandbox/experiment/one-machine-ledger`
 ### Done
 
 - [x] Minimal UTXO log kernel + Ed25519 row authorization  
-- [x] Adversarial tests (double-spend, conservation, not-owner, bad sig, chain break, …)  
-- [x] Deterministic fixture + `verify`  
-- [x] PAPER + WIRE_MAP + Fable paste brief  
+- [x] Adversarial tests E01–E14 (double-spend, conservation, not-owner, bad sig, chain break, …)  
+- [x] Deterministic fixture + max `verify`  
+- [x] PAPER + WIRE_MAP + Fable paste brief + **FABLE_MAX_PUSH**  
 - [x] `oml-inspect` → paste-ready `OML_VERIFY_RECEIPT`  
 - [x] Standing `GO` protocol for public sandbox builds  
+- [x] **Python dual-implementation** matches fixture anchors  
+- [x] **Multi-process file-bus toy net** + poison rejection  
+- [x] Drop payload rider fixture + adversarial paste corpus  
+- [x] Packet helper (`scripts/packet.mjs`)  
 
-### Sensible next slices (pick one)
+### Sensible next slices (pick one) — Fable lane
 
-1. **Second implementation** (e.g. Python) must match the same `state_root` on the fixture — true dual-check.  
-2. **Multi-process toy net**: two local processes exchanging chain packets via files (still one machine or LAN folder).  
-3. **Matrix Terminal soft link**: `/oml` help points at this folder (no RoomFinal claims).  
-4. **Drop payload convention**: document-only “OML JSON rides in Drop plaintext after open.”  
-5. **PR** to Experimental-Sandbox `main` index (show people) — still noncanonical.
+1. **Matrix Terminal soft link**: `/oml` help points at this folder (no RoomFinal claims).  
+2. Expand adversarial paste corpus under `fixtures/adversarial/`.  
+3. **PR** to Experimental-Sandbox `main` index (show people) — still noncanonical.  
+4. Optional: Rust third implementation (same anchors).
 
 ### Explicit non-goals
 

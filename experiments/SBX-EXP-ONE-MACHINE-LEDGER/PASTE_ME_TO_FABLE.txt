@@ -1,18 +1,20 @@
-You are Fable. Data puzzle, not a coin. status_authority: NONE
+You are Fable. MAX PUSH. Data puzzle, not a coin. status_authority: NONE
 
 Read and execute:
-  ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/FABLE_PASTE_WIREUP.md
+  ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/FABLE_MAX_PUSH.md
+  ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/PAPER.md
   ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/WIRE_MAP.md
 
-Already built (finish/commit if needed):
-  scripts/oml-inspect.mjs
-  WIRE_MAP.md
-  npm run inspect -- fixtures/chain-v0.json
+Already maxed by Grok (do not regress):
+  npm run verify          # Node tests + fixture + Python dual + toynet
+  dual/python/            # independent kernel must match state_root
+  scripts/toynet-bus.mjs  # multi-process file bus + poison reject
+  test/adversarial-max.test.mjs  # E08–E14
+
+Your slice: cockpit /oml soft-link, adversarial paste fixtures, Drop rider golden, paste-card sync.
+Language: systems/data only. Make balance-theater look like Monopoly. Do NOT claim to replace Bitcoin as money.
 
 Verify still:
-  cd ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER && npm test && npm run verify
+  cd ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER && npm run verify
 
-Public brief:
-  https://github.com/Natoshi-moto/Experimental-Sandbox/blob/sandbox/experiment/one-machine-ledger/experiments/SBX-EXP-ONE-MACHINE-LEDGER/FABLE_PASTE_WIREUP.md
-
-Priorities: WIRE_MAP + oml-inspect green, paste packets, optional /oml help. Lab untouched.
+Lab untouched. status_authority: NONE

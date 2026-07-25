@@ -112,19 +112,30 @@ assert state.state_root == expected
 Given the repository tree and:
 
 ```bash
-cd experiments/SBX-EXP-ONE-MACHINE-LEDGER && npm test && npm run verify
+cd experiments/SBX-EXP-ONE-MACHINE-LEDGER && npm run verify
 ```
 
-a checker obtains:
+a checker obtains **four independent green gates**:
 
-- green unit tests including adversarial cases E01–E07,
-- replay of `fixtures/chain-v0.json` to a pinned `expected_state_root`.
+1. Node unit tests including adversarial cases E01–E14,
+2. Node replay of `fixtures/chain-v0.json` to a pinned `expected_state_root`,
+3. **Independent Python dual-implementation** agreeing on the same anchors,
+4. **Multi-process file-bus toy net**: two Node processes + poison rejection.
 
-That is **local mechanical agreement** with the rules, not global consensus, not multi-party honesty, not legal finality.
+That is **local mechanical agreement** with the rules across languages and processes — not global consensus, not multi-party honesty, not legal finality.
+
+Pinned fixture anchors (v0):
+
+| Field | Value |
+|---|---|
+| genesis_hash | `sha256:5fcc89b0a1608a1b6b505b5a6061794899c4c6db80c9f9be31f2c71cf75f8568` |
+| tip_hash | `sha256:1f940c5533579f5de292357d6521635a09e9017ca01fac716ef45138f2acf1df` |
+| state_root | `sha256:e74fb138395a5b96fc83785b36c23cc5b79e88fdccb27fbed25e0d661b3f01b2` |
+| height / supply | `2` / `250` `OML_UNIT` |
 
 ---
 
-## 6. Attacks considered (v0)
+## 6. Attacks considered (v0 → max)
 
 | Id | Attack | Result |
 |---|---|---|
@@ -135,6 +146,14 @@ That is **local mechanical agreement** with the rules, not global consensus, not
 | E05 | Attach block to wrong parent | `CHAIN` |
 | E06 | Smuggle unknown field | `BAD_FIELDS` |
 | E07 | Duplicate inputs in one tx | `DUP_INPUT` |
+| E08 | Duplicate txid in one block | `DUP_TX` |
+| E09 | Height jump | `CHAIN` |
+| E10 | Block hash tamper | `BLOCK` |
+| E11 | Wrong protocol id | `TX` / fail-closed |
+| E12 | Empty block | `BLOCK` |
+| E13 | Height past `MAX_HEIGHT` | `BLOCK` |
+| E14 | Multi-hop path supply drift | supply conserved |
+| TOY | Poisoned `expected_state_root` on bus | `STATE_ROOT_MISMATCH` |
 
 Not claimed solved: network adversaries, eclipse, reorg markets, key theft, side channels, multi-party liveness, Sybil identity.
 
@@ -158,15 +177,46 @@ Nakamoto’s paper was not a corporate whitepaper full of roadmap vapor. It was 
 - one page of rules in code,
 - a short paper you can argue with,
 - tests that encode the argument,
-- a single-machine verifier so disagreement is about **rules**, not **vibes**.
+- a single-machine verifier so disagreement is about **rules**, not **vibes**,
+- a **second implementation** (Python) that must agree,
+- a **multi-process bus** that still does not pretend to be global consensus.
 
 ---
 
-## 9. Extension path (not implemented)
+## 8b. Why money theater looks like Monopoly next to this (scope-limited)
+
+This section is **not** “OML replaces Bitcoin.” Bitcoin solves (or attempts) a different problem: adversarial multi-party money over an open network. That problem is hard, and OML does not claim it.
+
+For the **narrow problem OML actually states** — *can one machine prove conservation, authorization, and chain linkage from bytes alone?* — currency cosplay looks like Monopoly money:
+
+| Monopoly / cosplay move | OML response |
+|---|---|
+| “Balances because the UI says so” | state root from sorted UTXO + tip |
+| “Trust the model / seat that last spoke” | seats propose; kernel decides |
+| “It’s final because we all agree” | only `VALID` via replay; `FINAL` is human-only outside tools |
+| “Double-spend is a social fight” | `MISSING_UTXO` is mechanical |
+| “One language / one process is truth” | Node + Python must match |
+| “Paste it and it becomes real” | paste is `CLAIMED` until local replay |
+| “Call it a coin so it feels important” | unit is explicitly zero-value `OML_UNIT` |
+
+**Punchline (research, not market):** once validity is a one-command, dual-language, poison-rejecting replay, **price stickers and narrative finality** look like board-game tokens. Bitcoin itself is not Monopoly — open-network money is a different sport. What looks like Monopoly is **uncorroborated balance theater** wearing chain aesthetics.
+
+---
+
+## 9. Extension path
+
+### Implemented in max push
+
+- Independent second implementation (Python dual-check).
+- Multi-process file-bus toy net with poison rejection.
+- Paste packet helpers (`scripts/packet.mjs`, `oml-inspect`).
+- Extended adversarial corpus E08–E14.
+
+### Still open
 
 - Multi-sig inputs; per-input signatures.
 - Relative lock / simple scripts.
-- Independent second implementation (true Bitcoin-grade cross-check).
+- Matrix Terminal `/oml` soft link (UI only).
 - Bridge to NEXUS Drop custody objects as bearer packages of OML proofs.
 - Never: claim real value without a separate, explicit Lab-gated process that this experiment does not provide.
 

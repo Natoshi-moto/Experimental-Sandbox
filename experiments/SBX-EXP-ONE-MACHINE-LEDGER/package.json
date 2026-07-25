@@ -1,14 +1,18 @@
 {
   "name": "sbx-exp-one-machine-ledger",
-  "version": "0.1.0",
+  "version": "0.2.0-max",
   "private": true,
   "type": "module",
-  "description": "One-machine, zero-value UTXO ledger — Bitcoin-paper-grade local proof experiment.",
+  "description": "One-machine, zero-value UTXO ledger — Bitcoin-paper-grade local proof experiment (max verify: Node+Python+toynet).",
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "demo": "node scripts/run-demo.mjs",
     "verify": "node scripts/verify.mjs",
-    "inspect": "node scripts/oml-inspect.mjs"
+    "inspect": "node scripts/oml-inspect.mjs",
+    "dual": "python3 dual/python/verify_fixture.py",
+    "toynet": "node scripts/toynet-bus.mjs",
+    "packet": "node scripts/packet.mjs",
+    "fixture": "node scripts/build-fixture.mjs"
   },
   "engines": {
     "node": ">=20"

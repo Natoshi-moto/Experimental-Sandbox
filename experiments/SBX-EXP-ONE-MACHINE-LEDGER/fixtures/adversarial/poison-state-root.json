@@ -1,0 +1,118 @@
+{
+  "schema": "oml/fixture-chain/v0",
+  "genesis": {
+    "allocations": [
+      {
+        "amount": 50,
+        "owner_key_id": "sha256:2c70b8c9e1be9690c51669667a5bbb7ee9753f13590e206f0c8d5df11629ac4e",
+        "owner_label": "carol",
+        "public_key_spki_b64": "MCowBQYDK2VwAyEAlopS+PM0tPa3SN9K4hNCcOTZAtfZwLdZLYR+uizxhHA="
+      },
+      {
+        "amount": 100,
+        "owner_key_id": "sha256:5c990d4a48bf5ebf8ac3b73c7bea9b824792ae4ea68364793c1f08b6b4384fd8",
+        "owner_label": "alice",
+        "public_key_spki_b64": "MCowBQYDK2VwAyEAo2Pf/PZpbjbsyRAm5y9KQ3uBRUkET1je5wT+YvjnjTs="
+      },
+      {
+        "amount": 100,
+        "owner_key_id": "sha256:7eb8d9b86a0e317b27c765a154ca644b8f849b46c984d4ada9c53a353a904007",
+        "owner_label": "bob",
+        "public_key_spki_b64": "MCowBQYDK2VwAyEAU9YX89TQMJibsZoupmwyyXJWZIh1aAqFqsTUYQAcRvk="
+      }
+    ],
+    "note": "oml-fixture-genesis-v0",
+    "protocol": "oml/v0",
+    "unit": "OML_UNIT"
+  },
+  "genesis_hash": "sha256:5fcc89b0a1608a1b6b505b5a6061794899c4c6db80c9f9be31f2c71cf75f8568",
+  "blocks": [
+    {
+      "height": 1,
+      "prev_hash": "sha256:5fcc89b0a1608a1b6b505b5a6061794899c4c6db80c9f9be31f2c71cf75f8568",
+      "protocol": "oml/v0",
+      "transactions": [
+        {
+          "core": {
+            "inputs": [
+              {
+                "index": 1,
+                "txid": "sha256:5fcc89b0a1608a1b6b505b5a6061794899c4c6db80c9f9be31f2c71cf75f8568"
+              }
+            ],
+            "memo": "alice-pays-bob-40",
+            "outputs": [
+              {
+                "amount": 40,
+                "owner_key_id": "sha256:7eb8d9b86a0e317b27c765a154ca644b8f849b46c984d4ada9c53a353a904007",
+                "public_key_spki_b64": "MCowBQYDK2VwAyEAU9YX89TQMJibsZoupmwyyXJWZIh1aAqFqsTUYQAcRvk="
+              },
+              {
+                "amount": 60,
+                "owner_key_id": "sha256:5c990d4a48bf5ebf8ac3b73c7bea9b824792ae4ea68364793c1f08b6b4384fd8",
+                "public_key_spki_b64": "MCowBQYDK2VwAyEAo2Pf/PZpbjbsyRAm5y9KQ3uBRUkET1je5wT+YvjnjTs="
+              }
+            ],
+            "protocol": "oml/v0",
+            "unit": "OML_UNIT",
+            "txid_preimage": "sha256:24d1827923ce3619da2609b97135e52ccb2262f8c74651b740cced5428fa879a"
+          },
+          "public_key_spki_b64": "MCowBQYDK2VwAyEAo2Pf/PZpbjbsyRAm5y9KQ3uBRUkET1je5wT+YvjnjTs=",
+          "signature_b64": "iYja/TXiYKNkZpSFd1pJKczBAkqPc+E97192DvuHCvg7vAHp1YYBjJqdNFKgGZA62UR0YDpZXPe5C5rKT0cFDQ==",
+          "signer_key_id": "sha256:5c990d4a48bf5ebf8ac3b73c7bea9b824792ae4ea68364793c1f08b6b4384fd8",
+          "txid": "sha256:55f32b9f976824ec87c4ae6366e8334d5941280593bf3991ebce9edad41f51d8"
+        }
+      ],
+      "unit": "OML_UNIT",
+      "block_hash": "sha256:32ccdc5dec21834256d1bfb7dbbe9db2e41afa04e2fa5b8a28eece5a32c0eaa5"
+    },
+    {
+      "height": 2,
+      "prev_hash": "sha256:32ccdc5dec21834256d1bfb7dbbe9db2e41afa04e2fa5b8a28eece5a32c0eaa5",
+      "protocol": "oml/v0",
+      "transactions": [
+        {
+          "core": {
+            "inputs": [
+              {
+                "index": 0,
+                "txid": "sha256:55f32b9f976824ec87c4ae6366e8334d5941280593bf3991ebce9edad41f51d8"
+              },
+              {
+                "index": 2,
+                "txid": "sha256:5fcc89b0a1608a1b6b505b5a6061794899c4c6db80c9f9be31f2c71cf75f8568"
+              }
+            ],
+            "memo": "bob-pays-carol-25",
+            "outputs": [
+              {
+                "amount": 25,
+                "owner_key_id": "sha256:2c70b8c9e1be9690c51669667a5bbb7ee9753f13590e206f0c8d5df11629ac4e",
+                "public_key_spki_b64": "MCowBQYDK2VwAyEAlopS+PM0tPa3SN9K4hNCcOTZAtfZwLdZLYR+uizxhHA="
+              },
+              {
+                "amount": 115,
+                "owner_key_id": "sha256:7eb8d9b86a0e317b27c765a154ca644b8f849b46c984d4ada9c53a353a904007",
+                "public_key_spki_b64": "MCowBQYDK2VwAyEAU9YX89TQMJibsZoupmwyyXJWZIh1aAqFqsTUYQAcRvk="
+              }
+            ],
+            "protocol": "oml/v0",
+            "unit": "OML_UNIT",
+            "txid_preimage": "sha256:dae3d5ad263fe87de5bb713b67649bb62a10263cff26b1fb2cb5a0755dd54a60"
+          },
+          "public_key_spki_b64": "MCowBQYDK2VwAyEAU9YX89TQMJibsZoupmwyyXJWZIh1aAqFqsTUYQAcRvk=",
+          "signature_b64": "kbraVaOLOeBzwS7bI5ktmXcMV8PiEZu4M96ySt/ePpT4FWdVmgFNXdn0mveZaIV6BQdqcCwamcyh+iI2UnFwDA==",
+          "signer_key_id": "sha256:7eb8d9b86a0e317b27c765a154ca644b8f849b46c984d4ada9c53a353a904007",
+          "txid": "sha256:0df5da32979dd8952e4d21e924bfab0725bfe46fb02b4f8aa1f5f26fc4c48e83"
+        }
+      ],
+      "unit": "OML_UNIT",
+      "block_hash": "sha256:1f940c5533579f5de292357d6521635a09e9017ca01fac716ef45138f2acf1df"
+    }
+  ],
+  "expected_height": 2,
+  "expected_tip_hash": "sha256:1f940c5533579f5de292357d6521635a09e9017ca01fac716ef45138f2acf1df",
+  "expected_state_root": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "expected_supply": 250,
+  "note": "Deterministic fixture. Private seeds = SHA-256(OML-SEED-V0||label). Not secret material of value."
+}
