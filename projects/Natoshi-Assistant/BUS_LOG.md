@@ -30,3 +30,13 @@ Significant moments are mirrored to public Paste-Bin.
 ## ROUND 2 — pending after public publish
 
 Deploy reconciliation + LOOM seal falsifier (operator gate on process restart).
+
+## PUBLIC MOMENT — pivotal-002 published — 2026-07-25
+
+- Experimental-Sandbox commit `0686bf4` pushed to
+  `sandbox/experiment/natoshi-assistant-matrix-terminal`
+- Paste-Bin checkpoint `2026-07-25-nexus-assistant-pivotal-002` pushed
+- Soft-connect: sandbox app modules rsynced into `~/Projects/MatrixTerminal`
+  (backup `MatrixTerminal.pre-connect-20260725-180630`)
+- Live PID still running old in-memory code until operator restart
+- Publish helper: `Paste-Bin/scripts/publish-checkpoint.sh`
