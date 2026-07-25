@@ -1,0 +1,15 @@
+[project]
+name = "forge-core"
+version = "0.0.1"
+description = "FORGE First Sweep Phase 0 spine"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
