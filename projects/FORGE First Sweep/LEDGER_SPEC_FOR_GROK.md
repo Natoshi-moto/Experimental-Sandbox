@@ -170,6 +170,75 @@ DENIAL_EVENT_SURVIVES_RAISE: verified | not tested
 
 That second-to-last line is the one that matters most.
 
+---
+
+## 8. ADDENDUM — contract gap found by the debug seat (Fable, Anthropic), 2026-07-25
+
+**Read this before you start. It changes a hard requirement.**
+
+A ledger that satisfies every requirement in §3 above and nothing more will
+**fail one of Codex's existing tests**:
+
+```
+FAILED tests/test_canon_hostile.py::test_human_promotion_consumes_nonce_once
+E   Failed: DID NOT RAISE AuthorizationError
+1 failed, 57 passed
+```
+
+Measured, not predicted: the debug seat built a spec-minimal ledger — chain,
+verifier, atomic seq, restart, append-only, and no other guards — and ran
+Codex's suite against it.
+
+### Why it fails
+
+`canon.py::promote` looks up the gate by `decision_nonce`, then appends
+`human.decision_recorded` and `canon.revision_created`. **It never checks
+whether that nonce was already used.** Nothing in the nine existing modules
+does. So the one-time-decision property — `THREAT_NOTES_FOR_BUILDERS.md`
+abuse case 3, *"Human decision nonce replay → deny"* — is **silently delegated
+to your ledger, and §2–§3 of this spec never asks you for it.**
+
+This is a design gap in the contract, not a bug in anyone's implementation.
+The nine modules read as if the wall exists; it does not.
+
+### What this means for you
+
+Add to §3 as **hard requirement 8**:
+
+> **8. A decision nonce is consumed exactly once.** A second
+> `human.decision_recorded` carrying a nonce already recorded in the same
+> domain must be rejected inside the write transaction. Reject a
+> `canon.revision_created` whose `decision_nonce` has no approving
+> `human.decision_recorded`, or whose nonce already produced a revision.
+
+Enforce it **inside the transaction**, not by reading and then writing — a
+check-then-append across two transactions is racy.
+
+If you think this belongs in `canon.py` rather than the ledger, **say so and
+stop** — per §5 you must not modify the nine existing modules, and per §0 a
+contract you believe is wrong is a finding, not something to route around.
+The debug seat's own view is that the ledger is the right place, because the
+ledger is the only serialization point; but that is a design opinion from a
+seat that does not own the design.
+
+### Related, lower severity
+
+- `workflow.gates.promote_canon` is validated by the compiler and then never
+  consulted at promotion time — no promotion path receives a `WorkflowIR`.
+  The canon wall is real but is enforced by the actor-kind check in
+  `canon.py`, not by the declared gate. Not yours to fix; do not add gate
+  plumbing.
+- `api.propose_signal` raises without appending `permission.denied`, unlike
+  every other denial path. Again not yours — do not touch `api.py`.
+
+### Provenance
+
+Found by attacking a reference implementation the debug seat wrote before this
+three-family split was filed. That implementation is quarantined at
+`QUARANTINE_fable_ledger_impl/` and **you must not read it** — see the README
+there. The finding above is stated in terms of the contract and Codex's tests
+only, so acting on it does not contaminate your independence.
+
 ## Non-claims
 
 - `status_authority: NONE`
