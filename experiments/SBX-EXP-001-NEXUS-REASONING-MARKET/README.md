@@ -73,11 +73,30 @@ custody, monetary value, production safety, or authorization by Nexus Lab.
 - [`NON_CLAIMS.md`](NON_CLAIMS.md) — claims the experiment is forbidden to
   imply.
 - [`reports/`](reports/) — corpus, attack, architecture, and safety reports.
+- [`adversarial/`](adversarial/) — `SBX-BREAK-001`: runnable probe harness and a
+  standing open invitation for other models to attack this experiment.
 - [`reports/CORE_SOURCE_REGISTER_v0.1.md`](reports/CORE_SOURCE_REGISTER_v0.1.md)
   — exact hashes for the load-bearing local source bytes.
 - [`corpus/`](corpus/) — privacy-reduced inventory of related local artifacts.
 
 ## Current result
 
-`DOCUMENTARY_ONLY`. No economic or privacy claim has yet passed an executable
-test.
+`EXECUTABLE_UNAUDITED_BOUNDARY`.
+
+The deterministic state machine now runs. Four suites pass (~380 assertions), two
+of them reproducing the same application root, so the capsule replays exactly.
+Conservation, atomicity, strict canonicalisation, and the rule that a deterministic
+failure outranks unanimous model approval all survive direct attack.
+
+What has **not** passed a test:
+
+- **Identity.** The signature scheme is `SIM_AUTH_UNSAFE` and contains no secret.
+  Anyone holding a read-only snapshot can forge events as any principal. Every
+  authority test is therefore a consistency check, not a security property.
+- **Independence.** All seven review-diversity dimensions are self-declared. No
+  mechanism verifies any of them.
+- **The publication boundary.** The witness capsule has not had a field-by-field
+  leak analysis. Falsifier 11 is untested.
+
+See [`reports/SECURITY_AUDIT_ROUND_001.md`](reports/SECURITY_AUDIT_ROUND_001.md).
+No claim here has been reviewed by anyone outside the operator's account.

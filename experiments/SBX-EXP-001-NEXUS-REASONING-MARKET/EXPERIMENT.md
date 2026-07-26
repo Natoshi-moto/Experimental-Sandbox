@@ -115,6 +115,47 @@ Interpretation:
 The mechanism is concrete enough to implement and falsify. It remains
 documentary until the next iteration executes the state machine and tests.
 
+### Iteration 0.3 — executable state machine
+
+Observation:
+
+- the deterministic reducer, economy, work/review lifecycle, privacy router, and
+  browser UI are implemented and pass four suites (~380 assertions):
+  `core/economy` (131 assertions, 58 receipts, terminal `SETTLED`, supply
+  conserved at 1100), `work-review` (69 tests), `privacy/github` (75
+  assertions), and `ui-self-test` (107 assertions);
+- `core/economy` and `privacy/github` independently reproduce application root
+  `028832e28e705046fad13bcd10642122398161a7a2b775db6b5bb00e4bd19a03`, so the
+  capsule replays byte-for-byte;
+- the core contains no wall-clock or randomness; time is a logical tick and IDs
+  are domain-separated SHA-256 over canonical bytes.
+
+Interpretation:
+
+The mechanism is no longer documentary. The smallest test in this record now
+runs end to end.
+
+### Iteration 0.4 — adversarial audit (`SBX-BREAK-001`)
+
+Observation:
+
+- `simSignature` contains no secret, so any holder of a read-only state snapshot
+  can forge a valid event as any principal — confirmed by probe;
+- the canonicaliser recurses without a depth limit and runs before the byte
+  ceiling is checked, giving a pre-authentication stack exhaustion;
+- idempotency keys occupy one global namespace, so any actor can permanently
+  block another actor's chosen key;
+- supply immutability, conservation, commit atomicity, replay integrity, strict
+  JSON ingress, absence of runtime Sybil, UI escaping, and the
+  deterministic-red-outranks-consensus rule all held under direct attack.
+
+Interpretation:
+
+The prototype is a correctness artifact, not yet an adversarial one: the test
+harness and an attacker currently hold identical capabilities. Falsifier 2 lacks
+a named test, and falsifiers 6, 10, 11, and 12 have never been attacked directly.
+Real asymmetric signatures are the prerequisite for every other security claim.
+
 ## Limitations and non-claims
 
 See [`NON_CLAIMS.md`](NON_CLAIMS.md). In particular, this experiment does not
@@ -142,8 +183,20 @@ or Nexus Lab acceptance.
   [`reports/LIFECYCLE_TRANSACTION_REVIEW_v0.1.md`](reports/LIFECYCLE_TRANSACTION_REVIEW_v0.1.md)
 - Correlated three-model document audit and repair ledger:
   [`reports/WHITEPAPER_SPEC_REVIEW_ROUND_001.md`](reports/WHITEPAPER_SPEC_REVIEW_ROUND_001.md)
+- Executable verification of the prototype:
+  [`reports/REASONING_ECONOMY_ASSESSMENT_2026-07-26.md`](reports/REASONING_ECONOMY_ASSESSMENT_2026-07-26.md)
+- Adversarial code audit and probe harness:
+  [`reports/SECURITY_AUDIT_ROUND_001.md`](reports/SECURITY_AUDIT_ROUND_001.md),
+  [`adversarial/`](adversarial/)
+- Open invitation to attack this experiment:
+  [`adversarial/README.md`](adversarial/README.md)
 
 ## Lesson
 
 One account can be a useful isolation and settlement boundary; it is never, by
 itself, an independence boundary.
+
+A passing authority test proves nothing about authority while the test harness
+and an attacker hold the same capabilities. Until identity costs something to
+forge, "only X can do Y" is a statement about the reducer's internal consistency,
+not about X.

@@ -24,3 +24,22 @@ Read in this order:
 The executable prototype must not use prose in these reports as proof that a
 control exists. Every adopted `MUST` needs a deterministic test or a visible
 `UNENFORCED` label.
+
+## Post-prototype reviews
+
+These were written after the executable prototype landed, so unlike the
+safety-freeze reports above they can cite runnable evidence.
+
+8. [`REASONING_ECONOMY_ASSESSMENT_2026-07-26.md`](REASONING_ECONOMY_ASSESSMENT_2026-07-26.md)
+   — verification that the suites pass, that replay is deterministic, and that
+   the experiment record had fallen behind the code.
+9. [`SECURITY_AUDIT_ROUND_001.md`](SECURITY_AUDIT_ROUND_001.md) — `SBX-BREAK-001`
+   adversarial code audit, with a runnable probe harness in
+   [`../adversarial/`](../adversarial/). Read its section 3 ("what held up") as
+   unfalsified assertions by a single correlated reviewer, not as clearance.
+
+Both were produced by Anthropic models in the operator's own account and are
+correlated with each other. Neither is independent review.
+
+**Reviewing this experiment yourself?** [`../adversarial/README.md`](../adversarial/README.md)
+is a standing open invitation with an unclaimed probe menu.
