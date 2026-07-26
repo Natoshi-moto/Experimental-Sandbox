@@ -1,0 +1,1011 @@
+{
+  "schema": "nexus-matrix-demo-v1",
+  "status_authority": "NONE",
+  "economic_class": "SIM_CREDIT_ONLY",
+  "authentication": "SIM_AUTH_UNSAFE",
+  "environment_labels": [
+    "SANDBOX",
+    "SIM_CREDIT_ONLY",
+    "SIMULATED_MAINTAINER_BINDING"
+  ],
+  "interface": {
+    "mode": "READ_ONLY_WALKTHROUGH",
+    "canonical_state_mutation": false,
+    "external_network": false,
+    "external_assets": false,
+    "component_boundary": "SAME_PAGE_UI_SIMULATION",
+    "future_boundary": "SEPARATE_ORIGIN_LEAST_CAPABILITY_IFRAMES"
+  },
+  "snapshot": {
+    "logical_tick": 96,
+    "state": "HOLD",
+    "state_reason": "Three valid clears share required provider/operator context; independence remains unproven.",
+    "state_root": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "journal_sequence": 21,
+    "journal_head": "1515151515151515151515151515151515151515151515151515151515151515"
+  },
+  "project": {
+    "project_id": "PROJECT-c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1",
+    "name": "Canopy Cache",
+    "repository": "commons/canopy-cache",
+    "licence": "Apache-2.0",
+    "maintainer_alias": "maintainer-maple",
+    "repository_control_status": "FIXTURE_SIMULATED",
+    "binding_label": "SIMULATED_MAINTAINER_BINDING",
+    "maintainer_attestation_root": "c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2",
+    "merge_authority": "MAINTAINER_EXCLUSIVE"
+  },
+  "job": {
+    "job_id": "JOB-d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1",
+    "public_job_id": "PUBLIC-JOB-CANOPY-PRUNE-001",
+    "origin": "MAINTAINER_POSTED",
+    "title": "Make cache pruning deterministic and offline-safe",
+    "summary": "A crowdsourced open-source job to replace time-dependent cache eviction with a replayable ordering, add crash-safe fixtures, and publish a privacy-reduced receipt summary.",
+    "base_commit": "4f4b7a2c71cf1b8e4b43c3fa902dbb89f3c8e42a",
+    "version": 1,
+    "attempt": 1,
+    "data_class": "PUBLIC",
+    "accepted_contract_root": "d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2",
+    "artifact_root": "d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3",
+    "review_packet_root": "PACKET-d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+    "deadline_tick": 140,
+    "maximum_attempts": 2,
+    "acceptance_criteria": [
+      "Stable eviction ordering for identical inputs",
+      "Old-or-new recovery across every fixture crash point",
+      "No network path in the cache worker",
+      "Apache-2.0 NOTICE and provenance preserved",
+      "Public witness excludes absolute paths and private state roots"
+    ]
+  },
+  "funding": {
+    "unit": "SIM_CREDIT",
+    "budget": 120,
+    "funded": 120,
+    "available_to_spend": 0,
+    "current_bucket": "JOB_LOCKED_ON_HOLD",
+    "selection_rule": [
+      "lowest price",
+      "lowest declared completion ticks",
+      "immutable worker seat ID",
+      "canonical reveal digest"
+    ],
+    "sponsors": [
+      {
+        "alias": "orchard-sparrow",
+        "initials": "OS",
+        "kind": "PLEDGE",
+        "amount": 50,
+        "attribution": "PUBLIC_ALIAS",
+        "status": "LOCKED",
+        "residue_policy": "RETURN_SOURCE"
+      },
+      {
+        "alias": "byte-mason",
+        "initials": "BM",
+        "kind": "PLEDGE",
+        "amount": 25,
+        "attribution": "PUBLIC_ALIAS",
+        "status": "LOCKED",
+        "residue_policy": "RETURN_SOURCE"
+      },
+      {
+        "alias": "hidden sponsor",
+        "initials": "—",
+        "kind": "DONATION_INTENT",
+        "amount": 30,
+        "attribution": "HIDDEN_FROM_PUBLIC_DISPLAY",
+        "status": "ACCEPTED_DONATION_LOCKED",
+        "residue_policy": "PROJECT_POOL",
+        "linkability_warning": "Hidden from public display does not make the simulator record unlinkable."
+      },
+      {
+        "alias": "fern-and-forth",
+        "initials": "FF",
+        "kind": "DONATION_INTENT",
+        "amount": 15,
+        "attribution": "PUBLIC_ALIAS",
+        "status": "ACCEPTED_DONATION_LOCKED",
+        "residue_policy": "PROJECT_POOL"
+      }
+    ],
+    "bid": {
+      "bid_id": "BID-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "round_id": "ROUND-e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2",
+      "worker_seat_id": "SEAT-e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3",
+      "price": 0,
+      "completion_ticks": 72,
+      "mode": "DONATED_CAPACITY",
+      "selected_tick": 18,
+      "accepted_tick": 21,
+      "current_status": "ACCEPTED",
+      "contract_binding": "EXACT_DRAFT_ROOT_AND_MECHANICAL_AWARD"
+    },
+    "lock_history": [
+      {
+        "bucket": "CONTRIBUTION",
+        "label": "Community reservations",
+        "amount": 120,
+        "tick": 9,
+        "status": "COMPLETE"
+      },
+      {
+        "bucket": "BID",
+        "label": "Selected-bid lock",
+        "amount": 120,
+        "tick": 18,
+        "status": "COMPLETE"
+      },
+      {
+        "bucket": "JOB",
+        "label": "Accepted contract funds",
+        "amount": 120,
+        "tick": 21,
+        "status": "ACTIVE_HOLD"
+      }
+    ],
+    "disclosure_acknowledgement": {
+      "root": "e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4",
+      "covered": [
+        "SIM_CREDIT_ONLY",
+        "exact disposition table",
+        "selected-bid lock and revocation boundary",
+        "project-pool destination",
+        "attribution and linkability limits",
+        "appeal route"
+      ]
+    }
+  },
+  "capacity_seat": {
+    "offer_id": "OFFER-f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+    "seat_id": "SEAT-e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3",
+    "display_alias": "cedar-volunteer-7",
+    "owner_alias": "capacity-gardener",
+    "mode": "DONATED_CAPACITY",
+    "price": 0,
+    "model_id": "cedar-code-14b-fixture",
+    "provider_family": "LOCAL_FIXTURE_RUNTIME",
+    "operator_id": "sandbox-operator-a",
+    "route": "LOCAL",
+    "data_classes": [
+      "PUBLIC"
+    ],
+    "tools": [
+      "node",
+      "git-readonly",
+      "fixture-runner"
+    ],
+    "runtimes": [
+      "node-22-fixture"
+    ],
+    "egress_allowlist": [],
+    "limits": {
+      "max_input_bytes": 262144,
+      "max_output_bytes": 131072,
+      "max_compute_units": 36,
+      "max_active_leases": 1,
+      "not_before_tick": 20,
+      "expiry_tick": 110
+    },
+    "authority": {
+      "wallet": "DENIED",
+      "provider_credentials": "NONE",
+      "github_credentials": "NONE",
+      "recovery_secrets": "NONE",
+      "redelegation": "DENIED",
+      "future_lease_revocation": "OWNER_ALLOWED",
+      "accepted_lease_retroactive_revocation": "DENIED"
+    },
+    "owner_consent": {
+      "project": "commons/canopy-cache",
+      "data_route": "PUBLIC_LOCAL",
+      "contribution_terms": "Apache-2.0 fixture contribution terms",
+      "attribution": "PUBLIC_ALIAS",
+      "no_future_entitlement": true,
+      "root": "f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+    },
+    "isolation": {
+      "class": "CONTAINER_FIXTURE",
+      "read_only_root": true,
+      "disposable": true,
+      "ambient_secrets": "NONE",
+      "filesystem": "ENFORCED",
+      "network": "ENFORCED",
+      "resources": "ENFORCED",
+      "syscalls": "ENFORCED",
+      "environment": "ENFORCED",
+      "disposal": "ENFORCED",
+      "proof_limit": "Fixture declarations do not prove remote model or hardware identity."
+    }
+  },
+  "work_graph": {
+    "scheduler_order": [
+      "phase_rank",
+      "priority",
+      "deadline_tick",
+      "max_compute_units",
+      "task_id",
+      "attempt"
+    ],
+    "lead": {
+      "task_id": "TASK-1111111111111111111111111111111111111111111111111111111111111111",
+      "title": "Coordinate deterministic cache patch",
+      "kind": "LEAD",
+      "seat": "cedar-volunteer-7",
+      "status": "ACCEPTED",
+      "budget": 0,
+      "compute_used": 28,
+      "compute_ceiling": 36,
+      "returned_tick": 57,
+      "lease_scope": "PUBLIC · local · no egress"
+    },
+    "children": [
+      {
+        "task_id": "TASK-2222222222222222222222222222222222222222222222222222222222222222",
+        "title": "Map eviction invariants",
+        "kind": "SOURCE_ANALYSIS",
+        "seat": "cedar-volunteer-7",
+        "status": "ACCEPTED",
+        "budget": 0,
+        "compute_used": 5,
+        "compute_ceiling": 6,
+        "returned_tick": 31,
+        "lease_scope": "read-only source packet"
+      },
+      {
+        "task_id": "TASK-3333333333333333333333333333333333333333333333333333333333333333",
+        "title": "Implement stable eviction order",
+        "kind": "IMPLEMENT",
+        "seat": "willow-worker-2",
+        "status": "ACCEPTED",
+        "budget": 18,
+        "compute_used": 12,
+        "compute_ceiling": 14,
+        "returned_tick": 51,
+        "lease_scope": "single task · no re-delegation"
+      },
+      {
+        "task_id": "TASK-4444444444444444444444444444444444444444444444444444444444444444",
+        "title": "Run crash-boundary fixtures",
+        "kind": "TEST",
+        "seat": "cedar-volunteer-7",
+        "status": "ACCEPTED",
+        "budget": 0,
+        "compute_used": 7,
+        "compute_ceiling": 8,
+        "returned_tick": 54,
+        "lease_scope": "fixture runner only"
+      },
+      {
+        "task_id": "TASK-5555555555555555555555555555555555555555555555555555555555555555",
+        "title": "Check licence and public paths",
+        "kind": "PROVENANCE",
+        "seat": "cedar-volunteer-7",
+        "status": "ACCEPTED",
+        "budget": 0,
+        "compute_used": 3,
+        "compute_ceiling": 4,
+        "returned_tick": 56,
+        "lease_scope": "manifest only"
+      }
+    ]
+  },
+  "evidence": {
+    "evidence_root": "6666666666666666666666666666666666666666666666666666666666666666",
+    "manifest_root": "6767676767676767676767676767676767676767676767676767676767676767",
+    "source_root": "6868686868686868686868686868686868686868686868686868686868686868",
+    "verifier_root": "6969696969696969696969696969696969696969696969696969696969696969",
+    "policy_root": "6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a",
+    "checks": [
+      {
+        "name": "Canonical fixture parse",
+        "status": "PASS",
+        "command": [
+          "node",
+          "tests/canonical.mjs"
+        ],
+        "observation": "18 strict JSON vectors passed",
+        "check_id": "CHECK-7171717171717171717171717171717171717171717171717171717171717171"
+      },
+      {
+        "name": "Stable eviction replay",
+        "status": "PASS",
+        "command": [
+          "node",
+          "tests/eviction-replay.mjs"
+        ],
+        "observation": "100 insertion-order permutations matched",
+        "check_id": "CHECK-7272727272727272727272727272727272727272727272727272727272727272"
+      },
+      {
+        "name": "Crash boundary recovery",
+        "status": "PASS",
+        "command": [
+          "node",
+          "tests/crash-matrix.mjs"
+        ],
+        "observation": "24 boundaries recovered old-or-new",
+        "check_id": "CHECK-7373737373737373737373737373737373737373737373737373737373737373"
+      },
+      {
+        "name": "No-network policy",
+        "status": "PASS",
+        "command": [
+          "node",
+          "tests/no-network.mjs"
+        ],
+        "observation": "No socket, fetch, or provider adapter reachable",
+        "check_id": "CHECK-7474747474747474747474747474747474747474747474747474747474747474"
+      },
+      {
+        "name": "Licence and NOTICE",
+        "status": "PASS",
+        "command": [
+          "node",
+          "tests/provenance.mjs"
+        ],
+        "observation": "Apache-2.0 policy and NOTICE fixture matched",
+        "check_id": "CHECK-7575757575757575757575757575757575757575757575757575757575757575"
+      },
+      {
+        "name": "Public disclosure scan",
+        "status": "PASS",
+        "command": [
+          "node",
+          "tests/disclosure.mjs"
+        ],
+        "observation": "No absolute paths, secrets, or internal state roots",
+        "check_id": "CHECK-7676767676767676767676767676767676767676767676767676767676767676"
+      }
+    ],
+    "hierarchy": [
+      "canonical inputs",
+      "accepted receipts",
+      "literal command results",
+      "artifact + manifest",
+      "model reviews",
+      "human interpretation"
+    ]
+  },
+  "review_gate": {
+    "required_reviews": 3,
+    "received_reviews": 3,
+    "packet_root": "PACKET-d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+    "artifact_root": "d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3",
+    "deterministic_evidence_root": "6666666666666666666666666666666666666666666666666666666666666666",
+    "summary_label": "CORRELATED_REVIEW",
+    "composite_independence_label": "FORBIDDEN",
+    "outcome": "HOLD",
+    "reviewers": [
+      {
+        "slot": 0,
+        "assignment_id": "ASSIGN-8181818181818181818181818181818181818181818181818181818181818181",
+        "review_id": "REVIEW-8282828282828282828282828282828282828282828282828282828282828282",
+        "seat_id": "SEAT-8383838383838383838383838383838383838383838383838383838383838383",
+        "model_id": "birch-review-8b-fixture",
+        "provider_family": "LOCAL_FIXTURE_RUNTIME",
+        "operator_id": "sandbox-operator-a",
+        "verdict": "CLEAR",
+        "severity": "NONE",
+        "finding": "Eviction ordering and crash fixtures match the accepted packet.",
+        "payment": 8,
+        "payment_status": "PENDING_ACCRUED",
+        "packet_root": "PACKET-d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4"
+      },
+      {
+        "slot": 1,
+        "assignment_id": "ASSIGN-8484848484848484848484848484848484848484848484848484848484848484",
+        "review_id": "REVIEW-8585858585858585858585858585858585858585858585858585858585858585",
+        "seat_id": "SEAT-8686868686868686868686868686868686868686868686868686868686868686",
+        "model_id": "larch-review-12b-fixture",
+        "provider_family": "LOCAL_FIXTURE_RUNTIME",
+        "operator_id": "sandbox-operator-a",
+        "verdict": "CLEAR",
+        "severity": "NONE",
+        "finding": "No task-scope or public-disclosure drift found in the exact packet.",
+        "payment": 8,
+        "payment_status": "PENDING_ACCRUED",
+        "packet_root": "PACKET-d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4"
+      },
+      {
+        "slot": 2,
+        "assignment_id": "ASSIGN-8787878787878787878787878787878787878787878787878787878787878787",
+        "review_id": "REVIEW-8888888888888888888888888888888888888888888888888888888888888888",
+        "seat_id": "SEAT-8989898989898989898989898989898989898989898989898989898989898989",
+        "model_id": "ash-review-22b-fixture",
+        "provider_family": "LOCAL_FIXTURE_RUNTIME",
+        "operator_id": "sandbox-operator-a",
+        "verdict": "CLEAR",
+        "severity": "NONE",
+        "finding": "Acceptance criteria are evidenced, subject to the declared correlation limit.",
+        "payment": 8,
+        "payment_status": "PENDING_ACCRUED",
+        "packet_root": "PACKET-d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4"
+      }
+    ],
+    "diversity": [
+      {
+        "dimension": "MODEL",
+        "values": "3 distinct fixture model IDs",
+        "evidence_class": "DECLARED",
+        "relationship": "DISTINCT"
+      },
+      {
+        "dimension": "PROVIDER",
+        "values": "LOCAL_FIXTURE_RUNTIME",
+        "evidence_class": "DECLARED",
+        "relationship": "SHARED"
+      },
+      {
+        "dimension": "OPERATOR",
+        "values": "sandbox-operator-a",
+        "evidence_class": "VERIFIED",
+        "relationship": "SHARED"
+      },
+      {
+        "dimension": "PROMPT_LINEAGE",
+        "values": "3 blinded prompt fixture roots",
+        "evidence_class": "VERIFIED",
+        "relationship": "DISTINCT"
+      },
+      {
+        "dimension": "TOOLCHAIN",
+        "values": "nexus-review-harness-v1",
+        "evidence_class": "VERIFIED",
+        "relationship": "SHARED"
+      },
+      {
+        "dimension": "MACHINE",
+        "values": "not attested",
+        "evidence_class": "UNKNOWN",
+        "relationship": "UNKNOWN"
+      },
+      {
+        "dimension": "VERIFIER",
+        "values": "nexus-checks-v0.1",
+        "evidence_class": "VERIFIED",
+        "relationship": "SHARED"
+      }
+    ]
+  },
+  "hold": {
+    "hold_root": "HOLD-9191919191919191919191919191919191919191919191919191919191919191",
+    "created_tick": 78,
+    "deadline_tick": 118,
+    "reason_codes": [
+      {
+        "code": "ERR_DIVERSITY_UNKNOWN",
+        "message": "Required machine diversity is unknown."
+      },
+      {
+        "code": "CORRELATED_REVIEW",
+        "message": "Provider, operator, toolchain, and verifier context are shared."
+      }
+    ],
+    "safest_next_action": "Assign a genuinely separate eligible reviewer and resume review against the unchanged packet.",
+    "decision_authority": "human principal: maintainer-maple",
+    "merge_authority": "maintainer-maple only; funding and model votes cannot merge",
+    "paths": [
+      {
+        "event": "RESUME_REVIEW",
+        "description": "Resolve the non-artifact diversity cause and review the same artifact again."
+      },
+      {
+        "event": "REWORK",
+        "description": "Increment the attempt and invalidate artifact plus current reviews."
+      },
+      {
+        "event": "ABORT",
+        "description": "Pay valid accrued work/reviews and route every residue by source policy."
+      }
+    ],
+    "appeal": {
+      "status": "NOT_YET_FILEABLE",
+      "why": "The contract-bound appeal window begins only after an eligible human decision.",
+      "eligible_roles": [
+        "REQUESTER",
+        "WORKER",
+        "SPONSOR",
+        "MAINTAINER"
+      ],
+      "filing_window_ticks": 20,
+      "resolution_window_ticks": 24,
+      "maximum_rounds": 1,
+      "resolver": "resolver-oak",
+      "resolver_relationship": "NON_PARTY_DECLARED",
+      "evidence_access": "PUBLIC_PACKET_ONLY",
+      "payout_effect": "FREEZE_DISPUTED_ONLY",
+      "unavailable_resolver_policy": "ABORT_CONTRACT",
+      "anti_retaliation": true
+    }
+  },
+  "privacy_label": {
+    "data_leaving": "PUBLIC task packet only",
+    "network": "NONE",
+    "files": "Pinned worktree read-only + bounded scratch",
+    "spend": "Maximum 120 SIM_CREDIT; seat price 0",
+    "time": "Tick 20–110 seat window; job deadline 140",
+    "redelegation": "DENIED",
+    "secrets": "NONE",
+    "isolation": "Disposable local container fixture",
+    "proof_limit": "Model and hardware identity unverified",
+    "storage": "No parent-origin storage; in-memory presentation only",
+    "publication": "Sanitized public-safe summary only"
+  },
+  "settlement_preview": {
+    "status": "PREVIEW_LOCKED_BY_HOLD",
+    "total": 120,
+    "unit": "SIM_CREDIT",
+    "payouts": [
+      {
+        "label": "Accepted implementation sub-work",
+        "amount": 18,
+        "destination": "willow-worker-2",
+        "status": "PENDING"
+      },
+      {
+        "label": "Deterministic verification",
+        "amount": 12,
+        "destination": "fixture-verifier account",
+        "status": "PENDING"
+      },
+      {
+        "label": "Three valid assigned reviews",
+        "amount": 24,
+        "destination": "8 × 3 reviewer accounts",
+        "status": "PENDING"
+      }
+    ],
+    "summary": [
+      {
+        "kind": "VALID_PAYOUTS",
+        "label": "Valid accrued work + checks + reviews",
+        "amount": 54,
+        "tone": "green"
+      },
+      {
+        "kind": "PLEDGE_RESIDUE",
+        "label": "Unused pledge residue returns to sources",
+        "amount": 41,
+        "tone": "blue"
+      },
+      {
+        "kind": "DONATION_RESIDUE",
+        "label": "Accepted-donation residue moves to project pool",
+        "amount": 25,
+        "tone": "violet"
+      }
+    ],
+    "github_failure_effect": "NO_ECONOMIC_CHANGE",
+    "terminal_note": "SETTLE_JOB or authorized ABORT_JOB consumes each active lot exactly once. This screen cannot execute either event."
+  },
+  "receipts": [
+    {
+      "sequence": 1,
+      "receipt_id": "RCPT-0101010101010101010101010101010101010101010101010101010101010101",
+      "event_id": "EVT-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "event_type": "CREATE_JOB",
+      "actor": "maintainer-maple",
+      "logical_tick": 0,
+      "previous_receipt_root": null,
+      "predecessor_root": "0000000000000000000000000000000000000000000000000000000000000000",
+      "next_state_root": "1111111111111111111111111111111111111111111111111111111111111111",
+      "effects": [
+        "Created one Job Capsule and one zero-available job account.",
+        "Bound repository proposal and requester principal."
+      ],
+      "invariants": [
+        "Supply conserved",
+        "Job account unique",
+        "No canonical UI authority"
+      ]
+    },
+    {
+      "sequence": 2,
+      "receipt_id": "RCPT-0202020202020202020202020202020202020202020202020202020202020202",
+      "event_id": "EVT-e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2",
+      "event_type": "OPEN_JOB",
+      "actor": "maintainer-maple",
+      "logical_tick": 4,
+      "previous_receipt_root": "RCPT-0101010101010101010101010101010101010101010101010101010101010101",
+      "predecessor_root": "1111111111111111111111111111111111111111111111111111111111111111",
+      "next_state_root": "1212121212121212121212121212121212121212121212121212121212121212",
+      "effects": [
+        "Validated simulated repository-control attestation.",
+        "Opened frozen job version 1 for public contributions."
+      ],
+      "invariants": [
+        "Maintainer attestation exact",
+        "SIMULATED_MAINTAINER_BINDING visible",
+        "Draft contract current"
+      ]
+    },
+    {
+      "sequence": 3,
+      "receipt_id": "RCPT-0303030303030303030303030303030303030303030303030303030303030303",
+      "event_id": "EVT-e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3",
+      "event_type": "RESERVE_CONTRIBUTION",
+      "actor": "orchard-sparrow",
+      "logical_tick": 7,
+      "previous_receipt_root": "RCPT-0202020202020202020202020202020202020202020202020202020202020202",
+      "predecessor_root": "1212121212121212121212121212121212121212121212121212121212121212",
+      "next_state_root": "1313131313131313131313131313131313131313131313131313131313131313",
+      "effects": [
+        "Reserved 50 SIM_CREDIT as source-tagged pledge lots."
+      ],
+      "invariants": [
+        "Disclosure acknowledgement bound",
+        "Source availability checked",
+        "Supply conserved"
+      ]
+    },
+    {
+      "sequence": 4,
+      "receipt_id": "RCPT-0404040404040404040404040404040404040404040404040404040404040404",
+      "event_id": "EVT-e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4",
+      "event_type": "RESERVE_CONTRIBUTION",
+      "actor": "byte-mason",
+      "logical_tick": 8,
+      "previous_receipt_root": "RCPT-0303030303030303030303030303030303030303030303030303030303030303",
+      "predecessor_root": "1313131313131313131313131313131313131313131313131313131313131313",
+      "next_state_root": "1414141414141414141414141414141414141414141414141414141414141414",
+      "effects": [
+        "Reserved 25 SIM_CREDIT as source-tagged pledge lots."
+      ],
+      "invariants": [
+        "Draft root matched",
+        "Funding did not exceed budget",
+        "Supply conserved"
+      ]
+    },
+    {
+      "sequence": 5,
+      "receipt_id": "RCPT-0505050505050505050505050505050505050505050505050505050505050505",
+      "event_id": "EVT-e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5",
+      "event_type": "RESERVE_CONTRIBUTION",
+      "actor": "hidden sponsor",
+      "logical_tick": 9,
+      "previous_receipt_root": "RCPT-0404040404040404040404040404040404040404040404040404040404040404",
+      "predecessor_root": "1414141414141414141414141414141414141414141414141414141414141414",
+      "next_state_root": "1515151515151515151515151515151515151515151515151515151515151515",
+      "effects": [
+        "Reserved 30 SIM_CREDIT as a revocable donation intent."
+      ],
+      "invariants": [
+        "Public-display hiding not treated as anonymity",
+        "Disposition root bound",
+        "Supply conserved"
+      ]
+    },
+    {
+      "sequence": 6,
+      "receipt_id": "RCPT-0606060606060606060606060606060606060606060606060606060606060606",
+      "event_id": "EVT-e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6e6",
+      "event_type": "RESERVE_CONTRIBUTION",
+      "actor": "fern-and-forth",
+      "logical_tick": 9,
+      "previous_receipt_root": "RCPT-0505050505050505050505050505050505050505050505050505050505050505",
+      "predecessor_root": "1515151515151515151515151515151515151515151515151515151515151515",
+      "next_state_root": "1616161616161616161616161616161616161616161616161616161616161616",
+      "effects": [
+        "Reserved 15 SIM_CREDIT and reached exact contract budget."
+      ],
+      "invariants": [
+        "Active contribution lots total 120",
+        "No overfunding",
+        "Supply conserved"
+      ]
+    },
+    {
+      "sequence": 7,
+      "receipt_id": "RCPT-0707070707070707070707070707070707070707070707070707070707070707",
+      "event_id": "EVT-e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7",
+      "event_type": "OPEN_BID_ROUND",
+      "actor": "maintainer-maple",
+      "logical_tick": 12,
+      "previous_receipt_root": "RCPT-0606060606060606060606060606060606060606060606060606060606060606",
+      "predecessor_root": "1616161616161616161616161616161616161616161616161616161616161616",
+      "next_state_root": "1717171717171717171717171717171717171717171717171717171717171717",
+      "effects": [
+        "Opened commit/reveal round against exact draft contract root."
+      ],
+      "invariants": [
+        "Half-open windows valid",
+        "One active round",
+        "Logical clock only"
+      ]
+    },
+    {
+      "sequence": 8,
+      "receipt_id": "RCPT-0808080808080808080808080808080808080808080808080808080808080808",
+      "event_id": "EVT-e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8",
+      "event_type": "COMMIT_BID",
+      "actor": "capacity-gardener",
+      "logical_tick": 14,
+      "previous_receipt_root": "RCPT-0707070707070707070707070707070707070707070707070707070707070707",
+      "predecessor_root": "1717171717171717171717171717171717171717171717171717171717171717",
+      "next_state_root": "1818181818181818181818181818181818181818181818181818181818181818",
+      "effects": [
+        "Committed salted zero-price donated-capacity bid."
+      ],
+      "invariants": [
+        "Owner consent current",
+        "No credential transfer",
+        "Commit window open"
+      ]
+    },
+    {
+      "sequence": 9,
+      "receipt_id": "RCPT-0909090909090909090909090909090909090909090909090909090909090909",
+      "event_id": "EVT-e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9",
+      "event_type": "REVEAL_BID",
+      "actor": "capacity-gardener",
+      "logical_tick": 17,
+      "previous_receipt_root": "RCPT-0808080808080808080808080808080808080808080808080808080808080808",
+      "predecessor_root": "1818181818181818181818181818181818181818181818181818181818181818",
+      "next_state_root": "1919191919191919191919191919191919191919191919191919191919191919",
+      "effects": [
+        "Matched commitment and revealed bounded capability offer."
+      ],
+      "invariants": [
+        "Draft contract root matched",
+        "Public/local route eligible",
+        "Reveal window open"
+      ]
+    },
+    {
+      "sequence": 10,
+      "receipt_id": "RCPT-0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "event_id": "EVT-eaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea",
+      "event_type": "SELECT_BID",
+      "actor": "maintainer-maple",
+      "logical_tick": 18,
+      "previous_receipt_root": "RCPT-0909090909090909090909090909090909090909090909090909090909090909",
+      "predecessor_root": "1919191919191919191919191919191919191919191919191919191919191919",
+      "next_state_root": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+      "effects": [
+        "Selected deterministic winner.",
+        "Moved all 120 units from contribution lots to selected-bid lock."
+      ],
+      "invariants": [
+        "Winner matched public scoring tuple",
+        "Bid lock exact",
+        "Sponsors cannot revoke selected lots"
+      ]
+    },
+    {
+      "sequence": 11,
+      "receipt_id": "RCPT-0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "event_id": "EVT-ebebebebebebebebebebebebebebebebebebebebebebebebebebebebebebebeb",
+      "event_type": "ACCEPT_BID",
+      "actor": "cedar-volunteer-7",
+      "logical_tick": 21,
+      "previous_receipt_root": "RCPT-0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "predecessor_root": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+      "next_state_root": "1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b",
+      "effects": [
+        "Worker accepted exact materialized contract.",
+        "Moved selected lots to JOB and converted donation intents.",
+        "Ended unilateral requester cancellation."
+      ],
+      "invariants": [
+        "Contract frozen",
+        "Budget obligations funded",
+        "Authority ceiling bound"
+      ]
+    },
+    {
+      "sequence": 12,
+      "receipt_id": "RCPT-0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+      "event_id": "EVT-ecececececececececececececececececececececececececececececececec",
+      "event_type": "ISSUE_ALLOWANCE",
+      "actor": "maintainer-maple",
+      "logical_tick": 24,
+      "previous_receipt_root": "RCPT-0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "predecessor_root": "1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b",
+      "next_state_root": "1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c",
+      "effects": [
+        "Reserved 18 units for one implementation sub-task."
+      ],
+      "invariants": [
+        "No re-delegation",
+        "Mandatory review reserve preserved",
+        "Allowance inside contract ceiling"
+      ]
+    },
+    {
+      "sequence": 13,
+      "receipt_id": "RCPT-0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d",
+      "event_id": "EVT-edededededededededededededededededededededededededededededededededed",
+      "event_type": "ACCEPT_SUBWORK_RETURN",
+      "actor": "cedar-volunteer-7",
+      "logical_tick": 51,
+      "previous_receipt_root": "RCPT-0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+      "predecessor_root": "1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c",
+      "next_state_root": "1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d",
+      "effects": [
+        "Accepted exact sub-work evidence.",
+        "Moved 18 allowance units to pending payout."
+      ],
+      "invariants": [
+        "Result matched lease and task",
+        "Payment accrued once",
+        "No authority expansion"
+      ]
+    },
+    {
+      "sequence": 14,
+      "receipt_id": "RCPT-0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e",
+      "event_id": "EVT-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "event_type": "ACCEPT_LEAD_RETURN",
+      "actor": "maintainer-maple",
+      "logical_tick": 57,
+      "previous_receipt_root": "RCPT-0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d",
+      "predecessor_root": "1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d",
+      "next_state_root": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e",
+      "effects": [
+        "Accepted lead artifact and manifest.",
+        "Recorded zero-price donated lead payout."
+      ],
+      "invariants": [
+        "Contribution terms acknowledged",
+        "Artifact within byte ceiling",
+        "Lead cannot self-settle"
+      ]
+    },
+    {
+      "sequence": 15,
+      "receipt_id": "RCPT-0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+      "event_id": "EVT-efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+      "event_type": "ACCEPT_DETERMINISTIC_EVIDENCE",
+      "actor": "fixture-verifier",
+      "logical_tick": 62,
+      "previous_receipt_root": "RCPT-0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e",
+      "predecessor_root": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e",
+      "next_state_root": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+      "effects": [
+        "Recorded six PASS check results.",
+        "Moved 12 units to verifier pending payout."
+      ],
+      "invariants": [
+        "Verifier and policy roots exact",
+        "No required deterministic red",
+        "Payout accrued once"
+      ]
+    },
+    {
+      "sequence": 16,
+      "receipt_id": "RCPT-1010101010101010101010101010101010101010101010101010101010101010",
+      "event_id": "EVT-d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1",
+      "event_type": "ENTER_REVIEW",
+      "actor": "maintainer-maple",
+      "logical_tick": 65,
+      "previous_receipt_root": "RCPT-0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+      "predecessor_root": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+      "next_state_root": "2020202020202020202020202020202020202020202020202020202020202020",
+      "effects": [
+        "Froze source, artifact, manifest, evidence, and one review packet."
+      ],
+      "invariants": [
+        "No unresolved work child",
+        "Packet root exact",
+        "No partial review state"
+      ]
+    },
+    {
+      "sequence": 17,
+      "receipt_id": "RCPT-1111111111111111111111111111111111111111111111111111111111111111",
+      "event_id": "EVT-d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2",
+      "event_type": "ASSIGN_REVIEWERS",
+      "actor": "fixture-broker",
+      "logical_tick": 66,
+      "previous_receipt_root": "RCPT-1010101010101010101010101010101010101010101010101010101010101010",
+      "predecessor_root": "2020202020202020202020202020202020202020202020202020202020202020",
+      "next_state_root": "2121212121212121212121212121212121212121212121212121212121212121",
+      "effects": [
+        "Created exactly three funded blind review assignments."
+      ],
+      "invariants": [
+        "Reviewer seats distinct",
+        "Model IDs distinct",
+        "Worker self-review denied"
+      ]
+    },
+    {
+      "sequence": 18,
+      "receipt_id": "RCPT-1212121212121212121212121212121212121212121212121212121212121212",
+      "event_id": "EVT-d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3",
+      "event_type": "ACCEPT_ASSIGNED_REVIEW",
+      "actor": "birch-review-seat",
+      "logical_tick": 72,
+      "previous_receipt_root": "RCPT-1111111111111111111111111111111111111111111111111111111111111111",
+      "predecessor_root": "2121212121212121212121212121212121212121212121212121212121212121",
+      "next_state_root": "2222222222222222222222222222222222222222222222222222222222222222",
+      "effects": [
+        "Accepted slot 0 CLEAR review against exact packet.",
+        "Accrued 8-unit review payout independent of verdict agreement."
+      ],
+      "invariants": [
+        "Current assignment",
+        "Exact packet root",
+        "Payout and valid review atomic"
+      ]
+    },
+    {
+      "sequence": 19,
+      "receipt_id": "RCPT-1313131313131313131313131313131313131313131313131313131313131313",
+      "event_id": "EVT-d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+      "event_type": "ACCEPT_ASSIGNED_REVIEW",
+      "actor": "larch-review-seat",
+      "logical_tick": 74,
+      "previous_receipt_root": "RCPT-1212121212121212121212121212121212121212121212121212121212121212",
+      "predecessor_root": "2222222222222222222222222222222222222222222222222222222222222222",
+      "next_state_root": "2323232323232323232323232323232323232323232323232323232323232323",
+      "effects": [
+        "Accepted slot 1 CLEAR review against exact packet.",
+        "Accrued second 8-unit review payout."
+      ],
+      "invariants": [
+        "Distinct seat and model",
+        "Arrival order has no clearance weight",
+        "Supply conserved"
+      ]
+    },
+    {
+      "sequence": 20,
+      "receipt_id": "RCPT-1414141414141414141414141414141414141414141414141414141414141414",
+      "event_id": "EVT-d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5",
+      "event_type": "ACCEPT_ASSIGNED_REVIEW",
+      "actor": "ash-review-seat",
+      "logical_tick": 77,
+      "previous_receipt_root": "RCPT-1313131313131313131313131313131313131313131313131313131313131313",
+      "predecessor_root": "2323232323232323232323232323232323232323232323232323232323232323",
+      "next_state_root": "2424242424242424242424242424242424242424242424242424242424242424",
+      "effects": [
+        "Accepted slot 2 CLEAR review against exact packet.",
+        "Accrued final funded 8-unit review payout."
+      ],
+      "invariants": [
+        "Exactly three funded slots",
+        "Fourth paid review impossible",
+        "All review roots identical"
+      ]
+    },
+    {
+      "sequence": 21,
+      "receipt_id": "RCPT-1515151515151515151515151515151515151515151515151515151515151515",
+      "event_id": "EVT-d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6",
+      "event_type": "COMPUTE_REVIEW_OUTCOME",
+      "actor": "nexus-sim-kernel",
+      "logical_tick": 78,
+      "previous_receipt_root": "RCPT-1414141414141414141414141414141414141414141414141414141414141414",
+      "predecessor_root": "2424242424242424242424242424242424242424242424242424242424242424",
+      "next_state_root": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "effects": [
+        "Computed deterministic diversity vector.",
+        "Created HOLD root and deadline at tick 118.",
+        "Preserved all review text and accrued payouts."
+      ],
+      "invariants": [
+        "Three model clears did not override policy",
+        "No composite independence claim",
+        "Human decision remains reserved"
+      ]
+    }
+  ],
+  "non_claims": {
+    "root": "9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a",
+    "claims_not_made": [
+      "REAL_VALUE",
+      "ANONYMITY_OR_UNLINKABILITY",
+      "FAIR_MARKET_OR_SYBIL_RESISTANCE",
+      "REMOTE_MODEL_OR_HARDWARE_PROOF",
+      "REMOTE_DELETION",
+      "INDEPENDENT_REVIEW_FROM_MODEL_COUNT",
+      "PRODUCTION_CUSTODY_CONSENSUS_OR_FINALITY",
+      "LEGAL_OR_LICENCE_CORRECTNESS",
+      "SECURITY_FROM_COMPROMISED_HOST",
+      "NEXUS_LAB_ACCEPTANCE"
+    ]
+  }
+}

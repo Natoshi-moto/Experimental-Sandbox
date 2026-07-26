@@ -2926,3 +2926,197 @@ The prototype is demonstrated only when:
 
 Passing these criteria establishes only the local deterministic prototype
 claim. It does not establish production safety or real economic fitness.
+
+
+# Executable Amendment v0.2 (Normative)
+
+## 0. Status, precedence, and conformance
+
+This amendment is normative. It defines the executable v0.2 contract for the prototype.
+
+Where this amendment conflicts with an earlier V1, V4, raw-fact, mutable-runtime, caller-selected-ID, or compatibility example in this document, this amendment supersedes that example. Earlier examples remain historical context only. Implementations MUST follow the exact schemas and public boundaries in `prototype/API_CONTRACT.md` and the executable implementation.
+
+The words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, and MAY are normative.
+
+Conformance requires all of the following:
+
+- Canonical mutation occurs only through the authenticated core reducer.
+- Accepted authority is obtained only through a branded resolver at one accepted application root and logical tick.
+- Public inputs use exact keys and current schemas; missing keys, extra keys, aliases, and downgraded schemas are rejected.
+- Rejected operations leave canonical state, roots, event history, receipt history, balances, funding, attempts, and authority consumption unchanged.
+- Pure constructors, root functions, scorers, schedulers, and fact evaluators do not by themselves prove that a record is accepted.
+
+## 1. Opaque runtime, atomic mutation, and replay recovery
+
+`createRuntime(genesisState)` MUST return a frozen, propertyless, branded runtime handle. Callers MUST NOT receive a writable state reference. Runtime branding is process-local and MUST NOT be inferred from object shape.
+
+`snapshotRuntime(runtime)` is observation only. It MUST return a deeply frozen clone with schema `nexus-runtime-snapshot-v1` and exact fields `{schema,state,events,receipts,current_root}`. Mutating a snapshot MUST NOT mutate the runtime.
+
+`applyEvent(runtime,event)` MUST verify exact ingress, authentication, predecessor root, authority root, policy root, logical tick, nonce, idempotency key, and event-specific payload keys before mutation. It MUST reduce against a candidate clone, validate all invariants, and commit state, event history, receipt history, and idempotency indexes atomically. A failure MUST commit nothing.
+
+An identical authenticated replay MAY return the prior replay result. Reuse of an event ID or idempotency key with different authenticated bytes MUST fail.
+
+`recoverRuntime({events,expectedFinalRoot,genesisState,receipts})` is the only history-bearing runtime constructor. Recovery MUST replay the complete ordered authenticated journal, compare every receipt and state transition, and require the exact final root. Missing, reordered, altered, duplicated, or extra events or receipts MUST fail recovery.
+
+The prototype has no durable canonical database. Runtime state, brands, indexes, and journals are in memory. Exported snapshots are evidence and recovery inputs, not a persistence or concurrency protocol. Production use requires durable atomic storage, locking or serialization, crash recovery, key custody, and authenticated journal retention beyond this prototype.
+
+## 2. Canonical values, derived identities, roots, and authentication domains
+
+Every accepted value MUST be canonical: exact object keys, normalized strings, lowercase hexadecimal roots, sorted unique sets where required, and non-negative safe integers where required. Floating point ambiguity, unsafe integers, duplicate JSON keys, invalid Unicode, non-normalized aliases, and implicit defaults are forbidden.
+
+Carrier and record IDs MUST be derived by the core from a schema-specific ID domain over the exact ID-excluded body. A caller MUST NOT select or override a derived ID. A supplied derived ID MUST match its preimage.
+
+Record roots MUST be computed under the record's schema-specific hash domain over the exact canonical record body. Transport authentication, event signatures, receipts, replay metadata, and operational status MUST NOT be inserted into a record-root preimage unless the record schema explicitly includes them. ID domains, record-root domains, event-body domains, authentication domains, set domains, and decision domains are distinct and MUST NOT be substituted for one another.
+
+Event ingress is exactly:
+
+`{schema,event_type,actor_id,authority_root,policy_root,expected_predecessor_root,tick,nonce,idempotency_key,payload,event_id,auth}`
+
+The schema is `nexus-event-v1`. The event ID is `EVT-${eventBodyRoot(event)}`.
+
+Authentication is exactly:
+
+`{scheme,key_id,controller_id,signed_domain,signed_payload_root,signature}`
+
+The signed domain is `NEXUS_EVENT_AUTH_V1`. The authentication preimage is exactly:
+
+`{schema:"nexus-event-auth-preimage-v1",event_body_root,event_type,actor_id,controller_id,expected_predecessor_root,authority_root,tick,nonce,idempotency_key,payload_root,policy_root}`
+
+Verification MUST bind the active actor, controller, controller key, controller scope, authority root, predecessor state root, logical tick, policy root, payload root, signed domain, and signature. `SIM_AUTH_UNSAFE` is explicitly an unsafe prototype scheme and MUST NOT be represented as production cryptography.
+
+## 3. Accepted resolver V2 and one-state authority
+
+A resolver MUST be created from a branded runtime by `createAcceptedRecordResolver(runtime)`. The resolver is frozen and branded. A lookalike object, cloned resolver, raw snapshot, raw record, or caller-built envelope MUST fail authority checks.
+
+An accepted-record request is exactly:
+
+`{record_type,record_id,record_root}`
+
+The response is exactly:
+
+`{schema:"nexus-accepted-record-envelope-v2",accepted_application_state_root,accepted_logical_tick,record_type,record_id,record_root,record_revision,record_status,record}`
+
+`accepted_logical_tick` MUST be a non-negative safe integer. The requested ID and root MUST match the current accepted record. Immutable authority records require revision zero and status `ACCEPTED` unless a current operation explicitly requires another status such as `CONSUMED`.
+
+An accepted-record-set request is exactly:
+
+`{record_type:"REVIEW_ASSIGNMENT",scope:{assignment_slot,job_id,review_packet_root}}`
+
+The response is exactly:
+
+`{schema:"nexus-accepted-record-set-envelope-v2",accepted_application_state_root,accepted_logical_tick,record_type:"REVIEW_ASSIGNMENT",scope,scope_root,set_root,records}`
+
+The scope root uses `NEXUS_REVIEW_ASSIGNMENT_SET_SCOPE_V1`. The set root uses `NEXUS_ACCEPTED_RECORD_SET_V2` over the ordered record references and their revisions and statuses.
+
+Every multi-record decision MUST resolve all records and sets at the same `accepted_application_state_root` and `accepted_logical_tick`. Mixed roots, mixed ticks, stale revisions, crossed IDs and roots, revoked records, and expired authority MUST fail. A resolver result is deeply frozen and MUST not expose writable canonical state.
+
+## 4. Consent-first controller, principal, and seat topology
+
+Authority topology is consent-first:
+
+`controller -> principal -> seat -> accepted consent -> capability offer -> assignment or lease -> work or review`
+
+A controller MUST be active and independently authenticated before it can act for a principal. A principal MUST occupy the exact authorized seat. A worker, donated-capacity provider, reviewer, verifier, or delegate MUST have the required accepted consent before an offer, bid, assignment, lease, measurement, work action, or review can rely on that capacity.
+
+Consent MUST bind its controller, principal, seat, scope, policy, validity window, and any delegated ceiling. Later offers and assignments MUST reference the accepted consent rather than restating consent booleans. Revocation or expiry MUST be evaluated from accepted current state and tick. No downstream event may retroactively manufacture missing consent.
+
+## 5. Reference-only bid and task eligibility
+
+Bid and task eligibility MUST be derived from accepted references. Callers MUST NOT submit `eligible`, `conflict_free`, `unrevoked`, `probe_current`, capability, route, or timing booleans as authority.
+
+The work eligibility boundary is `evaluateOfferEligibility(input)` with exact input keys:
+
+`{resolver,evaluationKind,capabilityOfferRef,donatedCapacityConsentRef,jobRef,jobContractRef,conflictPolicyRef,taskRef,bidRef,probe}`
+
+`evaluationKind` is `BID` or `TASK`; bid and task references are mutually exclusive. All accepted references MUST share one resolver root and tick.
+
+Eligibility MUST derive the current controller and consent status, immutable offer ID/root, probe binding and validity window, project/job allowlists, complete contract ceiling, contribution terms, data class, tools, runtimes, egress, isolation, conflict policy, revocation state, task attempt, and current logical tick.
+
+Bid scoring, comparison, ranking, and task ordering are pure deterministic functions. They MUST NOT mutate state or convert unaccepted facts into authority. A winning bid or ready task remains non-authoritative until the authenticated reducer accepts the corresponding event and rechecks current eligibility.
+
+## 6. Review packet V2, replacement history, and exact closure
+
+Review authority uses `nexus-review-packet-v2` and accepted references only. A review packet MUST bind the job, accepted contract, artifact, attempt, required-check manifest, deterministic evidence, policy, and review assignment slots.
+
+Closure requires exactly three accepted model reviews for exactly three required slots. Each counted review MUST bind the exact current assignment, packet, job, artifact, model, reviewer principal, reviewer seat, capability offer ID/root, and eligibility facts.
+
+The `DISTINCT` policy MUST be enforced from packet-bound accepted facts. The required distinct dimensions, including model identity and any configured provider-family or operator dimensions, MUST be satisfied by the exact three counted reviews. Duplicate reviews, duplicate slots, self-review, unbound reviews, excess reviews, missing reviews, stale assignments, or reviews from revoked or expired offers MUST NOT close the packet.
+
+Reviewer replacement history MUST be resolved through the accepted-record-set V2 scope `{assignment_slot,job_id,review_packet_root}`. Attempts are ordered deterministically. Only the current eligible replacement for a slot may count. Every assignment record and the set envelope MUST share the same accepted root and tick.
+
+Material dissent and failed required checks MUST produce the specified HOLD path. Clearance MUST be computed from the ordered three review hashes, packet-bound diversity vector, deterministic evidence root, and policy root. No caller-supplied clearance or diversity boolean is authoritative.
+
+## 7. Verifier-signed classified-input measurement
+
+Classified input size and class are measured authority, not plan-author assertions.
+
+`RECORD_CLASSIFIED_INPUT_MEASUREMENT` has exact payload:
+
+`{job_ref,task_ref,lease_ref,entries}`
+
+Each entry is exact `{input_root,data_class,byte_length}`. Entries MUST be canonical and deterministically ordered. Byte lengths MUST be non-negative safe integers and their sum MUST be overflow checked. The authenticated verifier/controller, referenced job, task, and lease, and current state/tick MUST be validated before the core accepts the resulting `nexus-classified-input-manifest-v2` record.
+
+A route-plan author MUST reference the accepted measurement. It MUST NOT supply measured bytes, total bytes, data classes, or a replacement manifest body.
+
+## 8. Reference-only route execution plan V5
+
+`ISSUE_LEASE` remains a separate pre-plan event with exact payload:
+
+`{job_id,task_id,context_root,input_manifest_root,not_before_tick,expiry_tick,lease_nonce}`
+
+It MUST NOT accept route-plan fields.
+
+`CREATE_ROUTE_EXECUTION_PLAN` has exact payload:
+
+`{lease_ref,classified_input_manifest_ref,data_route_authority_ref,redaction_approval_ref,tool_route_authority_refs,plan_nonce}`
+
+The core MUST resolve current accepted job, task, lease, contract, offer, controller, principal, seat, measurement, route authority, redaction authority, tool authorities, job account, funding lots, allowance, and subwork commitment as applicable. The core, not the caller, derives price, spend, funding ownership, selected route, tools, runtimes, egress, worker trust, input bytes and classes, and the plan validity window.
+
+The accepted plan schema is `nexus-route-execution-plan-v5`. Embedded record references are exact `{record_id,record_root}`. Nullable references are permitted only where the V5 schema explicitly allows them.
+
+A remote-redaction approval is required if and only if the accepted measured inputs and accepted route facts require it. The decision MUST derive this condition from accepted plan/core facts. Caller-supplied remote-redaction booleans, checks, raw contracts, tasks, leases, offers, workers, tools, payloads, prices, funding facts, or ticks are forbidden.
+
+The public privacy adapter accepts exactly:
+
+`decideDataRoute({route_execution_plan_id,route_execution_plan_root},{resolver})`
+
+It MUST call `resolveAcceptedRouteContext` and then the branded `deriveDataRouteDecision`. It returns only `nexus-data-route-decision-v5`. Outcomes are `ALLOW` and fail-closed `HOLD`; `HOLD` MUST NOT be translated to a legacy `DENY` enum.
+
+`deriveDataRouteDecisionFromFacts(context)` is a pure internal computation surface. Calling it does not confer accepted-state authority. Only the branded resolver/context path is authoritative.
+
+`CONSUME_ROUTE_EXECUTION_PLAN` has exact payload:
+
+`{route_execution_plan_id,route_execution_plan_root,expected_decision_root}`
+
+Consumption MUST re-resolve current state and tick, require an exact current `ALLOW` decision, require the leased worker/controller, and atomically create one consumption authority. A stale decision, expired plan, changed application root, changed tick-dependent fact, wrong controller, or replay MUST fail without consuming authority.
+
+## 9. V3 public-safe disclosure and GitHub chain
+
+The public-facing disclosure/GitHub verification boundary is the V3 public-safe chain, including `nexus-public-capsule-verification-v3`. Component records retain their individually current schemas, including publication intent V3 and publication anchor V2. A shared marketing version MUST NOT be used to downgrade a component schema.
+
+The chain is reference-first:
+
+`accepted preparation -> accepted disclosure manifest and compilation anchor -> accepted public capsule and non-claims -> accepted publication intent -> accepted publication anchor -> public verification`
+
+Preparation, compilation, capsule, intent, and verification adapters MUST use the branded resolver and purpose-specific ID/root references. They MUST re-resolve accepted records, recompute canonical roots, and cross-check every linked ID/root at one accepted application root and logical tick.
+
+Public-safe records MUST omit private policy preimages, proof-context preimages, salts, secrets, private artifacts, raw execution payloads, and mutable operational state. Entropy/freshness authority and its one-use consumption MUST bind the exact purpose, scope, nonce commitment, and use scope. Multi-record entropy verification MUST require the same accepted root and tick.
+
+Publication intent is fixed to `destination_policy:"GITHUB_SANITIZED_WITNESS"`. Public verification returns `status_authority:"NONE"`; it does not claim that GitHub publication occurred.
+
+GitHub outbox status is operational only. It is not canonical state, has no reducer or resolver capability, and MUST NOT affect application roots, receipts, settlement, or authority. Its exact statuses are `PENDING`, `PUBLISHED`, `FAILED_RETRYABLE`, and `FAILED_TERMINAL`.
+
+## 10. Exact-key and downgrade rejection
+
+Every public request, event payload, record, envelope, nested reference, and adapter option object MUST use its exact current key set. Unknown fields, missing fields, duplicated fields, legacy aliases, raw-fact compatibility fields, and caller-computed authority booleans MUST fail.
+
+Current implementations MUST reject, without fallback:
+
+- Accepted-record or accepted-set V1 envelopes and envelopes without `accepted_logical_tick`.
+- Raw route-decision V4 inputs and any caller-supplied route checks or facts.
+- Legacy review packets or non-exact review closure.
+- Legacy disclosure, compilation, capsule, non-claims, intent, anchor, and verifier wrappers.
+- Crossed, forged, stale, revoked, expired, mixed-root, mixed-tick, and replayed references.
+- Any schema downgrade disguised by adding current fields to a legacy object.
+
+Compatibility translation belongs outside the canonical trust boundary. It MUST produce a new exact current request and pass normal authentication; it MUST never cause the core or adapters to accept a legacy object directly.
