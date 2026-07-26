@@ -72,6 +72,16 @@ custody, monetary value, production safety, or authorization by Nexus Lab.
   boundaries, abuse cases, and halt rules.
 - [`NON_CLAIMS.md`](NON_CLAIMS.md) — claims the experiment is forbidden to
   imply.
+- [`HYBRID_IDENTITY_PROFILE.md`](HYBRID_IDENTITY_PROFILE.md) — mandatory
+  Ed25519 AND ML-DSA-65 event identity with no downgrade lane.
+- [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) — current limitations and out-of-scope
+  boundaries.
+- [`ATTACKER_QUICKSTART.md`](ATTACKER_QUICKSTART.md) — fixture and attack
+  entry-point index.
+- [`INDEPENDENT_REVIEW_INVITATION.md`](INDEPENDENT_REVIEW_INVITATION.md) —
+  twelve explicit falsification targets and reviewer independence metadata.
+- [`adversarial/`](adversarial/) — canonical exploit schema, verifier, examples,
+  and submission instructions.
 - [`reports/`](reports/) — corpus, attack, architecture, and safety reports.
 - [`reports/CORE_SOURCE_REGISTER_v0.1.md`](reports/CORE_SOURCE_REGISTER_v0.1.md)
   — exact hashes for the load-bearing local source bytes.
@@ -79,5 +89,7 @@ custody, monetary value, production safety, or authorization by Nexus Lab.
 
 ## Current result
 
-`DOCUMENTARY_ONLY`. No economic or privacy claim has yet passed an executable
-test.
+`EXECUTABLE_RESEARCH_PROTOTYPE`. Coverage is not complete; the conservative
+[`reports/FALSIFIER_SCOREBOARD_v0.2.md`](reports/FALSIFIER_SCOREBOARD_v0.2.md)
+keeps partial and untested claims visible. See [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md)
+before interpreting any passing test.

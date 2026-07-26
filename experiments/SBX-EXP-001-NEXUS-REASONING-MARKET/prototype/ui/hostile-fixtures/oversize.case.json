@@ -1,0 +1,6 @@
+{
+  "schema": "nexus-ui-hostile-generator-v1",
+  "case_id": "oversize-local-state",
+  "repeat": "A",
+  "requested_bytes": 524289
+}

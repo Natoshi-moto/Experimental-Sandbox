@@ -1,0 +1,137 @@
+{
+  "schema": "nexus-exploit-artifact-v1",
+  "security_impact": "INFO",
+  "environment": {
+    "implementation_revision": "UNCOMMITTED",
+    "runtime": "node",
+    "runtime_version": "v24.14.0"
+  },
+  "submitter": {
+    "alias": "repository-fixture",
+    "provider_family": "NONE",
+    "operator_id": "repository-maintainers",
+    "identity_attestation": "OPERATOR_OBSERVED"
+  },
+  "genesis_state": {
+    "schema": "nexus-flow-state-prototype-v0.1",
+    "tick": 0,
+    "supply": 0,
+    "policy_root": "18bcce27dad9343bbd0c3c3bb759503d3ea701ddfcaaba8037fd022424bb0f07",
+    "principals": {
+      "PRINCIPAL-5ed5ecd76b1299e0111132c566cbe122aa98c0186de008a22e7798d40d1eb55a": {
+        "principal_id": "PRINCIPAL-5ed5ecd76b1299e0111132c566cbe122aa98c0186de008a22e7798d40d1eb55a",
+        "display_alias": "project-pool",
+        "declared_operator": "project-pool",
+        "guardian_policy": null,
+        "controller_id": "CTRL-36d2458c6b2ddc7dfbd3f34528ae10bb9e875e3ce80b66504a2e7709b792f963",
+        "status": "ACTIVE",
+        "record_revision": 0,
+        "previous_record_root": null,
+        "record_root": "2c46240f5507243bcaea855d45c0fbdf3e4470b856263deabbd758334ebdf172"
+      }
+    },
+    "controllers": {
+      "CTRL-36d2458c6b2ddc7dfbd3f34528ae10bb9e875e3ce80b66504a2e7709b792f963": {
+        "controller_id": "CTRL-36d2458c6b2ddc7dfbd3f34528ae10bb9e875e3ce80b66504a2e7709b792f963",
+        "principal_id": "PRINCIPAL-5ed5ecd76b1299e0111132c566cbe122aa98c0186de008a22e7798d40d1eb55a",
+        "key_id": "HYBRIDKEY-75f50bca9617b14ed52d155de79b35c6289b045d9e491e116caa909bdc55e04c",
+        "scheme": "HYBRID_ED25519_ML_DSA_65_V1",
+        "ed25519_public_key_spki_der_base64url": "MCowBQYDK2VwAyEABrDqlJxpBEpALwKGgNEIWPMpK1LM6B4bqdDUU9jDKVc",
+        "ml_dsa_65_public_key_spki_der_base64url": "MIIHsjALBglghkgBZQMEAxIDggehAEMWhnDEpaSDYymrWmnWV2MsktLMGQYCZAfDWLSB-DdRHi-U9YZZPpVUQZdgQUW9LvF5DRWm5WGzbI4IktypkQ_9ev-hVMQ4Fiw1HWIGaqv7WIILvB_CdIUjsAV3-OUfRXD6xqJ_o8xsWaBfRM12jo_6kXbIzyIwzipPRCagzPCstXS0lQszjESLeQ4luFdHbFLcxKtr_OCuxF2s82ZyFCUwNkVDeeeczbodnt8uNOaxRdKxyznJW2JtCcB0drQ06EzCGhoikdqGj1tFY93au5uayk53Z6LJnD9cHnBJYGqK6F1LWA9BCw0C5Sdrgi3JmzeepZ6iH2Jb8iN2wfUEOvafqtEVI1WNoT8o6EUOiXp9k8qspf1sRylOar_yNTc9Gdqcl_EBqL9VCXQCVf2cZ_cTuOojf9PEoO1j3os5MA9u3RfmcdD_GUutHTSgNIKmK9Fpeu6SmYE2gJjmb3IO_2r8nsuxy4sCo_gLYhUOV7V9Ba2S5TYVjiLYyUruCEwRuFGDczK8raYS42wrbAZ1dAIOZ55oeUcJlN6bXpqOCEeM5nn9p61yhxgzid3R74_VZW0TLGOBI5TptwPywX8XtmykyAmsCD4WWjpGvaSI755wzWvWfl6t3mhrn32g5d9NPgGnvCH-6C13uMkS4_Q0F_xcIGLAMnl9kb3fda3sqe6WDy0UQ2ICgtkLLoFu7oo42o6U4Mrck-9bboE_HuMIBBrZIZLqUNbKNYPemBtVp7kLqglaZOjk1FbB2k_2ifUcikRDeNfZ0GrX9Rk2-KHBicTrdmJj8jm2Ai7KTvos1-yDVmCydzqpznME2JttR1H-Qoo1OT_6DKWglIIkOQUQarUhlmIJf_8n2omrBoj8X6Kx0JPDVH_ED7LxfNhs42Zq3CbzrRvkyE8qSL0Os0VHCrLrvG9qeQqV7VKakdrxBr3t51p9s4G_MrVvhNpbQyY6PtuyVRgHbLDPKho0rXkacqSno8yrwO3RJ2EC31wVmD8UED4cdNfP-LRkZDBG1WCt4XkYnQX7IN3jXycUubgxIVGPxwRrmiogXDJvakuUpIZwZ1OyyGFDftqn4pY9CzjJgN1-vhpJZXVGWj44SyBD2GNbwsnZsYul8xDTRWiD_7d6MdqpZvbrF5cgCt-zfaiDNjel32dgn6wbiRq-qz94qvXd1vDUm0tqQLElzuORyS_40RZEAtFTP5Jvh7A4NJll8V6cNXlcHCbh6oC6bUiC0YQGeKESnoAg1-u8sdpdWk2KDz2WteD8E3BDqrwCO-b1tAqgwonrGGTwcwoHkbFgaJKzyAw0-IfH117yIQIctuB4GCI1x2ljIOFJ490KqRt-Kf02Ewc0MlpIFtwJHHqRh5OsGXxgYn6o6u5qFZadoYiPatQO1KJGFwNXDVdLOE4AeBsFZaou0QeX7o9kZugoByqt_ZeVFYNCJgDR5qCovQfteU7N8k0wP6Qb6zm0RlYzhM-sFIB-Pbn0xlCjva-qTrCB8p0Onj4ZmNTrO29yCFgzPNJ3P239sC_QBLsM5Hlr50QOtkpSzQQjkz22dOBIWJyJHBz-vxroEKw5BxEa9t4ZgYcd67UbrVuGNhkca7iaporq7Vmmmk6DPxnkThajXqVjGNqo_mSQ0m7G-1wlNNh_qSfz3wEyXLcOPE3uOdQnIRf2YxNAoZu2U4xOICJS4wcH8mnuly8EuxMEyz1ImBulVjhyw22vJfVe9J3fi0G2uXZJfYSrrR6YF3dcohV_AxKSBhMAw-L1YM--JrqV1cAW5LA7FKiDXRDwIwo-t2jkM3RUkYQXwypMg3pdWcgx_oPjnvI6eUcWrlyzR7suj0WDS_q92kkuC4bshlpbQ8hBQBKGex6X0pmdRX2hYIu9YTvU45LEKFxF6bJfSaVwe9MSWvquk6sb3IR3nCuNhs380fn9HrjfG9_gnGku0S44L15zlfohL0NKYRXzp85Q6X-X481Mk7AGtmbjJrUNhuLxfTM02Uzcx7sEdIkTZszZszD0KUAPeKtuE6jgz0lFAQv166wtSWu4m4tAd_TP5jjwp2EMAb_by1fQShDc1pV9OdD6hwMX86GQiU3eU4P_WzdKhAsNfQu2jbnb7tsuOfJpgw7_qFiEhvuJgyscqc9TrVkB-l9J52N-FaJTj80g9WpvRWTX531zzZL3cQOVJt6umzaFuNJECj-Vv0h3wsL1f1lDJLtKbKQapJlHsYd1zACe8ufk1Tze0a5U50K4WUyJN8lKV8C_2iEX5U_EBpmv32nUCS3k3SfHblONllDmCFbLIGQj5Yzhl2-a5_1kIwLytq0WvUyDqB8sSI7ybTt7hifV56bmVHhw8UzZImD_g88ae4zst_t9h7mRIm937JT8n6I23ytzBiJqwOfFa5njDkQalbHdVWMaL9aY-iOZkWSqD1PETUxGliQZogTSz6JpNn34g6_sFNxmr2RNpR_Wq-ZPIMZacstWWac31M8IeLXstnjSTt4IpdBj_5XbtEYuGEzhccJcaH20sNJidM3hs32a3sK8vDv_QWsDkkcwW5pne3FIivwM2Jj0C5HUSGrGkPhpne9KMz3BpE1c_T4vphh5t2LfBCQtnP0jtDZXMBMP",
+        "scopes": [
+          "*"
+        ],
+        "status": "ACTIVE",
+        "record_revision": 0,
+        "previous_record_root": null,
+        "record_root": "2128103900b34b68ba8e4587b9f8a7c687e32d0c2c2daa9876f5a0b313cef20e"
+      }
+    },
+    "accounts": {
+      "ACCOUNT-95e9447cc2866f0fe415afdf9a1931222c54c9d129813400cd7dc2e2c4f43591": {
+        "account_id": "ACCOUNT-95e9447cc2866f0fe415afdf9a1931222c54c9d129813400cd7dc2e2c4f43591",
+        "controller_id": "CTRL-36d2458c6b2ddc7dfbd3f34528ae10bb9e875e3ce80b66504a2e7709b792f963",
+        "kind": "PROJECT_POOL",
+        "owner_principal_id": "PRINCIPAL-5ed5ecd76b1299e0111132c566cbe122aa98c0186de008a22e7798d40d1eb55a",
+        "owner_job_id": null,
+        "available": 0,
+        "status": "ACTIVE",
+        "record_revision": 0,
+        "previous_record_root": null,
+        "record_root": "b2d23de4854290bc5438b237bc566abedaf840418cc6692dab048d054e9d392a"
+      }
+    },
+    "capability_offers": {},
+    "capability_offer_content_index": {},
+    "donated_capacity_consents": {},
+    "revoked_offer_ids": {},
+    "funding_lots": {},
+    "jobs": {},
+    "contributions": {},
+    "bid_rounds": {},
+    "bids": {},
+    "allowances": {},
+    "subwork_commitments": {},
+    "payouts": {},
+    "tasks": {},
+    "leases": {},
+    "review_assignments": {},
+    "reviewer_eligibilities": {},
+    "reviews": {},
+    "decisions": {},
+    "appeals": {},
+    "idempotency": {},
+    "publication_intents": {},
+    "disclosure_scan_receipts": {},
+    "disclosure_approval_receipts": {},
+    "disclosure_compilation_anchors": {},
+    "data_route_authorities": {},
+    "tool_route_authorities": {},
+    "classified_input_manifests": {},
+    "worker_trust_authorities": {},
+    "route_execution_plans": {},
+    "route_plan_consumptions": {},
+    "public_export_authorities": {},
+    "disclosure_policies": {},
+    "disclosure_proof_contexts": {},
+    "disclosure_preparation_authorities": {},
+    "disclosure_preparations": {},
+    "disclosure_preparation_execution_receipts": {},
+    "entropy_freshness_authorities": {},
+    "entropy_one_use_consumptions": {},
+    "nonce_authorities": {},
+    "export_nonce_uses": {},
+    "accepted_disclosure_compilation_anchors": {},
+    "accepted_publication_anchors": {},
+    "redaction_manifests": {},
+    "redaction_approvals": {},
+    "disclosure_manifests": {},
+    "public_capsules": {},
+    "non_claims": {},
+    "publication_anchors": {},
+    "verifier_authorities": {},
+    "terminal_jobs": {}
+  },
+  "events": [],
+  "receipts": [],
+  "notes": [
+    "Deterministic test-only public keys; no private material is present."
+  ],
+  "title": "Empty-journal deterministic recovery baseline",
+  "description": "A zero-history hybrid-identity genesis recovers to its exact application root.",
+  "claim_target": {
+    "kind": "OTHER",
+    "identifier": "BASELINE_EMPTY_JOURNAL",
+    "statement": "A valid zero-history genesis deterministically recovers without receipts."
+  },
+  "protocol_expectation": {
+    "outcome": "ACCEPT",
+    "reason_code": null
+  },
+  "replay_expectation": {
+    "outcome": "ACCEPT",
+    "error_code": null,
+    "expected_final_application_state_root": "fcf69b2fda922cfe89d74eabeb5bbd98e9298a75fe9344c045b232455e239584",
+    "expected_final_receipt_chain_root": null
+  }
+}

@@ -19,9 +19,62 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
+      - name: Pin verification runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.14.0
+          check-latest: false
       - name: Verify repository boundaries
         run: bash scripts/verify.sh
       - name: Explain a red sandbox
         if: failure()
         run: |
           echo "::warning::This experiment is sick. Nexus Lab is unaffected."
+
+  probes:
+    name: Non-gating review probes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+      - name: Pin probe runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.14.0
+          check-latest: false
+      - name: Run deterministic review probes
+        id: probes
+        continue-on-error: true
+        shell: bash
+        run: |
+          node experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/tools/run-probe-rounds.mjs \
+            --output "$RUNNER_TEMP/nexus-review-probes.json" \
+            --summary "$RUNNER_TEMP/nexus-review-probes.md"
+      - name: Publish probe summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "$RUNNER_TEMP/nexus-review-probes.md" ]]; then
+            cat "$RUNNER_TEMP/nexus-review-probes.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Nexus review probes"
+              echo
+              echo "> Probe infrastructure failed before producing a report."
+              echo
+              echo "This job is intentionally non-gating; inspect its logs."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload bounded probe artifact
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nexus-review-probes
+          path: ${{ runner.temp }}/nexus-review-probes.json
+          if-no-files-found: ignore
+          retention-days: 7
+          compression-level: 9

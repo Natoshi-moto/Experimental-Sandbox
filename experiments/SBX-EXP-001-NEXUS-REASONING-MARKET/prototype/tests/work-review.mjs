@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 
 import { canonicalize } from "../core/canonical.mjs";
 import {
+  capabilityOfferContentRoot,
   capabilityOfferTermsRoot,
   derivedCarrierId,
   donatedCapacityConsentBodyRoot,
@@ -1074,19 +1075,62 @@ test("accepted capability offer root matches local projection", () => {
   assert.equal(envelope.record_id, fixture.donatedOffer.offer_id);
 });
 
-test("offer authentication cannot change content root or ID", () => {
+test("capability offer root distinguishes absent from present derived ID", () => {
+  const fixture = donatedFixture();
+  const envelope = fixture.resolver.resolveAcceptedRecord(
+    fixture.capabilityOfferRef,
+  );
+  const offer = envelope.record;
+  const withoutId = structuredClone(offer);
+  delete withoutId.offer_id;
+  const mismatch = `${offer.offer_id.slice(0, -1)}${
+    offer.offer_id.endsWith("0") ? "1" : "0"
+  }`;
+
+  assert.equal(capabilityOfferRoot(withoutId), envelope.record_root);
+  assert.equal(capabilityOfferRoot(offer), envelope.record_root);
+  for (const invalidId of [
+    null,
+    undefined,
+    7,
+    "malformed",
+    mismatch,
+  ]) {
+    assert.throws(
+      () => capabilityOfferRoot({ ...withoutId, offer_id: invalidId }),
+      (error) => error?.code === "ERR_ID_PREIMAGE",
+    );
+  }
+});
+
+test("offer verified authentication reference changes carrier root and ID", () => {
   const offer = donatedFixture().donatedOffer;
-  const changed = {
+  const changedContent = {
     ...offer,
     authentication: {
       ...offer.authentication,
-      signature: `${offer.authentication.signature}-replacement`,
+      key_id: `${offer.authentication.key_id}-replacement`,
     },
   };
-  assert.equal(capabilityOfferRoot(changed), capabilityOfferRoot(offer));
-  assert.equal(
-    derivedCarrierId("CAPABILITY_OFFER", changed),
-    offer.offer_id,
+  const changedId = derivedCarrierId(
+    "CAPABILITY_OFFER",
+    changedContent,
+  );
+  const changed = { ...changedContent, offer_id: changedId };
+  assert.notEqual(capabilityOfferRoot(changed), capabilityOfferRoot(offer));
+  assert.notEqual(changedId, offer.offer_id);
+  assert.throws(() => capabilityOfferRoot(changedContent));
+  const missing = structuredClone(offer);
+  delete missing.authentication.key_id;
+  assert.throws(() => capabilityOfferRoot(missing));
+  assert.throws(() =>
+    capabilityOfferRoot({
+      ...offer,
+      authentication: {
+        ...offer.authentication,
+        unexpected: true,
+      },
+    }),
   );
 });
 
@@ -1096,6 +1140,8 @@ test("offer content changes alter root and ID", () => {
     ...offer,
     nonce: `${offer.nonce}-changed`,
   };
+  changedContent.offer_content_root =
+    capabilityOfferContentRoot(changedContent);
   const changed = {
     ...changedContent,
     offer_id: derivedCarrierId("CAPABILITY_OFFER", changedContent),
@@ -1267,7 +1313,7 @@ test("accepted consent uses its independent auth domain", () => {
   const consent = donatedFixture().acceptedConsent;
   assert.equal(
     consent.authentication.signed_domain,
-    "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V1",
+    "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
   );
   assert.equal(
     donatedCapacityConsentRoot(consent),
@@ -1275,18 +1321,75 @@ test("accepted consent uses its independent auth domain", () => {
   );
 });
 
-test("consent authentication cannot change accepted consent root", () => {
+test("donated consent record root distinguishes absent from present derived ID", () => {
+  const fixture = donatedFixture();
+  const envelope = fixture.resolver.resolveAcceptedRecord(
+    fixture.donatedCapacityConsentRef,
+  );
+  const consent = envelope.record;
+  const withoutId = structuredClone(consent);
+  delete withoutId.consent_id;
+  const mismatch = `${consent.consent_id.slice(0, -1)}${
+    consent.consent_id.endsWith("0") ? "1" : "0"
+  }`;
+
+  assert.equal(
+    donatedCapacityConsentRecordRoot(withoutId),
+    envelope.record_root,
+  );
+  assert.equal(
+    donatedCapacityConsentRecordRoot(consent),
+    envelope.record_root,
+  );
+  for (const invalidId of [
+    null,
+    undefined,
+    7,
+    "malformed",
+    mismatch,
+  ]) {
+    assert.throws(
+      () =>
+        donatedCapacityConsentRecordRoot({
+          ...withoutId,
+          consent_id: invalidId,
+        }),
+      (error) => error?.code === "ERR_ID_PREIMAGE",
+    );
+  }
+});
+
+test("consent verified authentication reference changes accepted consent root and ID", () => {
   const consent = donatedFixture().acceptedConsent;
-  const changed = {
+  const changedContent = {
     ...consent,
     authentication: {
       ...consent.authentication,
-      signature: `${consent.authentication.signature}-replacement`,
+      key_id: `${consent.authentication.key_id}-replacement`,
     },
   };
-  assert.equal(
+  const changedId = derivedCarrierId(
+    "DONATED_CAPACITY_CONSENT",
+    changedContent,
+  );
+  const changed = { ...changedContent, consent_id: changedId };
+  assert.notEqual(
     donatedCapacityConsentRoot(changed),
     donatedCapacityConsentRoot(consent),
+  );
+  assert.notEqual(changedId, consent.consent_id);
+  assert.throws(() => donatedCapacityConsentRoot(changedContent));
+  const missing = structuredClone(consent);
+  delete missing.authentication.key_id;
+  assert.throws(() => donatedCapacityConsentRoot(missing));
+  assert.throws(() =>
+    donatedCapacityConsentRoot({
+      ...consent,
+      authentication: {
+        ...consent.authentication,
+        unexpected: true,
+      },
+    }),
   );
 });
 

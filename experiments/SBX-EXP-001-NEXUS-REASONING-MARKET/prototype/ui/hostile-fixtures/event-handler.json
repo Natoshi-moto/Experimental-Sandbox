@@ -1,0 +1,7 @@
+{
+  "schema": "nexus-ui-local-state-v1",
+  "label": "hostile-event-handler",
+  "state": {
+    "attribute": "\" autofocus onfocus=\"globalThis.__nexus_pwned=true"
+  }
+}

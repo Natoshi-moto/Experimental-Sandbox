@@ -143,9 +143,12 @@ NEXUS_STABLE_ID_V1
 NEXUS_NATURAL_KEY_V1
 NEXUS_RECORD_V1
 NEXUS_EVENT_V1
-NEXUS_AUTHENTICATED_EVENT_V1
-NEXUS_EVENT_AUTH_V1
-NEXUS_RECEIPT_V1
+NEXUS_AUTHENTICATED_EVENT_V2
+NEXUS_EVENT_AUTH_PREIMAGE_V2
+NEXUS_RECEIPT_V2
+NEXUS_RECEIPT_CHAIN_V2
+NEXUS_SEMANTIC_RECEIPT_ID_V1
+NEXUS_SEMANTIC_RECEIPT_CHAIN_V1
 NEXUS_ACCOUNT_V1
 NEXUS_PRINCIPAL_V1
 NEXUS_CONTROLLER_V1
@@ -155,6 +158,11 @@ NEXUS_PROJECT_V1
 NEXUS_JOB_V1
 NEXUS_CONTRACT_V1
 NEXUS_CAPABILITY_OFFER_V1
+NEXUS_CAPABILITY_OFFER_CONTENT_V1
+NEXUS_CAPABILITY_OFFER_ID_V2
+NEXUS_CAPABILITY_OFFER_V2
+NEXUS_DONATED_CAPACITY_CONSENT_ID_V2
+NEXUS_ACCEPTED_DONATED_CAPACITY_CONSENT_V2
 NEXUS_CONTRIBUTION_V1
 NEXUS_FUNDING_LOT_V1
 NEXUS_BID_ROUND_V1
@@ -296,10 +304,16 @@ record_root =
       object_type,
       record_id,
       record_revision,
-      record_body_without_record_root_or_auth
+      record_body_without_record_root_or_raw_auth_signatures
     }
   )
 ```
+
+Raw authentication means transport authentication and signature bytes. A
+schema-required `nexus-verified-hybrid-auth-reference-v1` is canonical record
+content, not raw authentication, and MUST remain in every ID or root preimage
+whose schema includes it. Pre-authentication terms/body roots remain auth-free;
+they are not accepted carrier IDs or roots.
 
 Creation uses revision zero and `previous_record_root: null`. Every mutation
 keeps the stable ID, increments `record_revision` by exactly one, sets
@@ -333,12 +347,18 @@ outcomes, decisions, settlements, disclosure manifests, public capsules,
 non-claims, and publication intents—use:
 
 ```text
-body_root = H(type_domain, canonical_body_without_own_id_auth_or_cached_root)
+body_root =
+  H(type_domain, canonical_body_without_own_id_raw_auth_signatures_or_cached_root)
 object_id = registered_type_prefix || body_root
 ```
 
 No object hashes its own ID. Parent IDs, logical tick, creator principal,
 nonce, policy root, and natural-key fields remain inside immutable bodies.
+Raw signature bytes are excluded. The exact six-field verified authentication
+reference is not excluded from capability-offer or donated-consent carrier
+bodies: it is committed to both their ID preimages and carrier-root preimages.
+Their pre-authentication terms/body roots remain auth-free under V1 domains and
+MUST NOT be used as accepted carrier identities.
 
 For events:
 
@@ -349,49 +369,112 @@ event_id = "EVT-" || event_body_root
 ```
 
 Authentication signs `event_body_root` plus the explicit controller/policy
-bindings below. A receipt ID similarly uses `NEXUS_RECEIPT_V1` over
-`receipt_without_receipt_id_and_auth`. Implementations MUST publish one golden
-stable-ID preimage, mutable record-root transition, and immutable ID for every
-registered type.
+bindings below. This exact root includes the full payload and therefore the
+complete nested donated-consent authentication, when present.
+
+Semantic event identity uses a separate event-type-discriminated projection:
+
+```text
+semantic_event_body = event_without_event_id_and_top_level_auth
+if event_type == ACCEPT_DONATED_CAPACITY_CONSENT:
+  semantic_event_body.payload.authentication =
+    verifiedHybridAuthenticationReference(
+      event.payload.authentication
+    )
+semantic_event_body_root =
+  H("NEXUS_EVENT_V1", semantic_event_body)
+semantic_event_id = "EVT-" || semantic_event_body_root
+semantic_event_root =
+  H(
+    "NEXUS_EVENT_SEMANTIC_V2",
+    {
+      schema: "nexus-event-semantic-v2",
+      event_id: semantic_event_id,
+      event_body_root: semantic_event_body_root
+    }
+  )
+```
+
+For every other current event type the semantic and exact event bodies are the
+same. The exception is exact by event type and path; implementations MUST NOT
+recursively omit fields named `authentication`. No other nested full-auth path
+exists among the 55 current event types.
+
+A canonical receipt has schema `nexus-receipt-v2` and exact fields:
+
+```text
+schema, receipt_id, semantic_receipt_id, semantic_receipt_root, sequence,
+event_id, event_type, actor_id, job_id, predecessor_root, next_state_root,
+semantic_event_root, authenticated_event_root, effects_root, result_root,
+invariants_root, logical_tick, previous_receipt_root,
+previous_semantic_receipt_root
+```
+
+`receipt_id` uses `NEXUS_RECEIPT_V2` over the exact V2 receipt body without
+`receipt_id`. The authenticated receipt-chain root uses
+`NEXUS_RECEIPT_CHAIN_V2` over the full receipt and links through
+`previous_receipt_root`. Because `authenticated_event_root` commits the exact
+submitted hybrid event, these values include every inner and outer signature
+byte string and may differ across independently randomized valid
+re-signatures.
+
+`semantic_receipt_id` is `SRCPT-` plus the
+`NEXUS_SEMANTIC_RECEIPT_ID_V1` hash of the complete
+`nexus-semantic-receipt-v1` projection. Its exact keys are:
+
+```text
+schema, receipt_schema, sequence, event_id, event_type, actor_id, job_id,
+predecessor_root, next_state_root, semantic_event_root, effects_root,
+result_root, invariants_root, logical_tick, previous_semantic_receipt_root
+```
+
+`receipt_schema` is `nexus-receipt-v2`. The
+`NEXUS_SEMANTIC_RECEIPT_ID_V1` domain is external to the preimage, not a
+projection key. The projection excludes only authentication-dependent
+evidence. `semantic_receipt_root` uses `NEXUS_SEMANTIC_RECEIPT_CHAIN_V1` and
+`previous_semantic_receipt_root` forms its deterministic chain.
+
+Canonical application state and downstream terminal references MUST use only
+`semantic_receipt_id`; they MUST NOT import authenticated receipt identity or
+chain evidence into the application-state projection. Implementations MUST
+publish one golden stable-ID preimage, mutable record-root transition, and
+immutable ID for every registered type.
 
 ## 4.4 Signature adapter
 
-The protocol defines an adapter:
-
-```text
-verify_signature(
-  signer_id,
-  signature_scheme,
-  domain,
-  canonical_payload,
-  signature
-) -> boolean
-```
-
-A production implementation requires an independently reviewed modern
-signature scheme and protected signer lane. The dependency-free prototype MAY
-use an explicitly named deterministic simulation authenticator for fixtures.
-Such an authenticator MUST be labelled `SIM_AUTH_UNSAFE` and MUST NOT be
-accepted as cryptographic custody evidence.
+The executable prototype accepts only the mandatory
+`HYBRID_ED25519_ML_DSA_65_V1` profile in
+[`HYBRID_IDENTITY_PROFILE.md`](HYBRID_IDENTITY_PROFILE.md). Ed25519 AND
+ML-DSA-65 MUST verify over one identical canonical domain-separated message.
+`SIM_AUTH_UNSAFE`, single-signature, either/or, unknown-scheme, and legacy
+fallback profiles MUST reject.
 
 Canonical event authentication is:
 
 ```json
 {
-  "scheme": "SIM_AUTH_UNSAFE|APPROVED_SIGNATURE_SCHEME",
-  "key_id": "KEY-...",
+  "scheme": "HYBRID_ED25519_ML_DSA_65_V1",
+  "key_id": "HYBRIDKEY-...",
   "controller_id": "CTRL-...",
-  "signed_domain": "NEXUS_EVENT_AUTH_V1",
+  "signed_domain": "NEXUS_EVENT_AUTH_V2",
   "signed_payload_root": "...",
-  "signature": "..."
+  "ed25519_signature_base64url": "...",
+  "ml_dsa_65_signature_base64url": "..."
 }
 ```
+
+`ACCEPT_DONATED_CAPACITY_CONSENT` is the only current event with a nested full
+authentication object, at `payload.authentication`. It MUST use the same exact
+seven-field mandatory-AND shape with signed domain
+`NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2`. Ingress MUST reject missing or extra
+fields and MUST reject a caller-supplied six-field
+`nexus-verified-hybrid-auth-reference-v1`.
 
 The signed payload is:
 
 ```json
 {
-  "schema": "nexus-event-auth-preimage-v1",
+  "schema": "nexus-event-auth-preimage-v2",
   "event_body_root": "...",
   "event_type": "...",
   "actor_id": "...",
@@ -406,14 +489,26 @@ The signed payload is:
 }
 ```
 
-`signed_payload_root = H("NEXUS_EVENT_AUTH_V1", auth_preimage)`. The signature
-adapter verifies that root under `signed_domain`; a signature over merely the
-event ID or payload is invalid.
+`signed_payload_root = H("NEXUS_EVENT_AUTH_PREIMAGE_V2", auth_preimage)`.
+Both algorithms sign `canonicalBytes()` of the exact
+`nexus-hybrid-auth-signed-message-v2` defined by the hybrid profile. ML-DSA-65
+uses fixed ASCII context `NEXUS_HYBRID_AUTH_ML_DSA_65_CONTEXT_V1`.
+`event_body_root` and `payload_root` in this preimage are exact roots over the
+full submitted payload, including the complete nested authentication. The outer
+mandatory-AND signature MUST NOT use the semantic projection.
 
-The controller registry MUST bind each key ID to controller, scheme, scope,
-activation predecessor, and `ACTIVE|ROTATED|REVOKED` state. Signature schemes
-are allowlisted by policy. A rotated/revoked key cannot authorize an event
-ordered after its terminal controller transition.
+The controller registry MUST bind both canonical SPKI-DER public keys and their
+derived hybrid key ID to controller, scope, activation predecessor, and
+`ACTIVE|ROTATED|REVOKED` state. Rotation replaces both keys atomically.
+
+Receipts and idempotency bind the type-discriminated semantic event root
+defined above. Only top-level authentication is generally excluded; only the
+one nested donated-consent path is replaced by its exact six-field verified
+reference. New and duplicate donated-consent paths MUST cryptographically
+verify the complete nested Ed25519 AND ML-DSA-65 authentication before trusting
+that projection. Duplicate verification MUST use the originally accepted
+controller snapshot. The journal, `authenticated_event_root`, and authenticated
+receipt MUST preserve the exact originally accepted inner and outer bytes.
 
 ## 5. Global state
 
@@ -426,6 +521,7 @@ ordered after its terminal controller transition.
   "controllers": {},
   "accounts": {},
   "capability_offers": {},
+  "capability_offer_content_index": {},
   "revoked_offer_ids": {},
   "funding_lots": {},
   "jobs": {},
@@ -605,6 +701,7 @@ A canonical worker offer is:
 {
   "schema": "nexus-capability-offer-v1",
   "offer_id": "OFFER-...",
+  "offer_content_root": "...",
   "principal_id": "PRINCIPAL-...",
   "worker_seat_id": "SEAT-...",
   "offer_mode": "PAID|DONATED_CAPACITY",
@@ -631,9 +728,65 @@ A canonical worker offer is:
   "not_before_tick": 0,
   "expiry_tick": 0,
   "nonce": "...",
-  "auth": {}
+  "authentication": {
+    "schema": "nexus-verified-hybrid-auth-reference-v1",
+    "scheme": "HYBRID_ED25519_ML_DSA_65_V1",
+    "key_id": "HYBRIDKEY-...",
+    "controller_id": "CTRL-...",
+    "signed_domain": "NEXUS_EVENT_AUTH_V2",
+    "signed_payload_root": "..."
+  }
 }
 ```
+
+The `authentication` member is derived only after the complete top-level
+`REGISTER_OFFER` authentication verifies. It has exactly the six fields shown;
+missing or extra fields reject. The v1 carrier schema remains unchanged.
+`offer_id` derives under `NEXUS_CAPABILITY_OFFER_ID_V2` over the exact
+ID-excluded v1 carrier body containing the reference. The accepted carrier root
+derives under `NEXUS_CAPABILITY_OFFER_V2` over the exact v1 carrier containing
+the reference. Raw signature bytes never enter either preimage. The auth-free
+offer terms/body root remains under its V1 domain and is distinct from the
+accepted offer ID/root.
+
+An accepted donated-capacity consent carrier has the same exact reference shape
+derived from its verified nested authentication, with signed domain
+`NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2`. Its v1 carrier schema remains
+unchanged. Its ID derives under `NEXUS_DONATED_CAPACITY_CONSENT_ID_V2`, and its
+root derives under `NEXUS_ACCEPTED_DONATED_CAPACITY_CONSENT_V2`; both preimages
+include the reference. Its auth-free consent body root remains under its V1
+domain.
+
+`offer_content_root` is core-derived and MUST NOT be supplied by
+`REGISTER_OFFER`:
+
+```text
+offer_content_root = H(
+  "NEXUS_CAPABILITY_OFFER_CONTENT_V1",
+  exact semantic offer body
+)
+```
+
+The exact semantic offer body includes `nonce` and excludes only `offer_id`,
+`offer_content_root`, and `authentication`. The stored accepted offer includes
+the derived content root, and both `NEXUS_CAPABILITY_OFFER_ID_V2` and
+`NEXUS_CAPABILITY_OFFER_V2` commit it together with the verified authentication
+reference. The auth-free offer terms root and probe root remain V1 inputs and
+are not this content root.
+
+Canonical state contains
+`capability_offer_content_index: offer_content_root -> offer_id`.
+`REGISTER_OFFER` MUST first honor exact committed-event replay. Otherwise an
+occupied content root under a different event envelope or verified reference
+MUST fail `ERR_ID_PREIMAGE` before mutation. Changing the offer `nonce` changes
+the semantic body and content root, but the distinct registration MUST
+independently satisfy authentication, authority, predecessor, policy, nonce,
+and idempotency requirements.
+
+Ring 0 invariants and recovery MUST recompute the index bidirectionally. Every
+accepted offer has exactly one matching index entry, every index entry resolves
+the matching accepted offer ID/content root, and missing, extra, crossed, or
+tampered mappings reject.
 
 An offer is eligible only while active, signed by its registered controller,
 unrevoked, probe-current, and within all contract ceilings.
@@ -2123,23 +2276,39 @@ reject.
 apply_event(current_state, raw_event):
   parse strict canonical ingress
   validate schema and size
+  require exact seven-field top-level hybrid authentication
+  if event_type == ACCEPT_DONATED_CAPACITY_CONSENT:
+      require exact seven-field payload.authentication
+      reject a six-field verified-auth reference at that ingress path
   canonicalize event
-  derive event_body_root excluding event_id and auth
+  derive exact event_body_root excluding event_id and top-level auth
+      but including the exact full payload and nested authentication
   require event_id == "EVT-" || event_body_root
+  derive semantic_event_body by the one explicit event-type/path rule
+  derive semantic_event_body_root, semantic_event_id, and semantic_event_root
   authenticated_event_root =
-      H("NEXUS_AUTHENTICATED_EVENT_V1", entire_canonical_event)
+      H("NEXUS_AUTHENTICATED_EVENT_V2", entire_canonical_event)
 
   lookup event_id and idempotency_key in verified committed-journal index
-  if both resolve to the same committed authenticated_event_root
-     and entire canonical bytes match:
+  if the replay identifiers resolve to the same committed semantic_event_root:
+      verify full outer hybrid authentication against the originally accepted
+          controller snapshot
+      if event_type == ACCEPT_DONATED_CAPACITY_CONSENT:
+          verify full nested hybrid authentication against the originally
+              accepted controller snapshot
       return original historical receipt without mutating current state
-  if either identifier is committed with different canonical/auth bytes:
+  if either identifier is committed with different semantic content:
       reject ERR_IDEMPOTENCY_CONFLICT
 
   require auth.signed_payload_root == hash(canonical auth preimage)
   require auth preimage binds event body, actor, controller, authority,
           policy, predecessor, tick, nonce, idempotency key, and payload
   verify allowlisted scheme, active registered key, scope, and signature
+  if event_type == ACCEPT_DONATED_CAPACITY_CONSENT:
+      verify the nested authentication under
+          NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2
+      derive its six-field verified-hybrid-auth reference only after both
+          signatures verify
 
   require expected_predecessor_root == state_root(current_state)
   require event.tick == current_state.tick
@@ -2154,7 +2323,7 @@ apply_event(current_state, raw_event):
       apply all boundary expiries/phase changes in canonical order
   else:
       apply pure event-specific transition(candidate_application_state)
-  record nonce, event body root, and authenticated event root
+  record nonce, exact event body root, and semantic event root
       in candidate_application_state idempotency map
   validate every Ring 0 invariant(candidate_application_state)
   next_root = H("NEXUS_STATE_V1", candidate_application_state)
@@ -2178,13 +2347,15 @@ apply_event(current_state, raw_event):
 ```
 
 The committed-journal replay index is rebuilt and verified during recovery;
-an uncommitted PREPARE frame cannot satisfy replay. Exact replay intentionally
-precedes current key/activity/policy/predecessor checks: the event already
-passed those checks at its historical predecessor. Recovery re-verifies its
-signature against the controller/key registry state reconstructed at that
-predecessor. Rotation or revocation affects new events only. A changed
-signature/auth object under the same body-derived event ID is not exact replay
-and rejects.
+an uncommitted PREPARE frame cannot satisfy replay. Semantic replay
+intentionally precedes current key/activity/policy/predecessor checks: the event
+already passed those checks at its historical predecessor. Replay and recovery
+reverify full outer authentication and, for the one donated-consent path, full
+nested authentication against the controller/key registry snapshot
+reconstructed at that predecessor. Rotation or revocation affects new events
+only. A changed valid randomized signature may be semantically equivalent only
+through the top-level exclusion or explicit donated-consent projection; invalid
+cryptography or changed projected content rejects.
 
 Rejection constructs a non-authoritative diagnostic from the original state.
 It does not append to the accepted receipt/WAL chain unless a separate
@@ -2194,7 +2365,7 @@ diagnostic journal explicitly records rejections outside canonical state.
 
 ```json
 {
-  "schema": "nexus-receipt-v1",
+  "schema": "nexus-receipt-v2",
   "receipt_id": "RCPT-...",
   "sequence": 1,
   "event_id": "EVT-...",
@@ -2203,14 +2374,22 @@ diagnostic journal explicitly records rejections outside canonical state.
   "job_id": "JOB-...",
   "predecessor_root": "...",
   "next_state_root": "...",
-  "event_root": "...",
+  "semantic_event_root": "...",
+  "authenticated_event_root": "...",
   "effects_root": "...",
   "invariants_root": "...",
   "logical_tick": 0,
-  "previous_receipt_root": "...",
-  "auth": {}
+  "previous_receipt_root": "..."
 }
 ```
+
+`semantic_event_root` commits the type-discriminated projection: top-level
+authentication is excluded, and only
+`ACCEPT_DONATED_CAPACITY_CONSENT.payload.authentication` is replaced by its
+verified six-field reference. `authenticated_event_root` commits the exact
+submitted hybrid-authenticated event including complete inner and outer
+signatures. Recovery MUST match both roots and MUST reject an alternate valid
+re-signature paired with the original receipt.
 
 Receipt sequence is local and gapless. Wall-clock timestamps may appear in
 non-canonical diagnostics only. Receipts form the committed WAL/journal and are
@@ -2690,6 +2869,10 @@ Messages may improve; reason-code semantics are versioned protocol.
 
 ## 27. Required adversarial vectors
 
+Executable coverage is tracked separately in
+[`reports/FALSIFIER_SCOREBOARD_v0.2.md`](reports/FALSIFIER_SCOREBOARD_v0.2.md).
+Specification text or implementation presence MUST NOT be counted as a test.
+
 ### Ledger
 
 1. negative, float, unsafe, and overflow amounts;
@@ -2813,14 +2996,22 @@ Messages may improve; reason-code semantics are versioned protocol.
 76. unsolicited, duplicate-slot, replaced, expired, or fourth paid review;
 77. RFC 8785 golden vectors plus duplicate key, non-NFC, lone surrogate,
     exponent, negative-zero, and unsafe-integer rejection;
-78. every registered ID golden preimage, self-ID omission, auth omission,
-    domain collision, and full-digest check;
+78. every registered ID golden preimage, self-ID omission, raw-signature
+    omission, mandatory exact six-field verified-auth-reference inclusion for
+    capability-offer and donated-consent carrier IDs/roots, internally derived
+    offer content-root and bidirectional uniqueness-index checks, missing/extra
+    reference rejection, changed-reference identity divergence, V2 carrier
+    domain separation, and full-digest check;
 79. scheduler insertion order disagrees while the canonical ordering tuple
     must remain identical;
 80. crash before/after each PREPARE, COMMIT, snapshot rename, and manifest
     pointer boundary proves old-or-new recovery;
 81. donated-capacity offer exceeds owner consent, leaks a provider credential,
-    bids nonzero, or revokes an already accepted lease retroactively;
+    bids nonzero, presents a missing or extra verified-auth reference, attempts
+    same-content registration under a different envelope/reference, tampers
+    with the offer content index, attempts to retain an offer or consent carrier
+    ID/root after changing that reference, crosses an old ID/root, or revokes an
+    already accepted lease retroactively;
 82. sponsor, requester, or model attempts to open/merge an open-source job
     without exact maintainer attestation;
 83. optional allowance allocation attempts to consume the mandatory lead,
@@ -2843,8 +3034,13 @@ Messages may improve; reason-code semantics are versioned protocol.
     and filing, waiver, resolution, and timeout on every half-open absolute
     decision/appeal tick boundary;
 92. exact committed replay after controller rotation/revocation returns the
-    historical receipt, while changed auth bytes under the same event or
-    idempotency key reject.
+    historical receipt; independently valid randomized signature-byte-only
+    re-signing that derives the same exact six-field reference preserves
+    semantic identity and offer/consent carrier IDs/roots; exact event replay
+    returns the historical receipt before offer-content uniqueness handling,
+    while a changed reference changes carrier identity or conflicts, and
+    alternate authenticated bytes paired with the original receipt reject
+    recovery.
 93. v0 contract attempts a review count other than three, majority clearance,
     worker self-review, or non-hold material dissent.
 
@@ -2954,9 +3150,24 @@ Conformance requires all of the following:
 
 `applyEvent(runtime,event)` MUST verify exact ingress, authentication, predecessor root, authority root, policy root, logical tick, nonce, idempotency key, and event-specific payload keys before mutation. It MUST reduce against a candidate clone, validate all invariants, and commit state, event history, receipt history, and idempotency indexes atomically. A failure MUST commit nothing.
 
-An identical authenticated replay MAY return the prior replay result. Reuse of an event ID or idempotency key with different authenticated bytes MUST fail.
+An identical authenticated replay MAY return the prior replay result. A
+semantically identical, independently and validly re-signed duplicate in an
+already-advanced runtime MUST resolve through semantic idempotency and return
+the original authenticated receipt without appending or replacing journal
+bytes. Reuse of an event ID or idempotency key for a conflicting semantic
+event MUST fail.
 
-`recoverRuntime({events,expectedFinalRoot,genesisState,receipts})` is the only history-bearing runtime constructor. Recovery MUST replay the complete ordered authenticated journal, compare every receipt and state transition, and require the exact final root. Missing, reordered, altered, duplicated, or extra events or receipts MUST fail recovery.
+`recoverRuntime({events,expectedFinalRoot,genesisState,receipts})` is the only
+history-bearing runtime constructor. Recovery MUST replay the complete ordered
+authenticated journal, compare every receipt and state transition, and require
+the exact final root. It MUST recompute `receipt_id`,
+`semantic_receipt_id`, the authenticated chain rooted through
+`previous_receipt_root`, and the deterministic semantic chain rooted through
+`previous_semantic_receipt_root`. It MUST also require each
+`authenticated_event_root` to match the exact supplied event bytes. An
+alternate valid randomized re-signature paired with an original receipt MUST
+fail `ERR_RECOVERY`. Missing, reordered, altered, duplicated, or extra events
+or receipts MUST fail recovery.
 
 The prototype has no durable canonical database. Runtime state, brands, indexes, and journals are in memory. Exported snapshots are evidence and recovery inputs, not a persistence or concurrency protocol. Production use requires durable atomic storage, locking or serialization, crash recovery, key custody, and authenticated journal retention beyond this prototype.
 
@@ -2966,7 +3177,42 @@ Every accepted value MUST be canonical: exact object keys, normalized strings, l
 
 Carrier and record IDs MUST be derived by the core from a schema-specific ID domain over the exact ID-excluded body. A caller MUST NOT select or override a derived ID. A supplied derived ID MUST match its preimage.
 
+Carrier root helpers use own-ID property presence, not truthiness. For
+capability offers the key is `offer_id`; for accepted donated-capacity consents
+it is `consent_id`. If `Object.hasOwn(record, ownIdKey)` is false, the helper
+MUST derive the own ID internally. If it is true, the value MUST be the exact
+canonical derived ID. Present `null`, explicit `undefined`, non-string,
+malformed, or canonical-looking mismatched values MUST fail
+`ERR_ID_PREIMAGE`. The absent-own-ID and exact-valid-present-own-ID forms MUST
+derive the same carrier root.
+
 Record roots MUST be computed under the record's schema-specific hash domain over the exact canonical record body. Transport authentication, event signatures, receipts, replay metadata, and operational status MUST NOT be inserted into a record-root preimage unless the record schema explicitly includes them. ID domains, record-root domains, event-body domains, authentication domains, set domains, and decision domains are distinct and MUST NOT be substituted for one another.
+
+Capability-offer and accepted donated-consent carrier schemas explicitly
+include the exact
+`{schema:"nexus-verified-hybrid-auth-reference-v1",scheme,key_id,controller_id,signed_domain,signed_payload_root}`
+derived after full authentication verification. Their v1 carrier schema strings
+remain unchanged. Offer IDs and roots use `NEXUS_CAPABILITY_OFFER_ID_V2` and
+`NEXUS_CAPABILITY_OFFER_V2`; consent IDs and roots use
+`NEXUS_DONATED_CAPACITY_CONSENT_ID_V2` and
+`NEXUS_ACCEPTED_DONATED_CAPACITY_CONSENT_V2`. All four preimages retain the
+exact reference. Raw Ed25519 and ML-DSA-65 signatures MUST NOT enter a carrier
+preimage. Auth-free offer terms and consent body roots remain under their V1
+domains, avoid a circular signed preimage, and MUST NOT be substituted for an
+accepted carrier ID/root.
+
+The core MUST derive `offer_content_root` under
+`NEXUS_CAPABILITY_OFFER_CONTENT_V1` from the exact semantic offer body,
+including `nonce` and excluding only `offer_id`, `offer_content_root`, and
+`authentication`. It MUST reject a caller-supplied content root. The accepted
+offer stores the derived root, and both V2 offer carrier preimages bind it.
+Canonical state MUST maintain
+`capability_offer_content_index: content_root -> offer_id`. After exact event
+replay handling, registration of an occupied content root under a different
+envelope or reference fails `ERR_ID_PREIMAGE` before mutation. A changed offer
+`nonce` is distinct content but still requires independent authority.
+Invariants and recovery MUST bidirectionally recompute the index and reject any
+missing, extra, crossed, or tampered mapping.
 
 Event ingress is exactly:
 
@@ -2976,13 +3222,39 @@ The schema is `nexus-event-v1`. The event ID is `EVT-${eventBodyRoot(event)}`.
 
 Authentication is exactly:
 
-`{scheme,key_id,controller_id,signed_domain,signed_payload_root,signature}`
+`{scheme:"HYBRID_ED25519_ML_DSA_65_V1",key_id,controller_id,signed_domain:"NEXUS_EVENT_AUTH_V2",signed_payload_root,ed25519_signature_base64url,ml_dsa_65_signature_base64url}`
 
-The signed domain is `NEXUS_EVENT_AUTH_V1`. The authentication preimage is exactly:
+The authentication preimage is exactly:
 
-`{schema:"nexus-event-auth-preimage-v1",event_body_root,event_type,actor_id,controller_id,expected_predecessor_root,authority_root,tick,nonce,idempotency_key,payload_root,policy_root}`
+`{schema:"nexus-event-auth-preimage-v2",event_body_root,event_type,actor_id,controller_id,expected_predecessor_root,authority_root,tick,nonce,idempotency_key,payload_root,policy_root}`
 
-Verification MUST bind the active actor, controller, controller key, controller scope, authority root, predecessor state root, logical tick, policy root, payload root, signed domain, and signature. `SIM_AUTH_UNSAFE` is explicitly an unsafe prototype scheme and MUST NOT be represented as production cryptography.
+Its root domain is `NEXUS_EVENT_AUTH_PREIMAGE_V2`. Both signatures MUST verify
+over one exact `nexus-hybrid-auth-signed-message-v2`. Controller key IDs derive
+under `NEXUS_HYBRID_AUTH_KEY_ID_V1` from both canonical public SPKI values.
+`SIM_AUTH_UNSAFE`, missing keys/signatures, one-key rotation, and unknown schemes
+reject. Exact sizes, OIDs, encodings, replay semantics, and non-claims are
+normative in [`HYBRID_IDENTITY_PROFILE.md`](HYBRID_IDENTITY_PROFILE.md).
+
+`eventBodyRoot(event)` and `authPreimage(event, controller_id)` use the exact
+full payload. For the sole nested full-auth path,
+`ACCEPT_DONATED_CAPACITY_CONSENT.payload.authentication`, ingress requires the
+exact seven-field mandatory-AND object and rejects a caller-supplied six-field
+reference. Only semantic event body/ID/root projection replaces that value with
+the exact
+`{schema:"nexus-verified-hybrid-auth-reference-v1",scheme,key_id,controller_id,signed_domain,signed_payload_root}`
+derived after verification. This rule is not recursive or name-based, and no
+other nested full-auth path exists among the 55 current event types. Both new
+and duplicate paths verify the full nested authentication; duplicates use the
+originally accepted controller snapshot. Authenticated event and receipt
+evidence preserve full inner and outer bytes, while stored capability offers
+and accepted consents retain only derived six-field references. Each retained
+reference MUST have exactly those six fields and MUST equal the value derived
+from the verified authentication. Missing, extra, malformed, or
+verification-mismatched references reject. Each V2 carrier ID preimage and V2
+carrier-root preimage includes the reference. Changed randomized signature
+bytes preserve carrier identity only when the derived reference is identical;
+changing any reference field changes both carrier ID and root for an otherwise
+valid carrier, so an old or crossed ID/root rejects.
 
 ## 3. Accepted resolver V2 and one-state authority
 
@@ -3019,6 +3291,13 @@ Authority topology is consent-first:
 A controller MUST be active and independently authenticated before it can act for a principal. A principal MUST occupy the exact authorized seat. A worker, donated-capacity provider, reviewer, verifier, or delegate MUST have the required accepted consent before an offer, bid, assignment, lease, measurement, work action, or review can rely on that capacity.
 
 Consent MUST bind its controller, principal, seat, scope, policy, validity window, and any delegated ceiling. Later offers and assignments MUST reference the accepted consent rather than restating consent booleans. Revocation or expiry MUST be evaluated from accepted current state and tick. No downstream event may retroactively manufacture missing consent.
+
+The accepted consent and capability-offer references used by this topology MUST
+resolve carriers whose exact six-field verified authentication references are
+committed to both carrier ID and root under the V2 carrier domains. Eligibility
+MUST reject a carrier with a missing or extra reference, a reference that does
+not match verified provenance, or an ID/root computed from different reference
+content.
 
 ## 5. Reference-only bid and task eligibility
 

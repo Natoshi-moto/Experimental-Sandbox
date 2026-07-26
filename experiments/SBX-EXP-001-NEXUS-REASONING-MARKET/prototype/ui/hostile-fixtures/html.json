@@ -1,0 +1,8 @@
+{
+  "schema": "nexus-ui-local-state-v1",
+  "label": "hostile-html",
+  "state": {
+    "title": "<img src=x onerror=globalThis.__nexus_pwned=true>",
+    "summary": "<b>must render as literal text</b>"
+  }
+}

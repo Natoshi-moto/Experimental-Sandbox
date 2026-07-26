@@ -2,9 +2,17 @@ import { canonicalize } from "./canonical.mjs";
 import {
   assertEventIngress,
   authenticatedEventRoot,
+  semanticEventRoot,
   verifyIndependentControllerAuthentication,
+  verifyIndependentControllerAuthenticationWithController,
+  verifyEventAuthentication,
   verifyNewEvent,
 } from "./auth.mjs";
+import {
+  HYBRID_AUTH_SCHEME,
+  deriveHybridKeyId,
+  verifiedHybridAuthenticationReference,
+} from "./identity.mjs";
 import { invariant, fail } from "./errors.mjs";
 import {
   ACCEPTED_ROUTE_CONTEXT_SCHEMA,
@@ -32,6 +40,8 @@ import {
   buildReceipt,
   receiptRoot,
   recomputeReceiptId,
+  recomputeSemanticReceiptId,
+  semanticReceiptRoot,
 } from "./receipts.mjs";
 import {
   activeLotValue,
@@ -70,6 +80,7 @@ import {
   contractRouteContextRoot,
   acceptedDisclosurePreparationRoot,
   assertDerivedCarrierId,
+  capabilityOfferContentRoot,
   capabilityOfferRoot,
   capabilityOfferTermsRoot,
   dataRouteAuthorityRoot,
@@ -2105,7 +2116,19 @@ function handleRegisterOffer(state, event) {
     expiry_tick: p.expiry_tick,
     nonce: p.offer_nonce,
   };
-  const offerId = derivedCarrierId("CAPABILITY_OFFER", body);
+  const authentication = verifiedHybridAuthenticationReference(
+    event.auth,
+  );
+  const offerContentRoot = capabilityOfferContentRoot(body);
+  const carrierBody = {
+    ...body,
+    offer_content_root: offerContentRoot,
+    authentication,
+  };
+  const offerId = derivedCarrierId(
+    "CAPABILITY_OFFER",
+    carrierBody,
+  );
   const consent =
     p.owner_consent_id === null
       ? null
@@ -2126,12 +2149,20 @@ function handleRegisterOffer(state, event) {
     "ERR_AUTHORITY",
     "offer lacks exact independently authenticated donated-capacity consent",
   );
-  invariant(!state.capability_offers[offerId], "ERR_ID_PREIMAGE", "offer exists");
+  invariant(
+    !state.capability_offers[offerId] &&
+      !Object.hasOwn(
+        state.capability_offer_content_index,
+        offerContentRoot,
+      ),
+    "ERR_ID_PREIMAGE",
+    "offer identity or semantic content already exists",
+  );
   state.capability_offers[offerId] = {
     offer_id: offerId,
-    ...body,
-    authentication: structuredClone(event.auth),
+    ...carrierBody,
   };
+  state.capability_offer_content_index[offerContentRoot] = offerId;
   return {
     jobId: null,
     effects: [`registered capability offer ${offerId}`],
@@ -2172,7 +2203,7 @@ function handleRevokeOffer(state, event) {
   };
 }
 
-function handleAcceptDonatedCapacityConsent(state, event) {
+function donatedCapacityConsentAuthenticationBinding(event) {
   invariant(
     event.payload.schema === "nexus-accept-donated-capacity-consent-v1",
     "ERR_SCHEMA",
@@ -2182,16 +2213,46 @@ function handleAcceptDonatedCapacityConsent(state, event) {
   const signedBodyRoot = donatedCapacityConsentBodyRoot(signedBody);
   invariant(
     signedBody.principal_id === event.actor_id &&
-      signedBody.controller_id === event.auth.controller_id &&
-      state.tick >= signedBody.not_before_tick &&
+      signedBody.controller_id === event.auth.controller_id,
+    "ERR_AUTHORITY",
+    "donated-capacity consent actor/controller binding is invalid",
+  );
+  return { signedBody, signedBodyRoot };
+}
+
+function verifyEmbeddedReplayAuthentication(controller, event) {
+  switch (event.event_type) {
+    case "ACCEPT_DONATED_CAPACITY_CONSENT": {
+      const { signedBody, signedBodyRoot } =
+        donatedCapacityConsentAuthenticationBinding(event);
+      verifyIndependentControllerAuthenticationWithController({
+        controller,
+        principalId: signedBody.principal_id,
+        controllerId: signedBody.controller_id,
+        signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
+        signedBodyRoot,
+        authentication: event.payload.authentication,
+      });
+      return;
+    }
+    default:
+      return;
+  }
+}
+
+function handleAcceptDonatedCapacityConsent(state, event) {
+  const { signedBody, signedBodyRoot } =
+    donatedCapacityConsentAuthenticationBinding(event);
+  invariant(
+    state.tick >= signedBody.not_before_tick &&
       state.tick < signedBody.expiry_tick,
     "ERR_AUTHORITY",
-    "donated-capacity consent is not current for its actor/controller",
+    "donated-capacity consent is not current",
   );
   verifyIndependentControllerAuthentication(state, {
     principalId: signedBody.principal_id,
     controllerId: signedBody.controller_id,
-    signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V1",
+    signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
     signedBodyRoot,
     authentication: event.payload.authentication,
   });
@@ -2202,7 +2263,9 @@ function handleAcceptDonatedCapacityConsent(state, event) {
     signed_body: structuredClone(signedBody),
     signed_body_root: signedBodyRoot,
     status: "ACCEPTED",
-    authentication: structuredClone(event.payload.authentication),
+    authentication: verifiedHybridAuthenticationReference(
+      event.payload.authentication,
+    ),
   };
   const consentId = derivedCarrierId(
     "DONATED_CAPACITY_CONSENT",
@@ -2226,6 +2289,56 @@ function handleAcceptDonatedCapacityConsent(state, event) {
     jobId: null,
     effects: [`accepted donated-capacity consent ${consentId}`],
     result: { consent_id: consentId, consent_root: root },
+  };
+}
+
+function handleRotateControllerKeys(state, event) {
+  const payload = event.payload;
+  const controller = state.controllers[payload.controller_id];
+  const principal = state.principals[event.actor_id];
+  invariant(
+    controller?.status === "ACTIVE" &&
+      principal?.controller_id === controller.controller_id &&
+      event.auth.controller_id === controller.controller_id &&
+      payload.current_key_id === controller.key_id &&
+      payload.new_scheme === HYBRID_AUTH_SCHEME,
+    "ERR_AUTHORITY",
+    "controller rotation is not authorized by the current hybrid pair",
+  );
+  const nextIdentity = {
+    scheme: payload.new_scheme,
+    ed25519_public_key_spki_der_base64url:
+      payload.new_ed25519_public_key_spki_der_base64url,
+    ml_dsa_65_public_key_spki_der_base64url:
+      payload.new_ml_dsa_65_public_key_spki_der_base64url,
+  };
+  const nextKeyId = deriveHybridKeyId(nextIdentity);
+  invariant(
+    payload.new_key_id === nextKeyId &&
+      nextKeyId !== controller.key_id,
+    "ERR_AUTHORITY",
+    "controller rotation must atomically install a new exact key pair",
+  );
+  state.controllers[controller.controller_id] = reviseRecord(
+    controller,
+    {
+      scheme: nextIdentity.scheme,
+      key_id: nextKeyId,
+      ed25519_public_key_spki_der_base64url:
+        nextIdentity.ed25519_public_key_spki_der_base64url,
+      ml_dsa_65_public_key_spki_der_base64url:
+        nextIdentity.ml_dsa_65_public_key_spki_der_base64url,
+    },
+    "CONTROLLER",
+  );
+  return {
+    jobId: null,
+    effects: [`rotated hybrid controller ${controller.controller_id}`],
+    result: {
+      controller_id: controller.controller_id,
+      previous_key_id: controller.key_id,
+      key_id: nextKeyId,
+    },
   };
 }
 
@@ -7648,7 +7761,8 @@ function handleAcceptDisclosurePolicy(state, event, runtimeContext) {
     const terminalReceipt = runtimeContext.terminal_receipt;
     invariant(
       job.state === "SETTLED" &&
-        terminalReceipt?.receipt_id === terminalReceiptId &&
+        terminalReceipt?.semantic_receipt_id ===
+          terminalReceiptId &&
         terminalReceipt.event_id === job.terminal_event_id &&
         terminalReceipt.job_id === job.job_id &&
         terminalReceipt.next_state_root ===
@@ -8437,6 +8551,8 @@ function handleCommitPublicExportAuthority(state, event, runtimeContext) {
 
 function dispatch(state, event, runtimeContext) {
   switch (event.event_type) {
+    case "ROTATE_CONTROLLER_KEYS":
+      return handleRotateControllerKeys(state, event);
     case "CREATE_JOB":
       return handleCreateJob(state, event);
     case "REGISTER_OFFER":
@@ -8659,6 +8775,7 @@ export function recoverRuntime(request) {
   assertHexRoot(expectedFinalRoot, "expected recovery final root");
   const runtime = createRuntime(genesisState);
   let previousReceiptRoot = null;
+  let previousSemanticReceiptRoot = null;
   for (const [index, suppliedEvent] of events.entries()) {
     assertEventIngress(suppliedEvent);
     const suppliedReceipt = receipts[index];
@@ -8666,8 +8783,16 @@ export function recoverRuntime(request) {
       suppliedReceipt &&
         suppliedReceipt.sequence === index + 1 &&
         suppliedReceipt.event_id === suppliedEvent.event_id &&
-        suppliedReceipt.event_root ===
+        suppliedReceipt.semantic_event_root ===
+          semanticEventRoot(suppliedEvent) &&
+        suppliedReceipt.authenticated_event_root ===
           authenticatedEventRoot(suppliedEvent) &&
+        suppliedReceipt.semantic_receipt_id ===
+          recomputeSemanticReceiptId(suppliedReceipt) &&
+        suppliedReceipt.semantic_receipt_root ===
+          semanticReceiptRoot(suppliedReceipt) &&
+        suppliedReceipt.previous_semantic_receipt_root ===
+          previousSemanticReceiptRoot &&
         suppliedReceipt.previous_receipt_root ===
           previousReceiptRoot &&
         suppliedReceipt.receipt_id ===
@@ -8675,7 +8800,16 @@ export function recoverRuntime(request) {
       "ERR_RECOVERY",
       `recovery receipt ${index + 1} identity/link/event binding is invalid`,
     );
-    const outcome = applyEvent(runtime, structuredClone(suppliedEvent));
+    let outcome;
+    try {
+      outcome = applyEvent(runtime, structuredClone(suppliedEvent));
+    } catch (error) {
+      fail(
+        "ERR_RECOVERY",
+        `recovery event ${index + 1} failed authenticated replay`,
+        { cause_code: error?.code ?? null },
+      );
+    }
     invariant(
       outcome.replay === false &&
         canonicalize(outcome.receipt) ===
@@ -8684,6 +8818,8 @@ export function recoverRuntime(request) {
       `recovery receipt ${index + 1} differs from deterministic replay`,
     );
     previousReceiptRoot = receiptRoot(suppliedReceipt);
+    previousSemanticReceiptRoot =
+      suppliedReceipt.semantic_receipt_root;
   }
   invariant(
     currentRoot(runtime) === expectedFinalRoot,
@@ -8696,18 +8832,20 @@ export function recoverRuntime(request) {
 export function applyEvent(runtime, event) {
   const internals = runtimeInternals(runtime);
   assertEventIngress(event);
-  const eventRoot = authenticatedEventRoot(event);
+  const semanticRoot = semanticEventRoot(event);
   const byEvent = internals.eventIndex.get(event.event_id);
   const byKey = internals.idempotencyIndex.get(event.idempotency_key);
   if (byEvent || byKey) {
     invariant(
       byEvent &&
         byKey &&
-        byEvent.event_root === eventRoot &&
-        byKey.event_root === eventRoot,
+        byEvent.semantic_event_root === semanticRoot &&
+        byKey.semantic_event_root === semanticRoot,
       "ERR_IDEMPOTENCY_CONFLICT",
-      "event or idempotency key was reused with changed bytes",
+      "event or idempotency key was reused with changed semantic content",
     );
+    verifyEventAuthentication(byEvent.controller, event);
+    verifyEmbeddedReplayAuthentication(byEvent.controller, event);
     return deepFreeze({
       state: structuredClone(internals.state),
       receipt: structuredClone(byEvent.receipt),
@@ -8761,7 +8899,8 @@ export function applyEvent(runtime, event) {
       "ERR_DISCLOSURE_UNCLASSIFIED",
       "canonical terminal receipt is unavailable",
     );
-    runtimeContext.terminal_receipt_id = terminalReceipt.receipt_id;
+    runtimeContext.terminal_receipt_id =
+      terminalReceipt.semantic_receipt_id;
     runtimeContext.terminal_receipt = terminalReceipt;
   }
   const outcome = dispatch(candidate, event, runtimeContext);
@@ -8769,7 +8908,7 @@ export function applyEvent(runtime, event) {
     idempotency_key: event.idempotency_key,
     event_id: event.event_id,
     event_body_root: event.event_id.slice(4),
-    authenticated_event_root: eventRoot,
+    semantic_event_root: semanticRoot,
   };
   const invariantResults = validateState(candidate);
   const nextStateRoot = applicationRoot(candidate);
@@ -8779,6 +8918,12 @@ export function applyEvent(runtime, event) {
       : receiptRoot(
           internals.receipts[internals.receipts.length - 1],
         );
+  const previousSemanticReceipt =
+    internals.receipts.length === 0
+      ? null
+      : semanticReceiptRoot(
+          internals.receipts[internals.receipts.length - 1],
+        );
   const receipt = buildReceipt({
     sequence: internals.receipts.length + 1,
     event,
@@ -8786,11 +8931,16 @@ export function applyEvent(runtime, event) {
     predecessorRoot,
     nextStateRoot,
     effects: outcome.effects,
+    result: outcome.result ?? null,
     invariantResults,
     previousReceiptRoot: previousReceipt,
+    previousSemanticReceiptRoot: previousSemanticReceipt,
   });
   const indexEntry = {
-    event_root: eventRoot,
+    semantic_event_root: semanticRoot,
+    controller: structuredClone(
+      internals.state.controllers[event.auth.controller_id],
+    ),
     receipt,
     result: outcome.result ?? null,
   };
@@ -8815,6 +8965,7 @@ export {
   acceptedDisclosurePreparationRoot,
   acceptedDisclosureCompilationAnchorRoot,
   acceptedPublicationAnchorRoot,
+  capabilityOfferContentRoot,
   capabilityOfferRoot,
   capabilityOfferTermsRoot,
   deriveDisclosurePreparationBindings,

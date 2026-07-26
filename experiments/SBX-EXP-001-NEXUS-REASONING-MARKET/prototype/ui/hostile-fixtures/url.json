@@ -1,0 +1,8 @@
+{
+  "schema": "nexus-ui-local-state-v1",
+  "label": "hostile-url",
+  "state": {
+    "url": "javascript:globalThis.__nexus_pwned=true",
+    "remote": "https://attacker.invalid/collect?secret=fixture"
+  }
+}

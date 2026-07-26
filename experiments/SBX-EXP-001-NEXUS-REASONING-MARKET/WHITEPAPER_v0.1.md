@@ -379,6 +379,34 @@ Workers advertise a signed, expiring capability offer:
 - operator/provider/machine diversity declarations;
 - public key or local seat ID.
 
+The terms/body root signed before acceptance remains authentication-free under
+its V1 domain so that the signature preimage is not circular. After
+verification, the accepted offer stores an exact deterministic six-field
+verified authentication reference. Its v1 carrier schema remains unchanged,
+while its ID and root commit the reference under
+`NEXUS_CAPABILITY_OFFER_ID_V2` and `NEXUS_CAPABILITY_OFFER_V2`. Accepted
+donated-capacity consent follows the same rule under
+`NEXUS_DONATED_CAPACITY_CONSENT_ID_V2` and
+`NEXUS_ACCEPTED_DONATED_CAPACITY_CONSENT_V2`, while its auth-free body root
+remains V1.
+
+Raw randomized signature bytes are excluded from carrier identities. Missing
+or extra reference fields reject; changing a reference changes the
+corresponding carrier ID/root. Independently randomized valid signatures
+preserve semantic and carrier identity only when they derive the same exact
+reference.
+
+The core also derives
+`offer_content_root = H("NEXUS_CAPABILITY_OFFER_CONTENT_V1", exact semantic offer body)`.
+That body includes the offer `nonce` and excludes only its own ID, content root,
+and authentication. Callers cannot supply the root. Accepted offers and their
+V2 IDs/roots bind it, while the auth-free terms/probe roots remain V1.
+Canonical state indexes each content root to one offer ID. A different envelope
+or authentication reference for occupied content fails `ERR_ID_PREIMAGE`
+before mutation; exact event replay remains idempotent. A changed offer nonce
+is distinct content but requires independent authority. Invariants and
+recovery recompute the index in both directions and reject tampering.
+
 An offer does not prove the claimed model, machine, locality, privacy, or
 deletion.
 

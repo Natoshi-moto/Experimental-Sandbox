@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const testsDirectory = dirname(fileURLToPath(import.meta.url));
 const programs = Object.freeze([
+  resolve(testsDirectory, "hybrid-identity.mjs"),
   resolve(testsDirectory, "core-economy.mjs"),
   resolve(testsDirectory, "work-review.mjs"),
   resolve(testsDirectory, "privacy-github.mjs"),

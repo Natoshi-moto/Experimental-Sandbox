@@ -2,7 +2,7 @@
   "schema": "nexus-matrix-demo-v1",
   "status_authority": "NONE",
   "economic_class": "SIM_CREDIT_ONLY",
-  "authentication": "SIM_AUTH_UNSAFE",
+  "authentication": "HYBRID_ED25519_ML_DSA_65_V1",
   "environment_labels": [
     "SANDBOX",
     "SIM_CREDIT_ONLY",

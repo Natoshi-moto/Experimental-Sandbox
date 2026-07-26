@@ -1,6 +1,7 @@
 import { stableId, createRecord } from "./records.mjs";
 import { hash } from "./hash.mjs";
 import { invariant } from "./errors.mjs";
+import { deriveHybridKeyId } from "./identity.mjs";
 
 export const STATE_SCHEMA = "nexus-flow-state-prototype-v0.1";
 export const POLICY_ROOT = hash("NEXUS_POLICY_V1", {
@@ -48,6 +49,7 @@ export function createFixtureState({
     controllers: Object.create(null),
     accounts: Object.create(null),
     capability_offers: Object.create(null),
+    capability_offer_content_index: Object.create(null),
     donated_capacity_consents: Object.create(null),
     revoked_offer_ids: Object.create(null),
     funding_lots: Object.create(null),
@@ -133,8 +135,18 @@ export function createFixtureState({
       nonce: `controller:${fixture.alias}`,
       body: {
         principal_id: principal.principal_id,
-        key_id: `KEY-SIM-${fixture.alias.toUpperCase()}`,
-        scheme: "SIM_AUTH_UNSAFE",
+        key_id: deriveHybridKeyId({
+          scheme: fixture.scheme,
+          ed25519_public_key_spki_der_base64url:
+            fixture.ed25519_public_key_spki_der_base64url,
+          ml_dsa_65_public_key_spki_der_base64url:
+            fixture.ml_dsa_65_public_key_spki_der_base64url,
+        }),
+        scheme: fixture.scheme,
+        ed25519_public_key_spki_der_base64url:
+          fixture.ed25519_public_key_spki_der_base64url,
+        ml_dsa_65_public_key_spki_der_base64url:
+          fixture.ml_dsa_65_public_key_spki_der_base64url,
         scopes: [...(fixture.scopes ?? ["*"])].sort(),
         status: "ACTIVE",
       },

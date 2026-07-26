@@ -7,15 +7,26 @@ import {
   parseStrictJson,
 } from "../core/canonical.mjs";
 import {
-  buildEvent,
-  buildIndependentControllerAuthentication,
+  authenticatedEventRoot,
+  buildEvent as buildHybridEvent,
+  buildIndependentControllerAuthentication as buildHybridIndependentControllerAuthentication,
+  eventBodyRoot,
+  semanticEventRoot,
 } from "../core/auth.mjs";
 import { ProtocolError } from "../core/errors.mjs";
 import { hash, rootId } from "../core/hash.mjs";
 import {
+  receiptRoot,
+  semanticReceiptRoot,
+} from "../core/receipts.mjs";
+import {
+  verifiedHybridAuthenticationReference,
+} from "../core/identity.mjs";
+import {
   applyEvent,
   acceptedDisclosurePreparationRoot,
   capabilityOfferRoot,
+  capabilityOfferContentRoot,
   capabilityOfferTermsRoot,
   deriveDisclosurePreparationBindings,
   derivedCarrierId,
@@ -94,7 +105,7 @@ import {
 } from "../core/resolver.mjs";
 import { createRecord } from "../core/records.mjs";
 import {
-  createFixtureState,
+  createFixtureState as createHybridFixtureState,
   findAccountForPrincipal,
   findPrincipalByAlias,
 } from "../core/state.mjs";
@@ -103,6 +114,51 @@ import {
   capabilityOfferBindingRoot,
   capabilityProbeRoot,
 } from "../work/prober.mjs";
+import {
+  HYBRID_TEST_IDENTITY_ALIASES,
+  hybridPrivateKeyPairFixture,
+  hybridPublicKeyPairFixture,
+} from "./hybrid-identity-fixtures.mjs";
+
+const HYBRID_TEST_IDENTITY_SET = new Set(
+  HYBRID_TEST_IDENTITY_ALIASES,
+);
+
+function createFixtureState(options) {
+  return createHybridFixtureState({
+    ...options,
+    principals: options.principals.map((fixture, index) => {
+      const identityAlias = HYBRID_TEST_IDENTITY_SET.has(fixture.alias)
+        ? fixture.alias
+        : ["rotation-next", "attacker"][index % 2];
+      return {
+        ...fixture,
+        ...hybridPublicKeyPairFixture(identityAlias),
+      };
+    }),
+  });
+}
+
+function buildEvent(state, input) {
+  const actorAlias = state.principals[input.actorId]?.display_alias;
+  return buildHybridEvent(state, {
+    ...input,
+    privateKeyPair:
+      input.privateKeyPair ??
+      hybridPrivateKeyPairFixture(actorAlias),
+  });
+}
+
+function buildIndependentControllerAuthentication(state, input) {
+  const actorAlias =
+    state.principals[input.principalId]?.display_alias;
+  return buildHybridIndependentControllerAuthentication(state, {
+    ...input,
+    privateKeyPair:
+      input.privateKeyPair ??
+      hybridPrivateKeyPairFixture(actorAlias),
+  });
+}
 
 export const CORE_ECONOMY_EVENT_SEQUENCE = Object.freeze([
   "CREATE_JOB",
@@ -220,6 +276,76 @@ function expectCode(code, fn) {
     assert.equal(error.code, code);
     return true;
   });
+}
+
+const VERIFIED_AUTH_REFERENCE_FIELDS = Object.freeze([
+  "schema",
+  "scheme",
+  "key_id",
+  "controller_id",
+  "signed_domain",
+  "signed_payload_root",
+]);
+
+function mutatedVerifiedAuthenticationReference(reference, field) {
+  const changed = structuredClone(reference);
+  if (field === "signed_payload_root") {
+    changed[field] = changed[field].replace(
+      /^./,
+      (character) => (character === "0" ? "1" : "0"),
+    );
+  } else {
+    changed[field] = `${changed[field]}-changed`;
+  }
+  return changed;
+}
+
+function assertCarrierAuthenticationReferenceBinding({
+  recordType,
+  idField,
+  record,
+  rootFn,
+  expectedRoot,
+  invalidMutationFields,
+}) {
+  for (const field of VERIFIED_AUTH_REFERENCE_FIELDS) {
+    const changed = {
+      ...record,
+      authentication: mutatedVerifiedAuthenticationReference(
+        record.authentication,
+        field,
+      ),
+    };
+    if (invalidMutationFields.has(field)) {
+      expectCode(
+        "ERR_AUTHORITY",
+        () => derivedCarrierId(recordType, changed),
+      );
+      expectCode("ERR_AUTHORITY", () => rootFn(changed));
+      continue;
+    }
+    const changedId = derivedCarrierId(recordType, changed);
+    assert.notEqual(changedId, record[idField]);
+    expectCode("ERR_ID_PREIMAGE", () => rootFn(changed));
+    const rebound = { ...changed, [idField]: changedId };
+    assert.notEqual(rootFn(rebound), expectedRoot);
+  }
+  for (const field of VERIFIED_AUTH_REFERENCE_FIELDS) {
+    const missing = structuredClone(record);
+    delete missing.authentication[field];
+    expectCode(
+      "ERR_SCHEMA",
+      () => derivedCarrierId(recordType, missing),
+    );
+    expectCode("ERR_SCHEMA", () => rootFn(missing));
+  }
+  const extended = structuredClone(record);
+  extended.authentication.unexpected = true;
+  expectCode(
+    "ERR_SCHEMA",
+    () => derivedCarrierId(recordType, extended),
+  );
+  expectCode("ERR_SCHEMA", () => rootFn(extended));
 }
 
 function snapshotOf(context) {
@@ -1395,7 +1521,7 @@ export function runCoreEconomyHappyPath() {
       body: {
         job_id: jobId,
         contract_root: terminalJob.accepted_contract_root,
-        terminal_receipt_id: terminal.receipt.receipt_id,
+        terminal_receipt_id: terminal.receipt.semantic_receipt_id,
         policy: DISCLOSURE_POLICY,
       },
     },
@@ -1410,7 +1536,7 @@ export function runCoreEconomyHappyPath() {
       body: {
         job_id: jobId,
         contract_root: terminalJob.accepted_contract_root,
-        terminal_receipt_id: terminal.receipt.receipt_id,
+        terminal_receipt_id: terminal.receipt.semantic_receipt_id,
         disclosure_policy_id: acceptedPolicy.disclosure_policy_id,
         disclosure_policy_root: acceptedPolicy.disclosure_policy_root,
         proof_context: DISCLOSURE_PROOF_CONTEXT,
@@ -1430,7 +1556,7 @@ export function runCoreEconomyHappyPath() {
     publicationApprovalAuthorityV3Root({
       jobId,
       contractRoot: terminalJob.accepted_contract_root,
-      terminalReceiptId: terminal.receipt.receipt_id,
+      terminalReceiptId: terminal.receipt.semantic_receipt_id,
       approvalPolicyRoot: ROOTS.approvalPolicy,
       publicationPrincipalIds:
         terminalJob.accepted_contract.authority_ceiling
@@ -1441,7 +1567,7 @@ export function runCoreEconomyHappyPath() {
     job_id: jobId,
     contract_root: terminalJob.accepted_contract_root,
     terminal_event_id: terminalJob.terminal_event_id,
-    terminal_receipt_id: terminal.receipt.receipt_id,
+    terminal_receipt_id: terminal.receipt.semantic_receipt_id,
     disclosure_policy_id: acceptedPolicy.disclosure_policy_id,
     disclosure_policy_record_root:
       acceptedPolicy.disclosure_policy_record_root,
@@ -1593,7 +1719,7 @@ export function runCoreEconomyHappyPath() {
         job_id: jobId,
         contract_root: terminalJob.accepted_contract_root,
         terminal_event_id: terminalJob.terminal_event_id,
-        terminal_receipt_id: terminal.receipt.receipt_id,
+        terminal_receipt_id: terminal.receipt.semantic_receipt_id,
         disclosure_policy_id: acceptedPolicy.disclosure_policy_id,
         disclosure_policy_record_root:
           acceptedPolicy.disclosure_policy_record_root,
@@ -2318,7 +2444,7 @@ export function runAcceptedCarrierPath(happy) {
     non_claims_root: nonClaims.record_root,
     publication_principal_id: principal(context, "requester").principal_id,
     terminal_event_id: job.terminal_event_id,
-    terminal_receipt_id: terminal.receipt.receipt_id,
+    terminal_receipt_id: terminal.receipt.semantic_receipt_id,
   };
   const publicationScopeRoot =
     publicationIntentNonceScopeRoot(publicationScopeBinding);
@@ -2989,21 +3115,52 @@ export function runDonatedConsentVectors(
     {
       principalId: worker.principal_id,
       controllerId: worker.controller_id,
-      signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V1",
+      signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
       signedBodyRoot: donatedCapacityConsentBodyRoot(consentBody),
     },
   );
-  const acceptedConsent = emit(
-    context,
-    "worker",
-    "ACCEPT_DONATED_CAPACITY_CONSENT",
-    {
-      schema: "nexus-accept-donated-capacity-consent-v1",
-      body: consentBody,
-      authentication,
+  const consentPayload = {
+    schema: "nexus-accept-donated-capacity-consent-v1",
+    body: consentBody,
+    authentication,
+  };
+  const consentEvent = buildEvent(stateOf(context), {
+    eventType: "ACCEPT_DONATED_CAPACITY_CONSENT",
+    actorId: worker.principal_id,
+    payload: consentPayload,
+    nonce: "accept-donated-consent",
+  });
+  const invalidInnerAuthentication = structuredClone(authentication);
+  invalidInnerAuthentication.ed25519_signature_base64url =
+    invalidInnerAuthentication.ed25519_signature_base64url.replace(
+      /^./,
+      (character) => (character === "0" ? "1" : "0"),
+    );
+  const invalidInnerReplayEvent = buildEvent(stateOf(context), {
+    eventType: "ACCEPT_DONATED_CAPACITY_CONSENT",
+    actorId: worker.principal_id,
+    payload: {
+      ...consentPayload,
+      authentication: invalidInnerAuthentication,
     },
-    "accept-donated-consent",
-  ).result;
+    nonce: "accept-donated-consent",
+  });
+  const consentAcceptance = applyEvent(context.runtime, consentEvent);
+  context.events.push(consentEvent);
+  const acceptedConsent = consentAcceptance.result;
+  const consentJournal = snapshotOf(context);
+  expectCode("ERR_SCHEMA", () =>
+    buildEvent(stateOf(context), {
+      eventType: "ACCEPT_DONATED_CAPACITY_CONSENT",
+      actorId: worker.principal_id,
+      payload: {
+        ...consentPayload,
+        authentication:
+          verifiedHybridAuthenticationReference(authentication),
+      },
+      nonce: "reject-caller-verified-consent-reference",
+    }),
+  );
   const storedConsent =
     stateOf(context).donated_capacity_consents[
       acceptedConsent.consent_id
@@ -3025,15 +3182,30 @@ export function runDonatedConsentVectors(
   assert.equal(consentEnvelope.record_status, "ACCEPTED");
   assert(Object.isFrozen(consentEnvelope.record));
   const alteredConsentAuthentication = structuredClone(consentRecord);
-  alteredConsentAuthentication.authentication.signature =
-    alteredConsentAuthentication.authentication.signature.replace(
+  alteredConsentAuthentication.authentication.key_id =
+    alteredConsentAuthentication.authentication.key_id.replace(
       /^./,
       (character) => (character === "0" ? "1" : "0"),
     );
-  assert.equal(
-    donatedCapacityConsentRecordRoot(alteredConsentAuthentication),
-    acceptedConsent.consent_root,
+  expectCode("ERR_ID_PREIMAGE", () =>
+    donatedCapacityConsentRecordRoot(
+      alteredConsentAuthentication,
+    ),
   );
+  assertCarrierAuthenticationReferenceBinding({
+    recordType: "DONATED_CAPACITY_CONSENT",
+    idField: "consent_id",
+    record: consentRecord,
+    rootFn: donatedCapacityConsentRecordRoot,
+    expectedRoot: acceptedConsent.consent_root,
+    invalidMutationFields: new Set([
+      "schema",
+      "scheme",
+      "controller_id",
+      "signed_domain",
+      "signed_payload_root",
+    ]),
+  });
 
   const donatedOfferPayload = {
     ...offerInput,
@@ -3055,13 +3227,14 @@ export function runDonatedConsentVectors(
     };
     donatedOfferPayload.probe_root = capabilityProbeRoot(probe);
   }
-  const donatedOffer = emit(
+  const donatedOfferAcceptance = emit(
     context,
     "worker",
     "REGISTER_OFFER",
     donatedOfferPayload,
     "register-donated-offer",
-  ).result;
+  );
+  const donatedOffer = donatedOfferAcceptance.result;
   const storedOffer =
     stateOf(context).capability_offers[donatedOffer.offer_id];
   assert.equal(
@@ -3076,25 +3249,166 @@ export function runDonatedConsentVectors(
     }),
   );
   const alteredOfferAuthentication = structuredClone(storedOffer);
-  alteredOfferAuthentication.authentication.signature =
-    alteredOfferAuthentication.authentication.signature.replace(
+  alteredOfferAuthentication.authentication.key_id =
+    alteredOfferAuthentication.authentication.key_id.replace(
       /^./,
       (character) => (character === "0" ? "1" : "0"),
     );
-  assert.equal(
+  expectCode("ERR_ID_PREIMAGE", () =>
     capabilityOfferRoot(alteredOfferAuthentication),
-    storedOfferRoot,
   );
+  assertCarrierAuthenticationReferenceBinding({
+    recordType: "CAPABILITY_OFFER",
+    idField: "offer_id",
+    record: storedOffer,
+    rootFn: capabilityOfferRoot,
+    expectedRoot: storedOfferRoot,
+    invalidMutationFields: new Set([
+      "schema",
+      "scheme",
+      "signed_domain",
+    ]),
+  });
+  const rootBeforeExactOfferReplay = currentRoot(context.runtime);
+  const exactOfferReplay = applyEvent(
+    context.runtime,
+    donatedOfferAcceptance.event,
+  );
+  assert.equal(exactOfferReplay.replay, true);
+  assert.equal(
+    canonicalize(exactOfferReplay.receipt),
+    canonicalize(donatedOfferAcceptance.receipt),
+  );
+  assert.equal(currentRoot(context.runtime), rootBeforeExactOfferReplay);
   const duplicateOffer = buildEvent(stateOf(context), {
     eventType: "REGISTER_OFFER",
     actorId: worker.principal_id,
     payload: donatedOfferPayload,
     nonce: "duplicate-donated-offer",
   });
-  expectCode(
-    "ERR_ID_PREIMAGE",
-    () => applyEvent(context.runtime, duplicateOffer),
+  function assertDuplicateCapabilityOfferContentRejectedByLiveReducer() {
+    const sourceCanonicalState = canonicalize(stateOf(context));
+    expectCode(
+      "ERR_ID_PREIMAGE",
+      () => applyEvent(context.runtime, duplicateOffer),
+    );
+    assert.equal(canonicalize(stateOf(context)), sourceCanonicalState);
+  }
+  assertDuplicateCapabilityOfferContentRejectedByLiveReducer();
+  const paidOfferPayload = {
+    ...offerInput,
+    offer_mode: "PAID",
+    owner_consent_id: null,
+    owner_consent_root: null,
+    offer_nonce: "paid-content-root-a",
+  };
+  const firstPaidOffer = emit(
+    context,
+    "worker",
+    "REGISTER_OFFER",
+    paidOfferPayload,
+    "register-paid-content-root-a",
+  ).result;
+  const distinctOffer = emit(
+    context,
+    "worker",
+    "REGISTER_OFFER",
+    {
+      ...paidOfferPayload,
+      offer_nonce: "paid-content-root-b",
+    },
+    "register-paid-content-root-b",
+  ).result;
+  const storedFirstPaidOffer =
+    stateOf(context).capability_offers[firstPaidOffer.offer_id];
+  const storedDistinctOffer =
+    stateOf(context).capability_offers[distinctOffer.offer_id];
+  assert.notEqual(distinctOffer.offer_id, firstPaidOffer.offer_id);
+  assert.notEqual(
+    storedDistinctOffer.offer_content_root,
+    storedFirstPaidOffer.offer_content_root,
   );
+  assert.notEqual(
+    capabilityOfferRoot(storedDistinctOffer),
+    capabilityOfferRoot(storedFirstPaidOffer),
+  );
+  function assertTamperedCapabilityOfferStateFailsClosed({
+    tamperedState,
+    expectedCode,
+    sourceCanonicalState,
+  }) {
+    expectCode(expectedCode, () => createRuntime(tamperedState));
+    assert.equal(canonicalize(stateOf(context)), sourceCanonicalState);
+    expectCode(expectedCode, () =>
+      recoverRuntime({
+        genesisState: tamperedState,
+        events: [],
+        receipts: [],
+        expectedFinalRoot: "0".repeat(64),
+      }),
+    );
+    assert.equal(canonicalize(stateOf(context)), sourceCanonicalState);
+  }
+
+  function assertMissingCapabilityOfferContentIndexRowFailsClosed() {
+    const sourceCanonicalState = canonicalize(stateOf(context));
+    const tamperedState = structuredClone(stateOf(context));
+    delete tamperedState.capability_offer_content_index[
+      storedOffer.offer_content_root
+    ];
+    assertTamperedCapabilityOfferStateFailsClosed({
+      tamperedState,
+      expectedCode: "ERR_CAPABILITY",
+      sourceCanonicalState,
+    });
+  }
+
+  function assertExtraStaleCapabilityOfferContentIndexRowFailsClosed() {
+    const sourceCanonicalState = canonicalize(stateOf(context));
+    const tamperedState = structuredClone(stateOf(context));
+    const staleContentRoot = storedOffer.offer_content_root.replace(
+      /^./,
+      (character) => (character === "0" ? "1" : "0"),
+    );
+    tamperedState.capability_offer_content_index[staleContentRoot] =
+      storedOffer.offer_id;
+    assertTamperedCapabilityOfferStateFailsClosed({
+      tamperedState,
+      expectedCode: "ERR_CAPABILITY",
+      sourceCanonicalState,
+    });
+  }
+
+  function assertWrongCapabilityOfferContentIndexRowFailsClosed() {
+    const sourceCanonicalState = canonicalize(stateOf(context));
+    const tamperedState = structuredClone(stateOf(context));
+    tamperedState.capability_offer_content_index[
+      storedOffer.offer_content_root
+    ] = distinctOffer.offer_id;
+    assertTamperedCapabilityOfferStateFailsClosed({
+      tamperedState,
+      expectedCode: "ERR_CAPABILITY",
+      sourceCanonicalState,
+    });
+  }
+
+  function assertPerRecordOfferContentRootTamperFailsClosed() {
+    const sourceCanonicalState = canonicalize(stateOf(context));
+    const tamperedState = structuredClone(stateOf(context));
+    tamperedState.capability_offers[
+      storedOffer.offer_id
+    ].offer_content_root = "0".repeat(64);
+    assertTamperedCapabilityOfferStateFailsClosed({
+      tamperedState,
+      expectedCode: "ERR_ID_PREIMAGE",
+      sourceCanonicalState,
+    });
+  }
+
+  assertMissingCapabilityOfferContentIndexRowFailsClosed();
+  assertExtraStaleCapabilityOfferContentIndexRowFailsClosed();
+  assertWrongCapabilityOfferContentIndexRowFailsClosed();
+  assertPerRecordOfferContentRootTamperFailsClosed();
   expectCode("ERR_SCHEMA", () =>
     buildEvent(stateOf(context), {
       eventType: "REGISTER_OFFER",
@@ -3116,12 +3430,12 @@ export function runDonatedConsentVectors(
     {
       principalId: worker.principal_id,
       controllerId: worker.controller_id,
-      signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V1",
+      signedDomain: "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
       signedBodyRoot: donatedCapacityConsentBodyRoot(tamperedBody),
     },
   );
-  tamperedAuthentication.signature =
-    tamperedAuthentication.signature.replace(/^./, (character) =>
+  tamperedAuthentication.ed25519_signature_base64url =
+    tamperedAuthentication.ed25519_signature_base64url.replace(/^./, (character) =>
       character === "0" ? "1" : "0",
     );
   const tamperedConsent = buildEvent(stateOf(context), {
@@ -3143,6 +3457,11 @@ export function runDonatedConsentVectors(
     runtime: context.runtime,
     resolver: createAcceptedRecordResolver(context.runtime),
     acceptedConsent,
+    authentication,
+    consentEvent,
+    consentReceipt: consentAcceptance.receipt,
+    consentJournal,
+    invalidInnerReplayEvent,
     consentEnvelope,
     consentBody,
     donatedOffer: {
@@ -3724,8 +4043,8 @@ function runAdversarialVectors(happy) {
   assert.equal(snapshotRuntime(reconstructed).receipts.length, receiptCount);
   assert.equal(currentRoot(reconstructed), settledRoot);
   const alteredEvents = structuredClone(authenticatedJournal.events);
-  alteredEvents[0].auth.signature =
-    alteredEvents[0].auth.signature.replace(/^./, (character) =>
+  alteredEvents[0].auth.ml_dsa_65_signature_base64url =
+    alteredEvents[0].auth.ml_dsa_65_signature_base64url.replace(/^./, (character) =>
       character === "0" ? "1" : "0",
     );
   expectCode("ERR_RECOVERY", () =>
@@ -3788,12 +4107,12 @@ function runAdversarialVectors(happy) {
     applyEvent(Object.freeze(Object.create(null)), happy.terminal.event),
   );
   const conflictingReplay = structuredClone(happy.terminal.event);
-  conflictingReplay.auth.signature =
-    conflictingReplay.auth.signature.replace(/^./, (character) =>
+  conflictingReplay.auth.ed25519_signature_base64url =
+    conflictingReplay.auth.ed25519_signature_base64url.replace(/^./, (character) =>
       character === "0" ? "1" : "0",
     );
   expectCode(
-    "ERR_IDEMPOTENCY_CONFLICT",
+    "ERR_AUTHORITY",
     () => applyEvent(happy.context.runtime, conflictingReplay),
   );
   assert.equal(currentRoot(happy.context.runtime), settledRoot);
@@ -4136,18 +4455,196 @@ function runRouteExecutionPlanVectors() {
 
 export function runCoreEconomyTests() {
   runCanonicalVectors();
-  runDonatedConsentVectors();
   const first = runCoreEconomyHappyPath();
   const second = runCoreEconomyHappyPath();
   assert.equal(currentRoot(first.context.runtime), currentRoot(second.context.runtime));
+  const firstTerminalReceipt = receiptsOf(first.context).find(
+    (receipt) =>
+      receipt.event_id ===
+      stateOf(first.context).jobs[first.jobId].terminal_event_id,
+  );
+  const secondTerminalReceipt = receiptsOf(second.context).find(
+    (receipt) =>
+      receipt.event_id ===
+      stateOf(second.context).jobs[second.jobId].terminal_event_id,
+  );
+  assert(firstTerminalReceipt);
+  assert(secondTerminalReceipt);
+  assert.notEqual(
+    firstTerminalReceipt.receipt_id,
+    secondTerminalReceipt.receipt_id,
+  );
   assert.equal(
+    firstTerminalReceipt.semantic_receipt_id,
+    secondTerminalReceipt.semantic_receipt_id,
+  );
+  assert.equal(
+    firstTerminalReceipt.semantic_receipt_root,
+    secondTerminalReceipt.semantic_receipt_root,
+  );
+  assert.notEqual(
     canonicalize(receiptsOf(first.context)),
     canonicalize(receiptsOf(second.context)),
   );
-  runAcceptedCarrierPath(first);
-  runAcceptedCarrierPath(second);
+  const firstDonation = runDonatedConsentVectors(first.context);
+  const secondDonation = runDonatedConsentVectors(second.context);
+  assert.notEqual(
+    firstDonation.authentication.ml_dsa_65_signature_base64url,
+    secondDonation.authentication.ml_dsa_65_signature_base64url,
+  );
+  assert.equal(
+    firstDonation.consentEvent.event_id,
+    secondDonation.consentEvent.event_id,
+  );
+  assert.equal(
+    semanticEventRoot(firstDonation.consentEvent),
+    semanticEventRoot(secondDonation.consentEvent),
+  );
+  assert.notEqual(
+    eventBodyRoot(firstDonation.consentEvent),
+    eventBodyRoot(secondDonation.consentEvent),
+  );
+  assert.notEqual(
+    firstDonation.consentEvent.auth.signed_payload_root,
+    secondDonation.consentEvent.auth.signed_payload_root,
+  );
+  assert.notEqual(
+    authenticatedEventRoot(firstDonation.consentEvent),
+    authenticatedEventRoot(secondDonation.consentEvent),
+  );
+  assert.equal(
+    firstDonation.acceptedConsent.consent_id,
+    secondDonation.acceptedConsent.consent_id,
+  );
+  assert.equal(
+    firstDonation.acceptedConsent.consent_root,
+    secondDonation.acceptedConsent.consent_root,
+  );
+  assert.equal(
+    firstDonation.consentReceipt.semantic_receipt_id,
+    secondDonation.consentReceipt.semantic_receipt_id,
+  );
+  assert.equal(
+    semanticReceiptRoot(firstDonation.consentReceipt),
+    semanticReceiptRoot(secondDonation.consentReceipt),
+  );
+  assert.equal(
+    firstDonation.consentReceipt.next_state_root,
+    secondDonation.consentReceipt.next_state_root,
+  );
+  assert.notEqual(
+    firstDonation.consentReceipt.authenticated_event_root,
+    secondDonation.consentReceipt.authenticated_event_root,
+  );
+  assert.notEqual(
+    firstDonation.consentReceipt.receipt_id,
+    secondDonation.consentReceipt.receipt_id,
+  );
+  assert.notEqual(
+    receiptRoot(firstDonation.consentReceipt),
+    receiptRoot(secondDonation.consentReceipt),
+  );
+  assert.equal(
+    currentRoot(first.context.runtime),
+    currentRoot(second.context.runtime),
+  );
+  assert.equal(
+    canonicalize(
+      firstDonation.consentJournal.events.at(-1).payload
+        .authentication,
+    ),
+    canonicalize(firstDonation.authentication),
+  );
+  const mixedConsentEvents = structuredClone(
+    firstDonation.consentJournal.events,
+  );
+  mixedConsentEvents[mixedConsentEvents.length - 1] =
+    structuredClone(secondDonation.consentEvent);
+  expectCode("ERR_RECOVERY", () =>
+    recoverRuntime({
+      genesisState: structuredClone(first.context.genesisState),
+      events: mixedConsentEvents,
+      receipts: structuredClone(
+        firstDonation.consentJournal.receipts,
+      ),
+      expectedFinalRoot:
+        firstDonation.consentJournal.current_root,
+    }),
+  );
+  const rootBeforeValidConsentReplay = currentRoot(
+    first.context.runtime,
+  );
+  const validConsentReplay = applyEvent(
+    first.context.runtime,
+    secondDonation.consentEvent,
+  );
+  assert.equal(validConsentReplay.replay, true);
+  assert.equal(
+    canonicalize(validConsentReplay.receipt),
+    canonicalize(firstDonation.consentReceipt),
+  );
+  assert.equal(
+    currentRoot(first.context.runtime),
+    rootBeforeValidConsentReplay,
+  );
+  expectCode("ERR_AUTHORITY", () =>
+    applyEvent(
+      first.context.runtime,
+      firstDonation.invalidInnerReplayEvent,
+    ),
+  );
+  assert.equal(
+    currentRoot(first.context.runtime),
+    rootBeforeValidConsentReplay,
+  );
+  const firstDisclosure = runAcceptedCarrierPath(first);
+  const secondDisclosure = runAcceptedCarrierPath(second);
   assert.equal(currentRoot(first.context.runtime), currentRoot(second.context.runtime));
   assert.equal(
+    stateOf(first.context).jobs[first.jobId].terminal_receipt_id,
+    firstTerminalReceipt.semantic_receipt_id,
+  );
+  assert.equal(
+    stateOf(second.context).jobs[second.jobId].terminal_receipt_id,
+    secondTerminalReceipt.semantic_receipt_id,
+  );
+  const transitiveCarrierKeys = Object.keys(stateOf(first.context)).filter(
+    (key) =>
+      key.includes("disclosure") ||
+      key.includes("publication") ||
+      key.includes("public_") ||
+      key.includes("non_claim"),
+  );
+  assert(transitiveCarrierKeys.length > 0);
+  assert.deepEqual(
+    transitiveCarrierKeys,
+    Object.keys(stateOf(second.context)).filter(
+      (key) =>
+        key.includes("disclosure") ||
+        key.includes("publication") ||
+        key.includes("public_") ||
+        key.includes("non_claim"),
+    ),
+  );
+  for (const key of transitiveCarrierKeys) {
+    assert.equal(
+      canonicalize(stateOf(first.context)[key]),
+      canonicalize(stateOf(second.context)[key]),
+    );
+  }
+  for (const key of [
+    "disclosureManifest",
+    "compilation",
+    "capsule",
+    "nonClaims",
+    "publicationAnchor",
+  ]) {
+    assert.equal(
+      firstDisclosure[key].record_root,
+      secondDisclosure[key].record_root,
+    );
+  }
+  assert.notEqual(
     canonicalize(receiptsOf(first.context)),
     canonicalize(receiptsOf(second.context)),
   );
@@ -4183,7 +4680,7 @@ export function runCoreEconomyTests() {
   runRouteExecutionPlanVectors();
   runAdversarialVectors(first);
   return {
-    tests: 131,
+    tests: 147,
     state_root: currentRoot(first.context.runtime),
     receipt_count: receiptsOf(first.context).length,
     terminal_state: stateOf(first.context).jobs[first.jobId].state,

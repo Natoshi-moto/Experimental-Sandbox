@@ -1,0 +1,8 @@
+{
+  "schema": "nexus-review-probe-baseline-v1",
+  "seed": "nexus-review-probes-v1/2026-07-26",
+  "expected": {
+    "hybrid-crypto-capability": "PASS",
+    "hostile-state-ui-policy": "PASS"
+  }
+}

@@ -1,6 +1,13 @@
-import { hash, rootId } from "./hash.mjs";
+import { hash } from "./hash.mjs";
 import { invariant } from "./errors.mjs";
 import { applicationRoot } from "./state.mjs";
+import {
+  assertHybridAuthenticationShape,
+  assertHybridControllerPublicIdentity,
+  signHybridAuthentication,
+  verifiedHybridAuthenticationReference,
+  verifyHybridAuthentication,
+} from "./identity.mjs";
 import {
   MAX_EVENT_BYTES,
   MAX_EVENT_PAYLOAD_BYTES,
@@ -74,7 +81,45 @@ const PAYLOAD_FIELDS = Object.freeze({
   APPROVE_REDACTION: [["schema", "body"], []],
   ACCEPT_PUBLICATION: [["schema", "body"], []],
   CREATE_PUBLICATION_INTENT: [["schema", "body"], []],
+  ROTATE_CONTROLLER_KEYS: [[
+    "controller_id",
+    "current_key_id",
+    "new_scheme",
+    "new_key_id",
+    "new_ed25519_public_key_spki_der_base64url",
+    "new_ml_dsa_65_public_key_spki_der_base64url",
+    "rotation_nonce",
+  ], []],
 });
+
+function assertEmbeddedHybridAuthenticationIngress(
+  eventType,
+  payload,
+) {
+  switch (eventType) {
+    case "ACCEPT_DONATED_CAPACITY_CONSENT":
+      assertHybridAuthenticationShape(payload.authentication);
+      return;
+    default:
+      return;
+  }
+}
+
+export function semanticEventPayloadProjection(eventType, payload) {
+  switch (eventType) {
+    case "ACCEPT_DONATED_CAPACITY_CONSENT":
+      assertHybridAuthenticationShape(payload.authentication);
+      return {
+        schema: payload.schema,
+        body: payload.body,
+        authentication: verifiedHybridAuthenticationReference(
+          payload.authentication,
+        ),
+      };
+    default:
+      return payload;
+  }
+}
 
 export function assertEventIngress(event) {
   assertExactObjectKeys(
@@ -88,16 +133,15 @@ export function assertEventIngress(event) {
   const fields = PAYLOAD_FIELDS[event.event_type];
   invariant(fields, "ERR_SCHEMA", `unsupported event type ${event.event_type}`);
   assertExactObjectKeys(event.payload, fields[0], fields[1], `${event.event_type} payload`);
+  assertEmbeddedHybridAuthenticationIngress(
+    event.event_type,
+    event.payload,
+  );
   assertSafeNonNegativeInteger(event.tick, "event tick");
   assertCanonicalToken(event.nonce, "event nonce");
   assertCanonicalToken(event.idempotency_key, "idempotency key");
   assertBoundedCanonical(event.payload, "event payload", MAX_EVENT_PAYLOAD_BYTES);
-  assertExactObjectKeys(
-    event.auth,
-    ["scheme", "key_id", "controller_id", "signed_domain", "signed_payload_root", "signature"],
-    [],
-    "event auth",
-  );
+  assertHybridAuthenticationShape(event.auth);
   assertBoundedCanonical(event, "authenticated event", MAX_EVENT_BYTES);
   return event;
 }
@@ -106,6 +150,7 @@ function assertEventInput(eventType, payload, nonce, idempotencyKey) {
   const fields = PAYLOAD_FIELDS[eventType];
   invariant(fields, "ERR_SCHEMA", `unsupported event type ${eventType}`);
   assertExactObjectKeys(payload, fields[0], fields[1], `${eventType} payload`);
+  assertEmbeddedHybridAuthenticationIngress(eventType, payload);
   assertCanonicalToken(nonce, "event nonce");
   assertCanonicalToken(idempotencyKey, "idempotency key");
   assertBoundedCanonical(payload, "event payload", MAX_EVENT_PAYLOAD_BYTES);
@@ -126,13 +171,35 @@ export function eventBodyRoot(event) {
   );
 }
 
+export function semanticEventBodyRoot(event) {
+  const exactBody = bodyWithout(
+    event,
+    new Set(["event_id", "auth"]),
+  );
+  return hash("NEXUS_EVENT_V1", {
+    ...exactBody,
+    payload: semanticEventPayloadProjection(
+      event.event_type,
+      event.payload,
+    ),
+  });
+}
+
 export function authenticatedEventRoot(event) {
-  return hash("NEXUS_AUTHENTICATED_EVENT_V1", event);
+  return hash("NEXUS_AUTHENTICATED_EVENT_V2", event);
+}
+
+export function semanticEventRoot(event) {
+  return hash("NEXUS_EVENT_SEMANTIC_V2", {
+    schema: "nexus-event-semantic-v2",
+    event_id: event.event_id,
+    event_body_root: semanticEventBodyRoot(event),
+  });
 }
 
 export function authPreimage(event, controllerId) {
   return {
-    schema: "nexus-event-auth-preimage-v1",
+    schema: "nexus-event-auth-preimage-v2",
     event_body_root: eventBodyRoot(event),
     event_type: event.event_type,
     actor_id: event.actor_id,
@@ -147,11 +214,13 @@ export function authPreimage(event, controllerId) {
   };
 }
 
-function simSignature(keyId, signedPayloadRoot) {
-  return hash("NEXUS_SIM_AUTH_UNSAFE_V1", {
-    warning: "SIM_AUTH_UNSAFE",
-    key_id: keyId,
-    signed_payload_root: signedPayloadRoot,
+function authorityRoot(controller) {
+  return hash("NEXUS_AUTHORITY_V2", {
+    schema: "nexus-authority-v2",
+    controller_id: controller.controller_id,
+    scheme: controller.scheme,
+    key_id: controller.key_id,
+    scopes: controller.scopes,
   });
 }
 
@@ -162,6 +231,7 @@ export function buildIndependentControllerAuthentication(
     controllerId,
     signedDomain,
     signedBodyRoot,
+    privateKeyPair,
   },
 ) {
   const principal = state.principals[principalId];
@@ -179,14 +249,12 @@ export function buildIndependentControllerAuthentication(
     controller_id: controllerId,
     signed_body_root: signedBodyRoot,
   });
-  return {
-    scheme: "SIM_AUTH_UNSAFE",
-    key_id: controller.key_id,
-    controller_id: controllerId,
-    signed_domain: signedDomain,
-    signed_payload_root: signedPayloadRoot,
-    signature: simSignature(controller.key_id, signedPayloadRoot),
-  };
+  return signHybridAuthentication({
+    controller,
+    signedDomain,
+    signedPayloadRoot,
+    privateKeyPair,
+  });
 }
 
 export function verifyIndependentControllerAuthentication(
@@ -199,36 +267,52 @@ export function verifyIndependentControllerAuthentication(
     authentication,
   },
 ) {
-  assertExactObjectKeys(
-    authentication,
-    [
-      "scheme",
-      "key_id",
-      "controller_id",
-      "signed_domain",
-      "signed_payload_root",
-      "signature",
-    ],
-    [],
-    "independent controller authentication",
+  const principal = state.principals[principalId];
+  const controller = state.controllers[controllerId];
+  invariant(
+    principal?.status === "ACTIVE" &&
+      controller?.status === "ACTIVE" &&
+      principal.controller_id === controllerId,
+    "ERR_AUTHORITY",
+    "independent controller is not active for principal",
   );
-  const expected = buildIndependentControllerAuthentication(state, {
+  assertCanonicalToken(signedDomain, "independent signed domain", 256);
+  return verifyIndependentControllerAuthenticationWithController({
+    controller,
     principalId,
     controllerId,
+    authentication,
     signedDomain,
     signedBodyRoot,
   });
-  invariant(
-    canonicalAuthentication(authentication) ===
-      canonicalAuthentication(expected),
-    "ERR_AUTHORITY",
-    "independent controller authentication is invalid",
-  );
-  return authentication;
 }
 
-function canonicalAuthentication(authentication) {
-  return JSON.stringify(authentication);
+export function verifyIndependentControllerAuthenticationWithController({
+  controller,
+  principalId,
+  controllerId,
+  signedDomain,
+  signedBodyRoot,
+  authentication,
+}) {
+  assertHybridControllerPublicIdentity(controller);
+  invariant(
+    controller.controller_id === controllerId,
+    "ERR_AUTHORITY",
+    "independent authentication controller snapshot mismatch",
+  );
+  assertCanonicalToken(signedDomain, "independent signed domain", 256);
+  const signedPayloadRoot = hash(signedDomain, {
+    principal_id: principalId,
+    controller_id: controllerId,
+    signed_body_root: signedBodyRoot,
+  });
+  return verifyHybridAuthentication({
+    controller,
+    authentication,
+    signedDomain,
+    signedPayloadRoot,
+  });
 }
 
 export function buildEvent(state, {
@@ -237,6 +321,7 @@ export function buildEvent(state, {
   payload,
   nonce,
   idempotencyKey = nonce,
+  privateKeyPair,
 }) {
   assertEventInput(eventType, payload, nonce, idempotencyKey);
   const principal = state.principals[actorId];
@@ -247,10 +332,7 @@ export function buildEvent(state, {
     schema: "nexus-event-v1",
     event_type: eventType,
     actor_id: actorId,
-    authority_root: hash("NEXUS_AUTHORITY_V1", {
-      controller_id: controller.controller_id,
-      scopes: controller.scopes,
-    }),
+    authority_root: authorityRoot(controller),
     policy_root: state.policy_root,
     expected_predecessor_root: applicationRoot(state),
     tick: state.tick,
@@ -258,26 +340,55 @@ export function buildEvent(state, {
     idempotency_key: idempotencyKey,
     payload,
   };
-  const eventId = rootId("EVT", "NEXUS_EVENT_V1", body);
+  const eventId = `EVT-${semanticEventBodyRoot(body)}`;
   const unsigned = { ...body, event_id: eventId };
   const preimage = authPreimage(unsigned, controller.controller_id);
-  const signedPayloadRoot = hash("NEXUS_EVENT_AUTH_V1", preimage);
+  const signedPayloadRoot = hash("NEXUS_EVENT_AUTH_PREIMAGE_V2", preimage);
   return {
     ...unsigned,
-    auth: {
-      scheme: "SIM_AUTH_UNSAFE",
-      key_id: controller.key_id,
-      controller_id: controller.controller_id,
-      signed_domain: "NEXUS_EVENT_AUTH_V1",
-      signed_payload_root: signedPayloadRoot,
-      signature: simSignature(controller.key_id, signedPayloadRoot),
-    },
+    auth: signHybridAuthentication({
+      controller,
+      signedDomain: "NEXUS_EVENT_AUTH_V2",
+      signedPayloadRoot,
+      privateKeyPair,
+    }),
   };
+}
+
+export function verifyEventAuthentication(controller, event) {
+  assertHybridControllerPublicIdentity(controller);
+  invariant(
+    event.auth.controller_id === controller.controller_id &&
+      event.auth.key_id === controller.key_id &&
+      event.auth.signed_domain === "NEXUS_EVENT_AUTH_V2",
+    "ERR_AUTHORITY",
+    "authentication key/controller/domain binding mismatch",
+  );
+  invariant(
+    event.authority_root === authorityRoot(controller),
+    "ERR_AUTHORITY",
+    "event authority root mismatch",
+  );
+  invariant(
+    controller.scopes.includes("*") ||
+      controller.scopes.includes(event.event_type),
+    "ERR_AUTHORITY",
+    `controller lacks ${event.event_type} scope`,
+  );
+  const preimage = authPreimage(event, controller.controller_id);
+  const expectedRoot = hash("NEXUS_EVENT_AUTH_PREIMAGE_V2", preimage);
+  verifyHybridAuthentication({
+    controller,
+    authentication: event.auth,
+    signedDomain: "NEXUS_EVENT_AUTH_V2",
+    signedPayloadRoot: expectedRoot,
+  });
+  return event;
 }
 
 export function verifyNewEvent(state, event) {
   assertEventIngress(event);
-  const expectedId = `EVT-${eventBodyRoot(event)}`;
+  const expectedId = `EVT-${semanticEventBodyRoot(event)}`;
   invariant(event.event_id === expectedId, "ERR_ID_PREIMAGE", "bad event ID");
   invariant(
     event.expected_predecessor_root === applicationRoot(state),
@@ -296,11 +407,6 @@ export function verifyNewEvent(state, event) {
     "ERR_AUTHORITY",
     "actor is not active",
   );
-  invariant(
-    event.auth !== null && typeof event.auth === "object",
-    "ERR_AUTHORITY",
-    "event authentication is missing",
-  );
   const controller = state.controllers[event.auth.controller_id];
   invariant(
     controller?.status === "ACTIVE" &&
@@ -308,45 +414,6 @@ export function verifyNewEvent(state, event) {
     "ERR_AUTHORITY",
     "controller is not active for actor",
   );
-  invariant(
-    event.auth.controller_id === controller.controller_id &&
-      event.auth.key_id === controller.key_id &&
-      event.auth.signed_domain === "NEXUS_EVENT_AUTH_V1",
-    "ERR_AUTHORITY",
-    "authentication key/controller/domain binding mismatch",
-  );
-  invariant(
-    event.auth.scheme === "SIM_AUTH_UNSAFE" &&
-      controller.scheme === "SIM_AUTH_UNSAFE",
-    "ERR_AUTHORITY",
-    "prototype accepts only labelled SIM_AUTH_UNSAFE fixtures",
-  );
-  const expectedAuthority = hash("NEXUS_AUTHORITY_V1", {
-    controller_id: controller.controller_id,
-    scopes: controller.scopes,
-  });
-  invariant(
-    event.authority_root === expectedAuthority,
-    "ERR_AUTHORITY",
-    "event authority root mismatch",
-  );
-  invariant(
-    controller.scopes.includes("*") ||
-      controller.scopes.includes(event.event_type),
-    "ERR_AUTHORITY",
-    `controller lacks ${event.event_type} scope`,
-  );
-  const preimage = authPreimage(event, controller.controller_id);
-  const expectedRoot = hash("NEXUS_EVENT_AUTH_V1", preimage);
-  invariant(
-    event.auth.signed_payload_root === expectedRoot,
-    "ERR_AUTHORITY",
-    "signed payload root mismatch",
-  );
-  invariant(
-    event.auth.signature === simSignature(controller.key_id, expectedRoot),
-    "ERR_AUTHORITY",
-    "invalid simulation signature",
-  );
+  verifyEventAuthentication(controller, event);
   return event;
 }

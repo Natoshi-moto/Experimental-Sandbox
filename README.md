@@ -14,7 +14,7 @@ Use one of these doors:
 - 🧠 **DRIBBLE** — [post a raw idea](https://github.com/Natoshi-moto/Experimental-Sandbox/discussions/categories/ideas)
 - 🧪 **TEST IT** — [propose the smallest experiment](../../issues/new?template=experiment.yml)
 - 🍴 **FORK IT** — [open a fork-research record](../../issues/new?template=fork-research.yml)
-- 🧨 **BREAK IT** — [request adversarial review](https://github.com/Natoshi-moto/Experimental-Sandbox/discussions/categories/show-and-tell)
+- 🧨 **BREAK IT** — [request adversarial review](https://github.com/Natoshi-moto/Experimental-Sandbox/discussions/categories/show-and-tell) or [attack SBX-EXP-001](experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/INDEPENDENT_REVIEW_INVITATION.md)
 - ✍️ **TEACH IT** — [turn the wreckage into a Full Spectrum lesson](course/README.md)
 - 🚨 **ASK LAB** — [prepare a promotion package](templates/PROMOTION.md)
 

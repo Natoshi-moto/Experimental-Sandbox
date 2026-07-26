@@ -205,7 +205,7 @@ function assertIdempotencyState(state) {
         entry.idempotency_key === key &&
         typeof entry.event_id === "string" &&
         typeof entry.event_body_root === "string" &&
-        typeof entry.authenticated_event_root === "string" &&
+        typeof entry.semantic_event_root === "string" &&
         !eventIds.has(entry.event_id),
       "ERR_IDEMPOTENCY_CONFLICT",
       `invalid canonical idempotency entry ${key}`,
@@ -214,26 +214,57 @@ function assertIdempotencyState(state) {
   }
 }
 
+function assertControllerState(state) {
+  for (const [controllerId, controller] of Object.entries(
+    state.controllers,
+  )) {
+    invariant(
+      controller.controller_id === controllerId &&
+        controller.status === "ACTIVE",
+      "ERR_AUTHORITY",
+      `controller registry entry ${controllerId} is invalid`,
+    );
+    assertHybridControllerPublicIdentity(controller);
+  }
+}
+
 function assertCapabilityAndConsentState(state) {
   const offerRoots = new Set();
+  const offerContentRoots = new Set();
+  invariant(
+    state.capability_offer_content_index !== null &&
+      typeof state.capability_offer_content_index === "object" &&
+      !Array.isArray(state.capability_offer_content_index),
+    "ERR_CAPABILITY",
+    "capability offer content index is missing",
+  );
   for (const [offerId, offer] of Object.entries(state.capability_offers)) {
-    const {
-      offer_id: projectedOfferId,
-      authentication,
-      ...offerProjection
-    } = offer;
-    const root = capabilityOfferRoot(offerProjection);
+    const root = capabilityOfferRoot(offer);
     invariant(
-      projectedOfferId === offerId &&
-        authentication !== null &&
-        typeof authentication === "object" &&
-        derivedCarrierId("CAPABILITY_OFFER", offerProjection) === offerId &&
-        !offerRoots.has(root),
+      offer.offer_id === offerId &&
+        derivedCarrierId("CAPABILITY_OFFER", offer) === offerId &&
+        state.capability_offer_content_index[
+          offer.offer_content_root
+        ] === offerId &&
+        !offerRoots.has(root) &&
+        !offerContentRoots.has(offer.offer_content_root),
       "ERR_CAPABILITY",
       `${offerId} is not an exact authenticated capability offer`,
     );
     offerRoots.add(root);
+    offerContentRoots.add(offer.offer_content_root);
   }
+  invariant(
+    Object.keys(state.capability_offer_content_index).length ===
+      offerContentRoots.size &&
+      Object.entries(state.capability_offer_content_index).every(
+        ([contentRoot, offerId]) =>
+          state.capability_offers[offerId]
+            ?.offer_content_root === contentRoot,
+      ),
+    "ERR_CAPABILITY",
+    "capability offer content index is not exact",
+  );
 
   const consentRoots = new Set();
   for (const [consentId, stored] of Object.entries(
@@ -1025,6 +1056,7 @@ function assertRouteExecutionAuthorities(state) {
 }
 
 export function validateState(state) {
+  assertControllerState(state);
   assertRouteExecutionAuthorities(state);
   invariant(
     Number.isSafeInteger(state.tick) && state.tick >= 0,
@@ -1059,6 +1091,7 @@ export function validateState(state) {
     job_accounts: "PASS",
     appeal_lineage: "PASS",
     idempotency: "PASS",
+    hybrid_controllers: "PASS",
     capability_and_consent: "PASS",
     public_export: "PASS",
     aggregate_authority_ceiling: "PASS",
@@ -1068,3 +1101,4 @@ export function validateState(state) {
     terminal_closure: "PASS",
   };
 }
+import { assertHybridControllerPublicIdentity } from "./identity.mjs";
