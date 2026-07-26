@@ -142,6 +142,12 @@ or Nexus Lab acceptance.
   [`reports/LIFECYCLE_TRANSACTION_REVIEW_v0.1.md`](reports/LIFECYCLE_TRANSACTION_REVIEW_v0.1.md)
 - Correlated three-model document audit and repair ledger:
   [`reports/WHITEPAPER_SPEC_REVIEW_ROUND_001.md`](reports/WHITEPAPER_SPEC_REVIEW_ROUND_001.md)
+- Current executable coverage derivation:
+  [`reports/FALSIFIER_SCOREBOARD_v0.2.md`](reports/FALSIFIER_SCOREBOARD_v0.2.md)
+- Reproducible exploit format and verifier:
+  [`adversarial/README.md`](adversarial/README.md)
+- Independent falsification invitation:
+  [`INDEPENDENT_REVIEW_INVITATION.md`](INDEPENDENT_REVIEW_INVITATION.md)
 
 ## Lesson
 

@@ -1,12 +1,36 @@
 import { readFile } from "node:fs/promises";
+import {
+  LocalStatePolicyError,
+  STATE_FILE_LIMITS,
+  localStateRows,
+  parseLocalStateText,
+} from "./state-file-policy.mjs";
 
 const here = new URL("./", import.meta.url);
-const [fixtureSource, html, css, app] = await Promise.all([
+const [fixtureSource, html, css, app, policy] = await Promise.all([
   readFile(new URL("demo-state.json", here), "utf8"),
   readFile(new URL("index.html", here), "utf8"),
   readFile(new URL("styles.css", here), "utf8"),
   readFile(new URL("app.js", here), "utf8"),
+  readFile(new URL("state-file-policy.mjs", here), "utf8"),
 ]);
+const hostileNames = [
+  "html.json",
+  "script.json",
+  "event-handler.json",
+  "url.json",
+  "prototype-pollution.json",
+  "deep.json",
+  "oversize.case.json",
+];
+const hostileSources = Object.fromEntries(
+  await Promise.all(
+    hostileNames.map(async (name) => [
+      name,
+      await readFile(new URL(`hostile-fixtures/${name}`, here), "utf8"),
+    ]),
+  ),
+);
 
 const fixture = JSON.parse(fixtureSource);
 let assertions = 0;
@@ -127,12 +151,15 @@ for (const id of regionIds) {
   assert(app.includes(`"${id}"`), `renderer targets ${id}`);
 }
 
-assert(html.includes('src="./app.js"'), "local app script");
+assert(html.includes('src="./app.js" type="module"'), "local module app script");
 assert(html.includes('href="./styles.css"'), "local stylesheet");
 assert(app.includes('const FIXTURE_URL = "./demo-state.json"'), "only local fixture URL");
-assert(!/https?:\/\//.test(html + css + app), "no external URL");
+assert(!/https?:\/\//.test(html + css + app + policy), "no external URL");
 assert(!/\b(?:WebSocket|EventSource|XMLHttpRequest)\b/.test(app), "no network adapter");
-assert(!/\b(?:localStorage|sessionStorage|indexedDB)\b/.test(app), "no durable storage");
+assert(
+  !/\b(?:localStorage|sessionStorage|indexedDB)\b/.test(app + policy),
+  "no durable storage",
+);
 assert(
   !/\b(?:POST|PUT|PATCH|DELETE)\b/.test(app),
   "no canonical mutation method",
@@ -141,6 +168,107 @@ assert(css.includes("@media (max-width: 520px)"), "small-screen layout");
 assert(css.includes("@media (prefers-reduced-motion: reduce)"), "reduced motion");
 assert(html.includes('role="dialog"'), "receipt dialog semantics");
 assert(html.includes('aria-live="polite"'), "live walkthrough status");
+assert(html.includes('id="local-state-file"'), "local state file input");
+assert(html.includes('id="reset-local-state"'), "local state reset");
+assert(html.includes("UNTRUSTED / LOCAL"), "visible untrusted local status");
+assert(html.includes("frame-ancestors is ignored in meta CSP"), "framing deployment note");
+assert(html.includes("worker-src 'none'"), "CSP blocks workers");
+assert(html.includes("form-action 'none'"), "CSP blocks forms");
+assert(
+  (app.match(/\bfetch\s*\(/g) ?? []).length === 1 &&
+    app.includes("fetch(FIXTURE_URL"),
+  "only bundled same-origin fixture is fetched",
+);
+
+const localRendererStart = app.indexOf("const renderUntrustedLocalState");
+const localRendererEnd = app.indexOf(
+  "const setupLocalStateLoader",
+  localRendererStart,
+);
+const localRenderer = app.slice(localRendererStart, localRendererEnd);
+assert(localRendererStart >= 0 && localRendererEnd > localRendererStart, "local renderer found");
+assert(localRenderer.includes("document.createElement"), "local renderer uses DOM creation");
+assert(localRenderer.includes(".textContent"), "local renderer uses textContent");
+assert(localRenderer.includes(".replaceChildren"), "local renderer replaces DOM children");
+assert(
+  !/\b(?:innerHTML|outerHTML|insertAdjacentHTML)\b/.test(localRenderer),
+  "local renderer has no HTML parsing sink",
+);
+assert(
+  !/\b(?:href|src|window\.open|location)\b/.test(localRenderer),
+  "local renderer cannot create navigation",
+);
+
+const byteLength = (source) => new TextEncoder().encode(source).byteLength;
+const parseHostile = (name) =>
+  parseLocalStateText(hostileSources[name], {
+    name,
+    type: "application/json",
+    declaredBytes: byteLength(hostileSources[name]),
+  });
+const rejectedAs = (name, code) => {
+  let observed = null;
+  try {
+    parseHostile(name);
+  } catch (error) {
+    observed = error;
+  }
+  assert(observed instanceof LocalStatePolicyError, `${name} fails closed`);
+  assert(observed?.code === code, `${name} rejection code ${code}`);
+};
+
+const literalCases = [
+  ["html.json", "<img src=x onerror=globalThis.__nexus_pwned=true>"],
+  [
+    "script.json",
+    "</script><script>globalThis.__nexus_pwned=true</script>",
+  ],
+  [
+    "event-handler.json",
+    "\" autofocus onfocus=\"globalThis.__nexus_pwned=true",
+  ],
+  ["url.json", "javascript:globalThis.__nexus_pwned=true"],
+];
+for (const [name, expectedLiteral] of literalCases) {
+  const parsed = parseHostile(name);
+  const rows = localStateRows(parsed.state);
+  assert(Object.isFrozen(parsed), `${name} root frozen`);
+  assert(
+    rows.some((row) => row.value === expectedLiteral),
+    `${name} hostile bytes remain literal text`,
+  );
+}
+
+rejectedAs("prototype-pollution.json", "FORBIDDEN_KEY");
+rejectedAs("deep.json", "DEPTH_LIMIT");
+assert(!Object.hasOwn(Object.prototype, "polluted"), "Object prototype remains clean");
+
+const oversizeCase = JSON.parse(hostileSources["oversize.case.json"]);
+assert(
+  oversizeCase.requested_bytes === STATE_FILE_LIMITS.maxBytes + 1,
+  "oversize fixture tracks policy boundary",
+);
+const oversizeSource = JSON.stringify({
+  schema: "nexus-ui-local-state-v1",
+  label: "oversize",
+  state: { payload: oversizeCase.repeat.repeat(STATE_FILE_LIMITS.maxBytes) },
+});
+let oversizeError = null;
+try {
+  parseLocalStateText(oversizeSource, {
+    name: "oversize.json",
+    type: "application/json",
+    declaredBytes: byteLength(oversizeSource),
+  });
+} catch (error) {
+  oversizeError = error;
+}
+assert(oversizeError instanceof LocalStatePolicyError, "oversize fails closed");
+assert(oversizeError?.code === "BYTE_LIMIT", "oversize rejection code");
+assert(
+  app.includes("No upload, navigation, storage, or canonical mutation"),
+  "local quarantine boundary is visible",
+);
 
 console.log(
   `PASS ui-self-test: ${assertions} assertions; ` +

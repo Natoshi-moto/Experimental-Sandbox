@@ -1,3 +1,10 @@
+import {
+  STATE_FILE_LIMITS,
+  assertLocalFileMetadata,
+  localStateRows,
+  parseLocalStateText,
+} from "./state-file-policy.mjs";
+
 (() => {
   "use strict";
 
@@ -1100,6 +1107,125 @@
     byId("fatal-error").hidden = false;
   };
 
+  const renderUntrustedLocalState = (data, fileName) => {
+    const inspector = byId("local-state-inspector");
+    const heading = byId("local-state-heading");
+    const metadata = byId("local-state-metadata");
+    const output = byId("local-state-output");
+    const fragment = document.createDocumentFragment();
+    const displayed = data.schema === "nexus-ui-local-state-v1" ? data.state : data;
+
+    heading.textContent = "UNTRUSTED / LOCAL state quarantine";
+    metadata.textContent =
+      `${fileName} / ${data.schema} / DOM text projection only / ` +
+      `${STATE_FILE_LIMITS.maxRenderedRows} row ceiling`;
+
+    for (const row of localStateRows(displayed)) {
+      const article = document.createElement("article");
+      const path = document.createElement("code");
+      const type = document.createElement("span");
+      const value = document.createElement("pre");
+
+      article.className = "local-state-row";
+      path.className = "local-state-path";
+      type.className = "local-state-type";
+      value.className = "local-state-value";
+      path.textContent = row.path;
+      type.textContent = row.type;
+      value.textContent = row.value;
+      article.append(path, type, value);
+      fragment.append(article);
+    }
+
+    output.replaceChildren(fragment);
+    inspector.hidden = false;
+    byId("main-content").hidden = true;
+    byId("receipt-drawer").hidden = true;
+    byId("drawer-backdrop").hidden = true;
+    document.body.classList.remove("drawer-open");
+  };
+
+  const setupLocalStateLoader = () => {
+    const input = byId("local-state-file");
+    const reset = byId("reset-local-state");
+    const status = byId("local-state-status");
+    const message = byId("local-state-message");
+    const inspector = byId("local-state-inspector");
+    const main = byId("main-content");
+    let generation = 0;
+
+    const setStatus = (label, tone, detail) => {
+      status.textContent = label;
+      status.dataset.tone = tone;
+      message.textContent = detail;
+    };
+
+    const restoreBundled = () => {
+      generation += 1;
+      input.value = "";
+      reset.disabled = true;
+      inspector.hidden = true;
+      byId("local-state-output").replaceChildren();
+      main.hidden = false;
+      setStatus(
+        "BUNDLED / LOCALHOST",
+        "bundled",
+        "Using the repository fixture. Selected files never leave this browser.",
+      );
+    };
+
+    input.addEventListener("change", async () => {
+      const currentGeneration = ++generation;
+      const file = input.files?.[0];
+      reset.disabled = false;
+      inspector.hidden = true;
+      main.hidden = false;
+
+      if (!file || input.files.length !== 1) {
+        setStatus(
+          "REJECTED / LOCAL",
+          "rejected",
+          "Choose exactly one bounded JSON file.",
+        );
+        return;
+      }
+
+      try {
+        assertLocalFileMetadata({
+          name: file.name,
+          type: file.type,
+          declaredBytes: file.size,
+        });
+        const source = await file.text();
+        if (currentGeneration !== generation) return;
+        const data = parseLocalStateText(source, {
+          name: file.name,
+          type: file.type,
+          declaredBytes: file.size,
+        });
+        if (data.schema === "nexus-matrix-demo-v1") assertFixture(data);
+        renderUntrustedLocalState(data, file.name);
+        setStatus(
+          "UNTRUSTED / LOCAL",
+          "untrusted",
+          "Quarantined text-only projection. No upload, navigation, storage, or canonical mutation.",
+        );
+      } catch (error) {
+        if (currentGeneration !== generation) return;
+        const code =
+          error && typeof error.code === "string" ? error.code : "READ_FAILURE";
+        setStatus(
+          "REJECTED / LOCAL",
+          "rejected",
+          `Fail-closed rejection: ${code}. The bundled fixture remains active.`,
+        );
+      }
+    });
+
+    reset.addEventListener("click", restoreBundled);
+    restoreBundled();
+  };
+
   const start = async () => {
     try {
       const response = await fetch(FIXTURE_URL, {
@@ -1119,5 +1245,6 @@
     }
   };
 
+  setupLocalStateLoader();
   start();
 })();

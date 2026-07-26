@@ -2,7 +2,11 @@ import { assertCanonicalValue } from "../core/canonical.mjs";
 import { invariant } from "../core/errors.mjs";
 import { hash } from "../core/hash.mjs";
 import {
+  assertVerifiedHybridAuthenticationReference,
+} from "../core/identity.mjs";
+import {
   capabilityOfferRoot as coreCapabilityOfferRoot,
+  capabilityOfferContentRoot as coreCapabilityOfferContentRoot,
   capabilityOfferTermsRoot,
   derivedCarrierId,
   donatedCapacityConsentBodyRoot,
@@ -39,7 +43,7 @@ const AUTH_FIELDS = Object.freeze([
   "controller_id",
   "key_id",
   "scheme",
-  "signature",
+  "schema",
   "signed_domain",
   "signed_payload_root",
 ]);
@@ -229,21 +233,11 @@ function assertStringArray(values, label, allowedValues = null) {
 function validateAuth(
   auth,
   label,
-  expectedSignedDomain = "NEXUS_EVENT_AUTH_V1",
+  expectedSignedDomain = "NEXUS_EVENT_AUTH_V2",
 ) {
-  assertExactKeys(auth, AUTH_FIELDS, [], label);
-  for (const field of AUTH_FIELDS) {
-    invariant(
-      typeof auth[field] === "string" && auth[field].length > 0,
-      "ERR_SCHEMA",
-      `${label}.${field} must be a non-empty string`,
-    );
-  }
+  assertVerifiedHybridAuthenticationReference(auth);
   invariant(
-    ["SIM_AUTH_UNSAFE", "APPROVED_SIGNATURE_SCHEME"].includes(
-      auth.scheme,
-    ) &&
-      auth.signed_domain === expectedSignedDomain,
+    auth.signed_domain === expectedSignedDomain,
     "ERR_SCHEMA",
     `${label} uses an unregistered authentication value`,
   );
@@ -256,8 +250,13 @@ function validateOfferSchema(
 ) {
   const required = binding ? OFFER_BINDING_FIELDS : OFFER_BODY_FIELDS;
   const optional = binding
-    ? ["probe_root", "offer_id", "authentication"]
-    : ["offer_id", "authentication"];
+    ? [
+        "probe_root",
+        "offer_content_root",
+        "offer_id",
+        "authentication",
+      ]
+    : ["offer_content_root", "offer_id", "authentication"];
   assertExactKeys(offer, required, optional, "offer");
   invariant(
     offer.schema === "nexus-capability-offer-v1",
@@ -342,6 +341,13 @@ function validateOfferSchema(
   if (Object.hasOwn(offer, "probe_root")) {
     assertNonEmptyString(offer.probe_root, "offer.probe_root");
   }
+  if (Object.hasOwn(offer, "offer_content_root")) {
+    invariant(
+      /^[0-9a-f]{64}$/.test(offer.offer_content_root),
+      "ERR_SCHEMA",
+      "offer.offer_content_root must be a lowercase SHA-256 root",
+    );
+  }
   for (const field of [
     "isolation_root",
     "trusted_worker_policy_root",
@@ -358,9 +364,11 @@ function validateOfferSchema(
     validateAuth(offer.authentication, "offer.authentication");
   }
   invariant(
-    !requireAuthentication || Object.hasOwn(offer, "authentication"),
+    !requireAuthentication ||
+      (Object.hasOwn(offer, "authentication") &&
+        Object.hasOwn(offer, "offer_content_root")),
     "ERR_AUTHORITY",
-    "offer.authentication is required",
+    "offer authentication and content root are required",
   );
 }
 
@@ -457,7 +465,7 @@ function validateConsentRecordSchema(consent) {
   validateAuth(
     consent.authentication,
     "donatedCapacityConsent.authentication",
-    "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V1",
+    "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
   );
   assertCanonicalValue(consent);
 }
@@ -482,8 +490,13 @@ function allowedScalar(value, values, label) {
 }
 
 export function capabilityOfferRoot(offer) {
-  validateOfferSchema(offer);
+  validateOfferSchema(offer, { requireAuthentication: true });
   return coreCapabilityOfferRoot(offer);
+}
+
+export function capabilityOfferContentRoot(offer) {
+  validateOfferSchema(offer);
+  return coreCapabilityOfferContentRoot(offer);
 }
 
 export function capabilityOfferBindingRoot(offer) {

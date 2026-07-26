@@ -1,0 +1,9 @@
+{
+  "schema": "nexus-ui-local-state-v1",
+  "label": "prototype-pollution",
+  "state": {
+    "__proto__": {
+      "polluted": true
+    }
+  }
+}

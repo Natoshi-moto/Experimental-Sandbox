@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'none'; worker-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"
     >
+    <!-- frame-ancestors is ignored in meta CSP. Production hosting must set response-header Content-Security-Policy: frame-ancestors 'none' (or X-Frame-Options: DENY). -->
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#07110f">
     <meta
@@ -15,7 +16,7 @@
     >
     <title>Nexus Matrix — Read-only Sandbox Walkthrough</title>
     <link rel="stylesheet" href="./styles.css">
-    <script src="./app.js" defer></script>
+    <script src="./app.js" type="module"></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to walkthrough</a>
@@ -53,6 +54,57 @@
       <span aria-hidden="true">·</span>
       <span>No credentials, providers, or network adapters</span>
     </div>
+
+    <section class="state-loader shell" aria-labelledby="state-loader-heading">
+      <div>
+        <span class="kicker">Hostile-state workbench</span>
+        <h2 id="state-loader-heading">Load a local JSON file into quarantine</h2>
+        <p>
+          The file stays in this browser. It is never uploaded, stored,
+          navigated, or passed into the canonical-state renderer.
+        </p>
+      </div>
+      <div class="state-loader-controls">
+        <label class="file-picker" for="local-state-file">
+          Choose local state
+          <input
+            id="local-state-file"
+            type="file"
+            accept=".json,application/json"
+            aria-describedby="local-state-limits local-state-message"
+          >
+        </label>
+        <button class="button button-quiet" id="reset-local-state" type="button" disabled>
+          Reset bundled state
+        </button>
+      </div>
+      <div class="state-loader-trust">
+        <strong id="local-state-status" data-tone="bundled">BUNDLED / LOCALHOST</strong>
+        <span id="local-state-message" role="status" aria-live="polite">
+          Using the repository fixture. Selected files never leave this browser.
+        </span>
+        <small id="local-state-limits">
+          Accepted: nexus-matrix-demo-v1 or nexus-ui-local-state-v1; maximum
+          512 KiB, 18 levels, 10,000 values.
+        </small>
+      </div>
+    </section>
+
+    <section
+      class="local-state-inspector shell"
+      id="local-state-inspector"
+      aria-labelledby="local-state-heading"
+      hidden
+    >
+      <div class="section-heading">
+        <div>
+          <span class="kicker">Text-only attack surface</span>
+          <h2 id="local-state-heading">UNTRUSTED / LOCAL state quarantine</h2>
+        </div>
+        <p id="local-state-metadata"></p>
+      </div>
+      <div id="local-state-output" class="local-state-output" aria-live="polite"></div>
+    </section>
 
     <main id="main-content">
       <section class="hero shell" id="overview" aria-labelledby="job-title">
@@ -285,7 +337,7 @@
       </div>
       <div class="footer-proof">
         <span>status_authority: <code>NONE</code></span>
-        <span>auth: <code>SIM_AUTH_UNSAFE</code></span>
+        <span>auth: <code>HYBRID_ED25519_ML_DSA_65_V1</code></span>
         <span>source: <code>demo-state.json</code></span>
       </div>
     </footer>

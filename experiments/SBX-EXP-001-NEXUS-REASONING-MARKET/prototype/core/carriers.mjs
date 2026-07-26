@@ -1,6 +1,9 @@
 import { invariant } from "./errors.mjs";
 import { hash, rootId } from "./hash.mjs";
 import {
+  assertVerifiedHybridAuthenticationReference,
+} from "./identity.mjs";
+import {
   assertBoundedString,
   assertCanonicalToken,
   assertExactObjectKeys,
@@ -9,8 +12,8 @@ import {
 } from "./schema.mjs";
 
 const CARRIER_IDENTITIES = Object.freeze({
-  CAPABILITY_OFFER: ["OFFER", "NEXUS_CAPABILITY_OFFER_ID_V1", "offer_id"],
-  DONATED_CAPACITY_CONSENT: ["DONATIONCONSENT", "NEXUS_DONATED_CAPACITY_CONSENT_ID_V1", "consent_id"],
+  CAPABILITY_OFFER: ["OFFER", "NEXUS_CAPABILITY_OFFER_ID_V2", "offer_id"],
+  DONATED_CAPACITY_CONSENT: ["DONATIONCONSENT", "NEXUS_DONATED_CAPACITY_CONSENT_ID_V2", "consent_id"],
   DISCLOSURE_POLICY: ["DISCLOSUREPOLICY", "NEXUS_DISCLOSURE_POLICY_CARRIER_ID_V1", "disclosure_policy_id"],
   DISCLOSURE_PROOF_CONTEXT: ["DISCLOSUREPROOF", "NEXUS_DISCLOSURE_PROOF_CONTEXT_CARRIER_ID_V1", "disclosure_proof_context_id"],
   ENTROPY_ONE_USE_CONSUMPTION: ["ENTROPYUSE", "NEXUS_ENTROPY_ONE_USE_CONSUMPTION_ID_V1", "consumption_id"],
@@ -29,12 +32,54 @@ const CARRIER_IDENTITIES = Object.freeze({
   PUBLICATION_ANCHOR: ["PUBLICATION", "NEXUS_PUBLICATION_ANCHOR_ID_V1", "publication_anchor_id"],
 });
 
+const CARRIER_AUTHENTICATION_DOMAINS = Object.freeze({
+  CAPABILITY_OFFER: "NEXUS_EVENT_AUTH_V2",
+  DONATED_CAPACITY_CONSENT:
+    "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
+});
+
+function assertCarrierAuthenticationReference(recordType, body) {
+  const expectedDomain = CARRIER_AUTHENTICATION_DOMAINS[recordType];
+  if (!expectedDomain) return null;
+  const authentication =
+    assertVerifiedHybridAuthenticationReference(body.authentication);
+  invariant(
+    authentication.signed_domain === expectedDomain &&
+      (recordType !== "DONATED_CAPACITY_CONSENT" ||
+        (authentication.controller_id === body.controller_id &&
+          authentication.signed_payload_root ===
+            hash(
+              "NEXUS_DONATED_CAPACITY_CONSENT_AUTH_V2",
+              {
+                principal_id: body.principal_id,
+                controller_id: body.controller_id,
+                signed_body_root: body.signed_body_root,
+              },
+            ))),
+    "ERR_AUTHORITY",
+    `${recordType} verified authentication reference is not bound`,
+  );
+  return authentication;
+}
+
 function identityProjection(recordType, body) {
   const identity = CARRIER_IDENTITIES[recordType];
   invariant(identity, "ERR_SCHEMA", `unregistered carrier type ${recordType}`);
+  const bindsAuthentication = Object.hasOwn(
+    CARRIER_AUTHENTICATION_DOMAINS,
+    recordType,
+  );
+  if (bindsAuthentication) {
+    assertCarrierAuthenticationReference(recordType, body);
+  }
   const output = Object.create(null);
   for (const key of Object.keys(body).sort()) {
-    if (key === identity[2] || key === "authentication") continue;
+    if (
+      key === identity[2] ||
+      (key === "authentication" && !bindsAuthentication)
+    ) {
+      continue;
+    }
     if (
       recordType === "DISCLOSURE_PREPARATION" &&
       [
@@ -58,12 +103,14 @@ export function derivedCarrierId(recordType, body) {
 
 export function assertDerivedCarrierId(recordType, body) {
   const idField = CARRIER_IDENTITIES[recordType]?.[2];
+  const derivedId = derivedCarrierId(recordType, body);
   invariant(
-    idField && body[idField] === derivedCarrierId(recordType, body),
+    idField &&
+      (!Object.hasOwn(body, idField) || body[idField] === derivedId),
     "ERR_ID_PREIMAGE",
     `${recordType} carrier ID is not its registered full-digest identity`,
   );
-  return body[idField];
+  return derivedId;
 }
 
 const CAPABILITY_OFFER_CONTENT_KEYS = Object.freeze([
@@ -81,7 +128,7 @@ export function capabilityOfferProjection(record) {
   assertExactObjectKeys(
     record,
     CAPABILITY_OFFER_CONTENT_KEYS,
-    ["authentication", "offer_id"],
+    ["authentication", "offer_content_root", "offer_id"],
     "capability offer",
   );
   invariant(
@@ -89,20 +136,47 @@ export function capabilityOfferProjection(record) {
     "ERR_SCHEMA",
     "unsupported capability offer",
   );
+  if (Object.hasOwn(record, "authentication")) {
+    assertCarrierAuthenticationReference("CAPABILITY_OFFER", record);
+  }
   const projection = Object.create(null);
   for (const key of CAPABILITY_OFFER_CONTENT_KEYS) projection[key] = record[key];
   return projection;
 }
 
+export function capabilityOfferContentRoot(record) {
+  return hash(
+    "NEXUS_CAPABILITY_OFFER_CONTENT_V1",
+    capabilityOfferProjection(record),
+  );
+}
+
 export function capabilityOfferRoot(record) {
-  const projection = capabilityOfferProjection(record);
+  const authentication = assertCarrierAuthenticationReference(
+    "CAPABILITY_OFFER",
+    record,
+  );
+  const projection = {
+    ...capabilityOfferProjection(record),
+    offer_content_root: record.offer_content_root,
+    authentication,
+  };
+  assertHexRoot(
+    record.offer_content_root,
+    "capability offer content root",
+  );
   invariant(
-    derivedCarrierId("CAPABILITY_OFFER", projection) ===
-      (record.offer_id ?? derivedCarrierId("CAPABILITY_OFFER", projection)),
+    record.offer_content_root === capabilityOfferContentRoot(record),
     "ERR_ID_PREIMAGE",
     "capability offer ID preimage is invalid",
   );
-  return hash("NEXUS_CAPABILITY_OFFER_V1", projection);
+  assertDerivedCarrierId(
+    "CAPABILITY_OFFER",
+    Object.hasOwn(record, "offer_id")
+      ? { ...projection, offer_id: record.offer_id }
+      : projection,
+  );
+  return hash("NEXUS_CAPABILITY_OFFER_V2", projection);
 }
 
 export function capabilityOfferTermsRoot(record) {
@@ -148,7 +222,6 @@ export function donatedCapacityConsentRecordRoot(record) {
     record,
     [
       "authentication",
-      "consent_id",
       "controller_id",
       "principal_id",
       "schema",
@@ -156,7 +229,7 @@ export function donatedCapacityConsentRecordRoot(record) {
       "signed_body_root",
       "status",
     ],
-    [],
+    ["consent_id"],
     "accepted donated-capacity consent",
   );
   invariant(
@@ -169,9 +242,16 @@ export function donatedCapacityConsentRecordRoot(record) {
     "ERR_AUTHORITY",
     "donated-capacity consent content is invalid",
   );
-  assertDerivedCarrierId("DONATED_CAPACITY_CONSENT", record);
-  const { authentication: ignored, ...projection } = record;
-  return hash("NEXUS_ACCEPTED_DONATED_CAPACITY_CONSENT_V1", projection);
+  assertCarrierAuthenticationReference(
+    "DONATED_CAPACITY_CONSENT",
+    record,
+  );
+  const consentId =
+    assertDerivedCarrierId("DONATED_CAPACITY_CONSENT", record);
+  return hash(
+    "NEXUS_ACCEPTED_DONATED_CAPACITY_CONSENT_V2",
+    { ...record, consent_id: consentId },
+  );
 }
 
 function assertRoots(body, nullableRootFields = []) {

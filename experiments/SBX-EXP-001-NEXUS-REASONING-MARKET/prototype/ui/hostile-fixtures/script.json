@@ -1,0 +1,7 @@
+{
+  "schema": "nexus-ui-local-state-v1",
+  "label": "hostile-script",
+  "state": {
+    "payload": "</script><script>globalThis.__nexus_pwned=true</script>"
+  }
+}

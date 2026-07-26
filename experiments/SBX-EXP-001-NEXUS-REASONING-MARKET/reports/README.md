@@ -20,6 +20,8 @@ Read in this order:
 7. [`LIFECYCLE_TRANSACTION_REVIEW_v0.1.md`](LIFECYCLE_TRANSACTION_REVIEW_v0.1.md)
    — one-account/one-job mechanics, agent spending, crowdsourcing, reviews, and
    GitHub witness design.
+8. [`FALSIFIER_SCOREBOARD_v0.2.md`](FALSIFIER_SCOREBOARD_v0.2.md) — auditable
+   `TESTED|PARTIAL|UNTESTED` mapping for all 12 falsifiers and 93 vectors.
 
 The executable prototype must not use prose in these reports as proof that a
 control exists. Every adopted `MUST` needs a deterministic test or a visible
