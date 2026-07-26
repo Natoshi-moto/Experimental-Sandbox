@@ -1,0 +1,9 @@
+Stay on the safety slice only. Zero real value. No Bitcoin-replacement claims.
+
+If blocked: ship the smallest useful unit —
+  (1) strict exact-keys on genesis+block in Node+Python,
+  (2) two new adversarial fixtures,
+  (3) SAFETY_PROPERTIES.md non-claims table,
+  (4) npm run verify green.
+
+Do not open public push, Lab, or Rust third-impl unless I say GO.

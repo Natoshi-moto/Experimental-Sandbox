@@ -12,6 +12,7 @@ MAX_TX_PER_BLOCK = 64
 MAX_OUTPUTS_PER_TX = 16
 MAX_INPUTS_PER_TX = 16
 MAX_HEIGHT = 10_000
+MAX_SAFE_INTEGER = 9007199254740991  # Node lockstep: Number.isSafeInteger bound
 HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 ID_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 
@@ -55,6 +56,35 @@ def require_dense_array(arr, label: str, max_len: int):
     require(len(arr) <= max_len, "BAD_ARRAY", f"{label}: too long")
 
 
+def is_safe_amount(v) -> bool:
+    return isinstance(v, int) and not isinstance(v, bool) and 0 < v <= MAX_SAFE_INTEGER
+
+
+def validate_genesis_body(genesis) -> None:
+    """Strict validation of a pasted genesis body — Node lockstep (validateGenesisBody)."""
+    require_exact_keys(genesis, ["allocations", "note", "protocol", "unit"], "genesis")
+    require(genesis["protocol"] == PROTOCOL, "GENESIS", "protocol")
+    require(genesis["unit"] == UNIT, "GENESIS", "unit")
+    require(
+        isinstance(genesis["note"], str) and len(genesis["note"]) <= 256, "GENESIS", "note"
+    )
+    require_dense_array(genesis["allocations"], "genesis.allocations", 64)
+    require(len(genesis["allocations"]) >= 1, "GENESIS", "need at least one allocation")
+    for i, a in enumerate(genesis["allocations"]):
+        require_exact_keys(
+            a,
+            ["amount", "owner_key_id", "owner_label", "public_key_spki_b64"],
+            f"genesis.allocations[{i}]",
+        )
+        require(is_safe_amount(a["amount"]), "GENESIS", "amount must be positive safe int")
+        require_id(a["owner_label"], "owner_label")
+        require(
+            a["owner_key_id"] == public_key_id(a["public_key_spki_b64"]),
+            "GENESIS",
+            f"genesis.allocations[{i}]: owner_key_id does not match public key",
+        )
+
+
 def outpoint_key(txid: str, index: int) -> str:
     return f"{txid}:{index}"
 
@@ -83,14 +113,11 @@ def state_root(height: int, tip_hash: str, utxo: dict) -> str:
 def build_genesis(allocations: list[dict], note: str = "oml-genesis") -> dict:
     require_dense_array(allocations, "allocations", 64)
     require(len(allocations) >= 1, "GENESIS", "need at least one allocation")
+    require(isinstance(note, str) and len(note) <= 256, "GENESIS", "note")
     body_allocs = []
     for i, a in enumerate(allocations):
         require_exact_keys(a, ["amount", "owner_label", "public_key_spki_b64"], f"allocations[{i}]")
-        require(
-            isinstance(a["amount"], int) and not isinstance(a["amount"], bool) and a["amount"] > 0,
-            "GENESIS",
-            "amount must be positive safe int",
-        )
+        require(is_safe_amount(a["amount"]), "GENESIS", "amount must be positive safe int")
         require_id(a["owner_label"], "owner_label")
         key_id = public_key_id(a["public_key_spki_b64"])
         body_allocs.append(
@@ -201,6 +228,22 @@ def apply_tx(utxo: dict, signed_tx: dict) -> dict:
 
 
 def apply_block(state: dict, block: dict) -> dict:
+    require_exact_keys(
+        block,
+        ["block_hash", "height", "prev_hash", "protocol", "transactions", "unit"],
+        "block",
+    )
+    require_hash(block["block_hash"], "block_hash")
+    require_hash(block["prev_hash"], "prev_hash")
+    require(
+        isinstance(block["height"], int)
+        and not isinstance(block["height"], bool)
+        and 1 <= block["height"] <= MAX_HEIGHT,
+        "BLOCK",
+        "height",
+    )
+    require_dense_array(block["transactions"], "block.transactions", MAX_TX_PER_BLOCK)
+    require(len(block["transactions"]) >= 1, "BLOCK", "empty block")
     require(block["prev_hash"] == state["tip_hash"], "CHAIN", "prev_hash mismatch")
     require(block["height"] == state["height"] + 1, "CHAIN", "height mismatch")
     require(block["protocol"] == PROTOCOL, "BLOCK", "protocol")
@@ -236,6 +279,11 @@ def apply_block(state: dict, block: dict) -> dict:
 
 
 def replay(genesis_result: dict, blocks: list[dict]) -> dict:
+    require(isinstance(genesis_result, dict), "GENESIS", "genesis result")
+    require_hash(genesis_result.get("genesis_hash"), "genesis_hash")
+    # Fail closed on smuggled fields before rebuilding from picked fields.
+    validate_genesis_body(genesis_result["genesis"])
+    require_dense_array(blocks, "blocks", MAX_HEIGHT)
     rebuilt = build_genesis(
         [
             {

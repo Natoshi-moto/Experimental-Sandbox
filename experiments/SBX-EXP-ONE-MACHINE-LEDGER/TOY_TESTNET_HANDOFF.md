@@ -131,13 +131,16 @@ Git is the primary public backup: branch `sandbox/experiment/one-machine-ledger`
 - [x] **Multi-process file-bus toy net** + poison rejection  
 - [x] Drop payload rider fixture + adversarial paste corpus  
 - [x] Packet helper (`scripts/packet.mjs`)  
+- [x] Matrix Terminal `/oml` soft link + `FABLE_DICTIONARY.md` + `FABLE_HANDOFF.md`  
+- [x] Paste corpus regression test (`test/paste-corpus.test.mjs`)  
 
-### Sensible next slices (pick one) — Fable lane
+### Sensible next slices (pick one) — post-Fable
 
-1. **Matrix Terminal soft link**: `/oml` help points at this folder (no RoomFinal claims).  
-2. Expand adversarial paste corpus under `fixtures/adversarial/`.  
-3. **PR** to Experimental-Sandbox `main` index (show people) — still noncanonical.  
-4. Optional: Rust third implementation (same anchors).
+1. **PR** to Experimental-Sandbox `main` index (show people) — still noncanonical.  
+2. Optional: Rust third implementation (same anchors).  
+3. Operator **GO** public push of `sandbox/experiment/one-machine-ledger` if not already.  
+
+See also: `FABLE_HANDOFF.md` (latest seat handoff).
 
 ### Explicit non-goals
 

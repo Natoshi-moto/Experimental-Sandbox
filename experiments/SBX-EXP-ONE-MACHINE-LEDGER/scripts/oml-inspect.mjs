@@ -75,6 +75,10 @@ if (!data || typeof data !== 'object' || Array.isArray(data) || !data.genesis ||
   bail(source, shape, 'UNRECOGNIZED_SHAPE', 'expected OML fixture or snapshot JSON');
 }
 
+if (data.blocks !== undefined && !Array.isArray(data.blocks)) {
+  bail(source, shape, 'BAD_ARRAY', 'blocks must be an array');
+}
+
 const isFixture = typeof data.expected_state_root === 'string';
 shape = shape === 'raw' ? (isFixture ? 'fixture' : 'snapshot') : `${shape}:${isFixture ? 'fixture' : 'snapshot'}`;
 const declaredRoot = isFixture ? data.expected_state_root : data.state_root;
@@ -91,6 +95,13 @@ try {
 }
 
 const supply = [...state.utxo.values()].reduce((sum, out) => sum + out.amount, 0);
+
+// Supply is pinned to the genesis allocation sum unconditionally — conservation
+// drift is INVALID even when the paste declares no expected_supply at all.
+const genesisSupply = state.genesis.allocations.reduce((sum, a) => sum + a.amount, 0);
+if (supply !== genesisSupply) {
+  bail(source, shape, 'SUPPLY_MISMATCH', `computed ${supply}, genesis allocations sum ${genesisSupply}`);
+}
 
 if (typeof declaredRoot === 'string' && state.state_root !== declaredRoot) {
   bail(source, shape, 'STATE_ROOT_MISMATCH', `computed ${state.state_root}, declared ${declaredRoot}`);

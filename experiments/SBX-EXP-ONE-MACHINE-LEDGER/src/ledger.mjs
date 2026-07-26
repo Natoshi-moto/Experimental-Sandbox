@@ -105,12 +105,46 @@ export function stateRoot(height, tipHash, utxo) {
 }
 
 /**
+ * Strict validation of a *pasted* genesis body (the full body form with
+ * owner_key_id, as it appears in fixtures/snapshots). Fail-closed: exact keys
+ * only, no smuggled fields on the body or on any allocation row, and the
+ * declared owner_key_id must match the public key it claims to identify.
+ */
+export function validateGenesisBody(genesis) {
+  requireExactKeys(genesis, ['allocations', 'note', 'protocol', 'unit'], 'genesis');
+  require(genesis.protocol === PROTOCOL, 'GENESIS', 'protocol');
+  require(genesis.unit === UNIT, 'GENESIS', 'unit');
+  require(typeof genesis.note === 'string' && genesis.note.length <= 256, 'GENESIS', 'note');
+  requireDenseArray(genesis.allocations, 'genesis.allocations', 64);
+  require(genesis.allocations.length >= 1, 'GENESIS', 'need at least one allocation');
+  genesis.allocations.forEach((a, i) => {
+    requireExactKeys(
+      a,
+      ['amount', 'owner_key_id', 'owner_label', 'public_key_spki_b64'],
+      `genesis.allocations[${i}]`,
+    );
+    require(
+      Number.isSafeInteger(a.amount) && a.amount > 0,
+      'GENESIS',
+      'amount must be positive safe int',
+    );
+    requireId(a.owner_label, 'owner_label');
+    require(
+      a.owner_key_id === publicKeyId(a.public_key_spki_b64),
+      'GENESIS',
+      `genesis.allocations[${i}]: owner_key_id does not match public key`,
+    );
+  });
+}
+
+/**
  * Genesis: allocate fixed outputs to named identities. No signatures required
  * (operator-declared initial allocation for a local experiment).
  */
 export function buildGenesis({ allocations, note = 'oml-genesis' }) {
   requireDenseArray(allocations, 'allocations', 64);
   require(allocations.length >= 1, 'GENESIS', 'need at least one allocation');
+  require(typeof note === 'string' && note.length <= 256, 'GENESIS', 'note');
   const body = {
     allocations: allocations.map((a, i) => {
       requireExactKeys(a, ['amount', 'owner_label', 'public_key_spki_b64'], `allocations[${i}]`);
@@ -323,6 +357,20 @@ export function buildBlock({ prev_hash, height, transactions }) {
  */
 export function applyBlock(state, block) {
   require(state && typeof state === 'object', 'STATE', 'state');
+  requireExactKeys(
+    block,
+    ['block_hash', 'height', 'prev_hash', 'protocol', 'transactions', 'unit'],
+    'block',
+  );
+  requireHash(block.block_hash, 'block_hash');
+  requireHash(block.prev_hash, 'prev_hash');
+  require(
+    Number.isSafeInteger(block.height) && block.height >= 1 && block.height <= MAX_HEIGHT,
+    'BLOCK',
+    'height',
+  );
+  requireDenseArray(block.transactions, 'block.transactions', MAX_TX_PER_BLOCK);
+  require(block.transactions.length >= 1, 'BLOCK', 'empty block');
   require(block.prev_hash === state.tip_hash, 'CHAIN', 'prev_hash mismatch');
   require(block.height === state.height + 1, 'CHAIN', 'height mismatch');
   require(block.protocol === PROTOCOL, 'BLOCK', 'protocol');
@@ -363,6 +411,11 @@ export function applyBlock(state, block) {
 
 /** Full replay from genesis + blocks → state; throws on any fault. */
 export function replay(genesisResult, blocks) {
+  require(genesisResult && typeof genesisResult === 'object', 'GENESIS', 'genesis result');
+  requireHash(genesisResult.genesis_hash, 'genesis_hash');
+  // Fail closed on smuggled fields before rebuilding from picked fields.
+  validateGenesisBody(genesisResult.genesis);
+  requireDenseArray(blocks, 'blocks', MAX_HEIGHT);
   let state = {
     genesis: genesisResult.genesis,
     genesis_hash: genesisResult.genesis_hash,

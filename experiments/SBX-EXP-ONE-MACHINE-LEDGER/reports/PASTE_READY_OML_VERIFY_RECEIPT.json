@@ -1,0 +1,14 @@
+{
+  "schema": "nexus.paste.oml/v0",
+  "kind": "OML_VERIFY_RECEIPT",
+  "status_authority": "NONE",
+  "status": "VALID",
+  "source": "reports/PASTE_READY_OML_CHAIN_PACKET.json",
+  "shape": "envelope(body):fixture",
+  "height": 2,
+  "tip_hash": "sha256:1f940c5533579f5de292357d6521635a09e9017ca01fac716ef45138f2acf1df",
+  "state_root": "sha256:e74fb138395a5b96fc83785b36c23cc5b79e88fdccb27fbed25e0d661b3f01b2",
+  "supply": 250,
+  "unit": "OML_UNIT",
+  "utxo_count": 4
+}

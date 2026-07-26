@@ -153,7 +153,22 @@ Pinned fixture anchors (v0):
 | E12 | Empty block | `BLOCK` |
 | E13 | Height past `MAX_HEIGHT` | `BLOCK` |
 | E14 | Multi-hop path supply drift | supply conserved |
+| E15 | Float amount (genesis or tx output) | `GENESIS` / `TX` |
+| E16 | Zero amount (genesis or tx output) | `GENESIS` / `TX` |
+| E17 | Amount beyond safe-integer range | `GENESIS` / `TX` |
+| E18 | Smuggled field on pasted genesis body | `BAD_FIELDS` |
+| E19 | Smuggled field on genesis allocation row | `BAD_FIELDS` |
+| E20 | Smuggled field on block | `BAD_FIELDS` |
+| E21 | Crafted empty block (bypassing `buildBlock`) | `BLOCK` |
+| E22 | Non-array `blocks` on replay | `BAD_ARRAY` |
+| E23 | Genesis supply pin (replay supply ≠ allocation sum; lied `owner_key_id`) | `SUPPLY_MISMATCH` / `GENESIS` |
 | TOY | Poisoned `expected_state_root` on bus | `STATE_ROOT_MISMATCH` |
+
+Paste-shape variants of E15–E22 (plus `tip-lie` → `TIP_MISMATCH` and
+`wrong-protocol` → `GENESIS`) live under `fixtures/adversarial/` — 15 files,
+each pinned to its exact `error_code` by `test/paste-corpus.test.mjs`.
+`oml-inspect` additionally pins computed supply to the genesis allocation sum
+unconditionally, even when the paste omits `expected_supply`.
 
 Not claimed solved: network adversaries, eclipse, reorg markets, key theft, side channels, multi-party liveness, Sybil identity.
 
@@ -212,12 +227,32 @@ For the **narrow problem OML actually states** — *can one machine prove conser
 - Paste packet helpers (`scripts/packet.mjs`, `oml-inspect`).
 - Extended adversarial corpus E08–E14.
 
+### Implemented in SAFETY MAX slice (fail-closed hardening)
+
+- Strict exact-key validation on the *replay* path: pasted genesis body,
+  allocation rows, and blocks reject smuggled fields (`BAD_FIELDS`) instead of
+  silently dropping them during rebuild.
+- `applyBlock` validates block structure independently of `buildBlock`
+  (crafted empty blocks, non-hash fields, height bounds).
+- `oml-inspect`: non-array `blocks` → `BAD_ARRAY`; computed supply pinned to
+  genesis allocation sum unconditionally (`SUPPLY_MISMATCH` on drift).
+- Python dual kernel in lockstep (same checks, same codes, same 2^53−1 bound).
+- Adversarial paste corpus 5 → 15 files, each pinned to an exact `error_code`.
+- Honest scope document: `SAFETY_PROPERTIES.md` (local strictness + non-claims).
+
+### Implemented in Fable slice (cockpit + paste)
+
+- Matrix Terminal `/oml` soft link (UI help only; not settlement).
+- Non-monetary Fable dictionary (`FABLE_DICTIONARY.md`) + `FABLE_HANDOFF.md`.
+- Expanded adversarial paste corpus + inspect regression test.
+- Drop payload rider golden remains VALID under `oml-inspect`.
+
 ### Still open
 
 - Multi-sig inputs; per-input signatures.
 - Relative lock / simple scripts.
-- Matrix Terminal `/oml` soft link (UI only).
-- Bridge to NEXUS Drop custody objects as bearer packages of OML proofs.
+- Optional third implementation (e.g. Rust) on the same anchors.
+- Public index / PR hygiene under Experimental-Sandbox only (operator GO).
 - Never: claim real value without a separate, explicit Lab-gated process that this experiment does not provide.
 
 ---

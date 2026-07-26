@@ -3,7 +3,7 @@
  * One-machine MAX verification entrypoint.
  *
  * Exit 0 only if:
- *   1) Node unit tests (core + adversarial-max)
+ *   1) Node unit tests (core + adversarial-max + paste-corpus)
  *   2) Fixture chain replay (Node)
  *   3) Python dual-implementation agrees on state_root
  *   4) Multi-process file-bus toy net agrees + rejects poison
@@ -42,6 +42,8 @@ const testOut = run(process.execPath, [
   '--test',
   'test/ledger.test.mjs',
   'test/adversarial-max.test.mjs',
+  'test/safety-max.test.mjs',
+  'test/paste-corpus.test.mjs',
 ]);
 const passMatch = testOut.match(/# pass\s+(\d+)/) || testOut.match(/ℹ pass (\d+)/);
 const testsMatch = testOut.match(/# tests\s+(\d+)/) || testOut.match(/ℹ tests (\d+)/);

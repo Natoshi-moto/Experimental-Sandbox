@@ -3,7 +3,7 @@
   "version": "0.2.0-max",
   "private": true,
   "type": "module",
-  "description": "One-machine, zero-value UTXO ledger — Bitcoin-paper-grade local proof experiment (max verify: Node+Python+toynet).",
+  "description": "One-machine append-only validated log + zero-value toy counter (OML_UNIT). Local dual-impl + multi-process proof. Not money. status_authority NONE.",
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "demo": "node scripts/run-demo.mjs",

@@ -1,0 +1,14 @@
+You are an independent auditor seat. status_authority: NONE.
+Review Fable’s OML safety slice under:
+  ~/Projects/Experimental-Sandbox/experiments/SBX-EXP-ONE-MACHINE-LEDGER/
+
+Run: npm run verify
+Then audit:
+1) Did any language claim “safer/better than Bitcoin” as money? Quote + demand rewrite.
+2) Did Node and Python diverge on fail-closed behavior?
+3) Did pinned anchors / good fixture / drop-payload-rider still VALID?
+4) Are adversarial fixtures real fails (not theater)?
+5) Is SAFETY_PROPERTIES.md honest about out-of-scope (network, reorg, Sybil, key theft)?
+6) Lab untouched?
+
+Return: PASS / FAIL with file:line findings only. No redesign cosplay.

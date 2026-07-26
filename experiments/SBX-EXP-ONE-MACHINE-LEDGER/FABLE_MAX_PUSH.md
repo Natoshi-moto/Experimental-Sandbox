@@ -45,7 +45,28 @@ Read:
 
 ---
 
-## Your max job (pick up where paste bus meets cockpit)
+## Fable slice status (2026-07-25) — done
+
+| Priority | Status |
+|---|---|
+| A Cockpit `/oml` | **done** — Matrix Terminal help + handler; `OML.md` |
+| B Drop rider | **done** — `fixtures/drop-payload-rider.json` + paste-corpus test |
+| C Adversarial paste | **done** — ≥5 files under `fixtures/adversarial/` (incl. bad-sig, height-lie) |
+| D Paste cards | **done** — Desktop + experiment cards → next seat |
+| E Public hygiene | **operator GO** — branch exists; push when you say |
+
+Non-monetary translation: `FABLE_DICTIONARY.md`  
+Seat handoff: `FABLE_HANDOFF.md`
+
+### Optional leftovers (not required for “puzzle maxed”)
+
+- Public push / main index entry  
+- Rust third implementation  
+- More adversarial shapes as paste files  
+
+---
+
+## Historical job text (archive — already executed)
 
 ### Priority A — Cockpit soft link (careful)
 
