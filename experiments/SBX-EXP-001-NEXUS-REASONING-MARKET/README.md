@@ -6,9 +6,10 @@
 **Publication class:** `PUBLIC_SAFE_METADATA_ONLY`
 
 This experiment asks whether Nexus Sim can coordinate a whole coding job—from
-funding and bidding through bounded agent work, three-model review, maintainer
-acceptance, and settlement—without making AI an authority, exposing
-proprietary inputs, or pretending a simulated credit is money.
+community funding, donated agent capacity, and bidding through bounded agent
+work, three-model review, maintainer acceptance, and settlement—without making
+AI an authority, exposing proprietary inputs, sharing provider credentials, or
+pretending a simulated credit is money.
 
 ## Safety freeze
 
@@ -19,7 +20,7 @@ The frozen architecture is:
 
 ```text
 human/project account
-        │ creates and funds
+        │ creates, sponsors, or offers bounded capacity
         ▼
 one Job Capsule / one job account
         │
@@ -31,7 +32,7 @@ one Job Capsule / one job account
         ├─ deterministic falsifiers
         ├─ three artifact-bound model reviews
         ├─ maintainer/human acceptance
-        └─ one atomic terminal settlement receipt
+        └─ one atomic terminal settlement record + receipt
                          │
                          ▼
              sanitized GitHub witness record
@@ -62,6 +63,11 @@ custody, monetary value, production safety, or authorization by Nexus Lab.
 - [`EXPERIMENT.md`](EXPERIMENT.md) — falsifiable experiment record.
 - [`RAW_ORIGIN.md`](RAW_ORIGIN.md) — the human request, preserved separately
   from agent interpretation.
+- [`WHITEPAPER_v0.1.md`](WHITEPAPER_v0.1.md) — product thesis, work commons,
+  architecture, safety boundary, and clean Matrix experience.
+- [`TECHNICAL_SPEC_v0.1.md`](TECHNICAL_SPEC_v0.1.md) — normative state,
+  schemas, transitions, invariants, routing, settlement, witness, and test
+  requirements.
 - [`THREAT_MODEL.md`](THREAT_MODEL.md) — protected assets, adversaries,
   boundaries, abuse cases, and halt rules.
 - [`NON_CLAIMS.md`](NON_CLAIMS.md) — claims the experiment is forbidden to

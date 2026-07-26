@@ -166,6 +166,7 @@ checked against primary/official sources:
 - [WHATWG iframe sandboxing](https://html.spec.whatwg.org/multipage/iframe-embed-object.html#attr-iframe-sandbox)
 - [Linux cgroup v2](https://docs.kernel.org/admin-guide/cgroup-v2.html)
 - [Linux namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+- [RFC 8785 JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785.html)
 - [GitHub protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 - [GitHub squash merging](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests)
 - [GitHub artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations)

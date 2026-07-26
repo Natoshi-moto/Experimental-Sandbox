@@ -99,6 +99,22 @@ Interpretation:
 The safe v0 is a closed-loop `SIM_CREDIT` mechanism with explicit non-claims,
 not a production P2P currency or anonymous compute exchange.
 
+### Iteration 0.2 — whitepaper and technical contract
+
+Observation:
+
+- the full work-commons thesis is specified in
+  [`WHITEPAPER_v0.1.md`](WHITEPAPER_v0.1.md);
+- deterministic state, schemas, event transitions, contribution/bid locks,
+  allowances, scheduler, three-review gate, terminal settlement, privacy
+  router, GitHub witness, reason codes, and 93 adversarial vectors are specified
+  in [`TECHNICAL_SPEC_v0.1.md`](TECHNICAL_SPEC_v0.1.md).
+
+Interpretation:
+
+The mechanism is concrete enough to implement and falsify. It remains
+documentary until the next iteration executes the state machine and tests.
+
 ## Limitations and non-claims
 
 See [`NON_CLAIMS.md`](NON_CLAIMS.md). In particular, this experiment does not
@@ -124,6 +140,8 @@ or Nexus Lab acceptance.
   [`reports/SENTINEL_AND_DUAL_KERNEL_REVIEW_v0.1.md`](reports/SENTINEL_AND_DUAL_KERNEL_REVIEW_v0.1.md)
 - Lifecycle transaction verdict:
   [`reports/LIFECYCLE_TRANSACTION_REVIEW_v0.1.md`](reports/LIFECYCLE_TRANSACTION_REVIEW_v0.1.md)
+- Correlated three-model document audit and repair ledger:
+  [`reports/WHITEPAPER_SPEC_REVIEW_ROUND_001.md`](reports/WHITEPAPER_SPEC_REVIEW_ROUND_001.md)
 
 ## Lesson
 
