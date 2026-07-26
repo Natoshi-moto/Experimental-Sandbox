@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#07110f">
+    <meta
+      name="description"
+      content="Read-only Nexus Matrix Sandbox walkthrough for a crowdsourced open-source agent job."
+    >
+    <title>Nexus Matrix — Read-only Sandbox Walkthrough</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to walkthrough</a>
+
+    <noscript>
+      <div class="noscript-banner">
+        This read-only walkthrough needs JavaScript to render the local
+        <code>demo-state.json</code> fixture. It never sends data anywhere.
+      </div>
+    </noscript>
+
+    <header class="site-header">
+      <a class="brand" href="#overview" aria-label="Nexus Matrix overview">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span>
+          <strong>Nexus Matrix</strong>
+          <small>Flow State walkthrough</small>
+        </span>
+      </a>
+
+      <div class="environment-badges" aria-label="Environment limitations">
+        <span class="badge badge-sandbox">SANDBOX</span>
+        <span class="badge badge-credit">SIM_CREDIT_ONLY</span>
+        <span class="badge badge-binding">SIMULATED_MAINTAINER_BINDING</span>
+      </div>
+    </header>
+
+    <div class="authority-strip" role="status">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      <strong>Read-only presentation</strong>
+      <span aria-hidden="true">·</span>
+      <span>No canonical-state mutation</span>
+      <span aria-hidden="true">·</span>
+      <span>No credentials, providers, or network adapters</span>
+    </div>
+
+    <main id="main-content">
+      <section class="hero shell" id="overview" aria-labelledby="job-title">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span>Open-source work commons</span>
+            <span aria-hidden="true">/</span>
+            <span id="public-job-id">Loading fixture…</span>
+          </div>
+          <h1 id="job-title">Loading the local job capsule…</h1>
+          <p class="hero-summary" id="job-summary">
+            The Matrix is validating the read-only demo export.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#walkthrough">Start walkthrough</a>
+            <button class="button button-quiet" id="open-latest-receipt" type="button" disabled>
+              Inspect latest receipt
+            </button>
+          </div>
+        </div>
+
+        <aside class="state-orbit" aria-label="Current job state">
+          <div class="orbit-graphic" aria-hidden="true">
+            <span class="orbit orbit-one"></span>
+            <span class="orbit orbit-two"></span>
+            <span class="orbit-core">N</span>
+          </div>
+          <div>
+            <span class="micro-label">Current capsule state</span>
+            <strong class="state-word" id="job-state">—</strong>
+            <span class="state-reason" id="job-state-reason">Waiting for data</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="metrics shell" id="headline-metrics" aria-label="Job headline metrics">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </section>
+
+      <section class="walkthrough shell" id="walkthrough" aria-labelledby="walkthrough-heading">
+        <div class="section-heading walkthrough-heading">
+          <div>
+            <span class="kicker">Guided read</span>
+            <h2 id="walkthrough-heading">Follow one job from funding to decision</h2>
+          </div>
+          <p>
+            Tour controls change this browser view only. They never submit an
+            event or alter the exported fixture.
+          </p>
+        </div>
+
+        <nav class="tour-nav" aria-label="Walkthrough chapters">
+          <button type="button" data-tour-target="funding" aria-current="step">
+            <span>01</span> Fund
+          </button>
+          <button type="button" data-tour-target="capacity">
+            <span>02</span> Route
+          </button>
+          <button type="button" data-tour-target="work">
+            <span>03</span> Work
+          </button>
+          <button type="button" data-tour-target="evidence">
+            <span>04</span> Verify
+          </button>
+          <button type="button" data-tour-target="review">
+            <span>05</span> Review
+          </button>
+          <button type="button" data-tour-target="hold">
+            <span>06</span> Resolve
+          </button>
+          <button type="button" data-tour-target="receipts">
+            <span>07</span> Audit
+          </button>
+        </nav>
+        <p class="sr-only" id="tour-status" aria-live="polite"></p>
+      </section>
+
+      <div class="content-shell shell">
+        <section class="matrix-section" id="funding" aria-labelledby="funding-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">01 · Community funding</span>
+              <h2 id="funding-heading">Sponsors lock a bounded budget</h2>
+            </div>
+            <p>
+              Credit is accounting, not truth, reputation, ownership, or
+              maintainer authority.
+            </p>
+          </div>
+          <div id="funding-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="capacity" aria-labelledby="capacity-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">02 · Donated capacity</span>
+              <h2 id="capacity-heading">A volunteer seat receives narrow authority</h2>
+            </div>
+            <p>
+              The seat shares neither provider credentials nor account,
+              wallet, recovery, or human authority.
+            </p>
+          </div>
+          <div id="capacity-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="work" aria-labelledby="work-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">03 · Bounded execution</span>
+              <h2 id="work-heading">One job, one lead, narrow child leases</h2>
+            </div>
+            <p>
+              Child capabilities only narrow as work descends through the
+              graph.
+            </p>
+          </div>
+          <div id="work-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="evidence" aria-labelledby="evidence-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">04 · Exact evidence</span>
+              <h2 id="evidence-heading">Deterministic checks run before model judgment</h2>
+            </div>
+            <p>
+              Commands, outputs, artifact bytes, and roots outrank dashboard
+              prose.
+            </p>
+          </div>
+          <div id="evidence-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="review" aria-labelledby="review-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">05 · Exact three-review gate</span>
+              <h2 id="review-heading">Three clears, correlation still visible</h2>
+            </div>
+            <p>
+              Distinct model IDs do not manufacture provider, operator,
+              machine, or toolchain independence.
+            </p>
+          </div>
+          <div id="review-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="hold" aria-labelledby="hold-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">06 · Human authority</span>
+              <h2 id="hold-heading">HOLD preserves the unresolved boundary</h2>
+            </div>
+            <p>
+              Rework, resume-review, appeal, and abort remain explicit,
+              contract-bound paths.
+            </p>
+          </div>
+          <div id="hold-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="privacy" aria-labelledby="privacy-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">Capability nutrition label</span>
+              <h2 id="privacy-heading">Know what leaves before authority is granted</h2>
+            </div>
+            <p>
+              This fixture is public-only. Unsupported or unknown isolation
+              controls never turn green.
+            </p>
+          </div>
+          <div id="privacy-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="settlement" aria-labelledby="settlement-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">Settlement preview</span>
+              <h2 id="settlement-heading">Every simulated unit has one declared destination</h2>
+            </div>
+            <p>
+              Preview only: HOLD keeps unsettled lots locked until a valid
+              terminal path.
+            </p>
+          </div>
+          <div id="settlement-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section" id="receipts" aria-labelledby="receipts-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">07 · Receipt chain</span>
+              <h2 id="receipts-heading">Drill from every claim to its accepted event</h2>
+            </div>
+            <p>
+              Display IDs may be shortened here. The drill-down preserves each
+              full fixture identifier and root.
+            </p>
+          </div>
+          <div id="receipts-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+
+        <section class="matrix-section nonclaims-section" id="nonclaims" aria-labelledby="nonclaims-heading">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">Canonical limits</span>
+              <h2 id="nonclaims-heading">What this walkthrough does not prove</h2>
+            </div>
+            <p>
+              These are protocol data, not optional marketing footnotes.
+            </p>
+          </div>
+          <div id="nonclaims-content" class="section-content loading-region" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer shell">
+      <div>
+        <strong>Nexus Matrix UI simulation</strong>
+        <p>
+          Same-page components model a future separately-originated,
+          least-capability iframe surface.
+        </p>
+      </div>
+      <div class="footer-proof">
+        <span>status_authority: <code>NONE</code></span>
+        <span>auth: <code>SIM_AUTH_UNSAFE</code></span>
+        <span>source: <code>demo-state.json</code></span>
+      </div>
+    </footer>
+
+    <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+    <aside
+      class="receipt-drawer"
+      id="receipt-drawer"
+      aria-labelledby="receipt-drawer-title"
+      aria-describedby="receipt-drawer-description"
+      aria-modal="true"
+      role="dialog"
+      hidden
+    >
+      <div class="drawer-header">
+        <div>
+          <span class="kicker">Accepted-event fixture</span>
+          <h2 id="receipt-drawer-title">Receipt</h2>
+          <p id="receipt-drawer-description">
+            Read-only drill-down. No replay or mutation controls are present.
+          </p>
+        </div>
+        <button class="icon-button" id="close-receipt" type="button" aria-label="Close receipt details">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="drawer-body" id="receipt-drawer-body"></div>
+    </aside>
+
+    <div class="fatal-error" id="fatal-error" role="alert" hidden>
+      <strong>Walkthrough fixture could not be loaded.</strong>
+      <p id="fatal-error-message"></p>
+      <p>
+        Serve this directory with a local static server, then reload. No
+        external connection is required.
+      </p>
+    </div>
+  </body>
+</html>

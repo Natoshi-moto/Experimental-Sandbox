@@ -28,6 +28,8 @@ for file in "${required[@]}"; do
 done
 
 node scripts/test-router.mjs
+node experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/tools/verify-documentary.mjs
+node experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/prototype/tests/run-all.mjs
 
 for skill in catch-chaos advise-operator run-public-experiment publish-fastfoodai request-lab-promotion; do
   test -f "assistant/skills/$skill/SKILL.md" || { echo "MISSING skill $skill"; exit 1; }

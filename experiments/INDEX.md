@@ -1,6 +1,8 @@
 # Experiment index
 
-No experiments have been accepted into the index yet.
+| ID | State | Title | Authority |
+|---|---|---|---|
+| [`SBX-EXP-001`](SBX-EXP-001-NEXUS-REASONING-MARKET/) | `RUNNING` | Nexus crowdsourced agent-work market | `NONE` |
 
 IDs use:
 
