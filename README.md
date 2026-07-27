@@ -1,5 +1,12 @@
 # 🧪 Experimental Sandbox
 
+> [!CAUTION]
+> **`SBX-SOH-001` IS ACTIVE.** Official implementation, activation, live
+> transfer, recruitment, or promotion of the internal-credit and agent-economy
+> direction is on hold. Documentary and adversarial research may continue only
+> within the [root emergency status](EMERGENCY_CURRENT_STATUS.md) and
+> [canonical order](operations/operator-holds/SBX-SOH-001/ORDER.md).
+
 > **FUCK-AROUND LAND. Public, reversible, noncanonical.**
 >
 > This repository cannot speak for Nexus Lab. Nothing here becomes canonical because it is exciting, popular, polished, or AI-approved.

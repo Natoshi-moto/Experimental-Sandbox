@@ -4,6 +4,12 @@
 
 This experiment must not claim or imply any of the following.
 
+> [!IMPORTANT]
+> The economy statements below describe the frozen simulation-only
+> `SIM_CREDIT`. They do not establish that a future credit purchasing actual AI
+> work would be valueless. That separate design remains held under
+> [`SBX-SOH-001`](../../EMERGENCY_CURRENT_STATUS.md).
+
 ## Economy
 
 - `SIM_CREDIT` is money, crypto, a security, a commodity, a stablecoin, legal

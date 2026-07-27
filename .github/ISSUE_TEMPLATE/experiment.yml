@@ -3,6 +3,20 @@ description: "Turn an idea into the smallest falsifiable public test."
 title: "SBX-EXP: "
 labels: ["experiment"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        **Operator hold preflight:** `SBX-SOH-001` is active for internal-credit, agent-economy, community-allocation, and AI-work mechanisms. Research-only critique and falsification may continue; implementation, activation, live transfer, recruitment, financialisation, and Lab promotion may not.
+  - type: dropdown
+    id: operator_hold_impact
+    attributes:
+      label: Active operator hold impact
+      options:
+        - OUT_OF_SCOPE
+        - ALLOWED_RESEARCH_ONLY
+        - BLOCKED_BY_SBX-SOH-001
+    validations:
+      required: true
   - type: input
     id: origin
     attributes:

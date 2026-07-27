@@ -1,7 +1,17 @@
 # SBX-EXP-001 — experiment record
 
 **status_authority:** `NONE`
-**State:** `RUNNING`
+**State:** `OPERATOR_HOLD_RESEARCH_ONLY`
+**Operator hold:** [`SBX-SOH-001`](../../EMERGENCY_CURRENT_STATUS.md) — `ACTIVE`
+
+## Active process boundary
+
+This experiment may be preserved, verified, reproduced, and attacked. It may
+not be expanded, connected to actual AI-work purchasing, activated for live
+participants or transfers, recruited into, or promoted to Lab while
+[`SBX-SOH-001`](../../operations/operator-holds/SBX-SOH-001/ORDER.md) remains
+active. The current `SIM_CREDIT` is frozen test data, not approval of a future
+transferable service credit.
 
 ## Raw origin
 

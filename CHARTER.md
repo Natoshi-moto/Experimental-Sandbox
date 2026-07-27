@@ -4,6 +4,17 @@
 
 Maximise legitimate public experimentation while making accidental contamination of Nexus Lab mechanically difficult.
 
+## Active operator holds
+
+Before acting, read [`EMERGENCY_CURRENT_STATUS.md`](EMERGENCY_CURRENT_STATUS.md).
+A dated written operator hold may temporarily narrow official Sandbox actions.
+It outranks loose activation language, old branches, open pull requests, and
+passing checks within its stated scope. It does not create scientific, legal,
+canonical, or Nexus Lab authority.
+
+The current hold is [`SBX-SOH-001`](operations/operator-holds/SBX-SOH-001/ORDER.md).
+Unrelated experiments remain governed by the normal zones below.
+
 ## Zones
 
 | Zone | Meaning | Normal behaviour |
@@ -34,5 +45,7 @@ Branches may fail or be abandoned. Published evidence must not be silently rewri
 - No experiment workflow receives credentials capable of writing Nexus Lab.
 - No submodule or subtree path into Nexus Lab.
 - No automatic canonical promotion.
+- No bypass of an active written operator hold.
+- No affected branch or pull request merges without the hold classification it requires.
 
 `status_authority: NONE`

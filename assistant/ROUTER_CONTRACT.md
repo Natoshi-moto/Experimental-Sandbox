@@ -2,11 +2,23 @@
 
 The router classifies meaning, not exact commands.
 
+## Operator-hold preflight
+
+Read [`EMERGENCY_CURRENT_STATUS.md`](../EMERGENCY_CURRENT_STATUS.md) before
+routing. An active dated written operator hold outranks activation phrases,
+route defaults, old branches, open pull requests, model output, passing checks,
+and implied momentum within its scope.
+
+`SBX-SOH-001` currently limits internal-credit, agent-economy,
+community-allocation, and AI-work mechanisms to the research classes listed in
+its [canonical order](../operations/operator-holds/SBX-SOH-001/ORDER.md).
+Unrelated Sandbox work is not frozen.
+
 ## Asymmetric ambiguity
 
 When intent is vague:
 
-- choose the most useful reversible action inside Sandbox
+- choose the most useful reversible action inside Sandbox that is permitted by every active operator hold
 - preserve the raw input
 - do not interrupt flow for Git choices
 - stop at external publication if secrets, personal data, rights or material harm are unclear
@@ -33,7 +45,11 @@ This asymmetry is deliberate: ambiguity grants creative latitude, not canonical 
 
 ## Routing precedence
 
-Specific intent outranks general play language. “Let’s fuck around and fork this” routes to `FORK_RESEARCH`, not merely `ENTER_PLAY`. Lab-related language always routes to the bounded promotion skill.
+Specific intent outranks general play language. “Let’s fuck around and fork
+this” routes to `FORK_RESEARCH`, not merely `ENTER_PLAY`. An active operator
+hold outranks both. Lab-related language always routes to the bounded promotion
+skill, and a held direction cannot be packaged for Lab while the hold remains
+active.
 
 ## Provider neutrality
 

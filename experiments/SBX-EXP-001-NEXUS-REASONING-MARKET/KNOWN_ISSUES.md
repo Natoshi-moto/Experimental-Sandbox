@@ -22,12 +22,18 @@ The committed private keys are test fixtures. The prototype does not provide
 HSMs, protected key generation, operator identity proof, compromise recovery,
 certification, or production custody.
 
-## `SIM_CREDIT` has no value
+## Current `SIM_CREDIT` is test data, not a service credit
 
 `SIM_CREDIT` is a closed-loop integer used to test conservation and settlement.
-It is not money, crypto, a security, a commodity, debt, governance weight,
-credit toward future value, or a claim on goods or services. There is no
-bridge, redemption, exchange, withdrawal, or external settlement adapter.
+It does not buy actual AI work and is not money, crypto, a security, a
+commodity, debt, governance weight, credit toward future value, or a claim on
+goods or services. There is no bridge, redemption, exchange, withdrawal, or
+external settlement adapter.
+
+That statement is specific to this frozen simulator. It must not be generalized
+to a future credit capable of buying actual AI intelligence or work; such a
+credit would have functional utility even if official external redemption and
+exchange were prohibited. See [`SBX-SOH-001`](../../EMERGENCY_CURRENT_STATUS.md).
 
 ## In-memory process boundary
 

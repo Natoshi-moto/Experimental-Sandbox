@@ -1,0 +1,50 @@
+{
+  "schema": "experimental-sandbox.operator-hold/v1",
+  "id": "SBX-SOH-001",
+  "title": "Temporary operator hold on internal-credit and agent-economy direction",
+  "state": "ACTIVE",
+  "effective_date": "2026-07-27",
+  "activated_by": "HUMAN_OPERATOR_RING_0",
+  "process_authority": "SANDBOX_OPERATOR_HOLD",
+  "status_authority": "NONE",
+  "lab_impact": "NONE",
+  "scope": [
+    "participant-facing internal credits",
+    "live participant-to-participant credit transfer",
+    "agent-economy and community-allocation mechanisms",
+    "credits spendable only on actual AI intelligence or AI work inside the system",
+    "public claims about the operator's final economic position",
+    "promotion of the held economic direction toward Nexus Lab"
+  ],
+  "allowed_work": [
+    "preservation and indexing",
+    "threat modelling",
+    "adversarial review",
+    "social and economic failure analysis",
+    "comparative mechanism research",
+    "operator decision reconstruction",
+    "press-pack and public-boundary drafting",
+    "verification and falsification of the frozen simulation prototype"
+  ],
+  "prohibited_actions": [
+    "participant-facing issuance or activation",
+    "live participant-to-participant transfer",
+    "recruitment into a live credit economy",
+    "feature expansion presented as approved direction",
+    "official external redemption or exchange infrastructure",
+    "investment or financial-return framing",
+    "claiming a future AI-work credit has no functional utility",
+    "claiming private off-platform exchange can be fully prevented",
+    "Lab promotion of the held direction",
+    "bypass by loose language, old branch, open pull request, model output, or passing test"
+  ],
+  "affected_experiments": [
+    "SBX-EXP-001"
+  ],
+  "open_pr_policy": "NO_MERGE_IF_IN_SCOPE_UNLESS_OPERATOR_AUTHORIZED_HOLD_ACTIVATION_OR_EXPLICIT_SBX_SOH_001_CLASSIFICATION",
+  "canonical_order": "operations/operator-holds/SBX-SOH-001/ORDER.md",
+  "activation_record": "operations/operator-holds/SBX-SOH-001/RAW_OPERATOR_AUTHORIZATION.md",
+  "public_statement": "operations/operator-holds/SBX-SOH-001/PUBLIC_HOLDING_STATEMENT.md",
+  "lift_authority": "HUMAN_OPERATOR_RING_0_DATED_WRITTEN_ONLY",
+  "classification_template": "operations/operator-holds/SBX-SOH-001/CHANGE_CLASSIFICATION.md"
+}

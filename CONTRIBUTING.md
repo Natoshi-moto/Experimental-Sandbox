@@ -1,5 +1,11 @@
 # Contributing without Git
 
+> [!CAUTION]
+> [`SBX-SOH-001`](operations/operator-holds/SBX-SOH-001/ORDER.md) is active.
+> Raw ideas, documentation, comparison, and adversarial work may continue, but
+> official internal-credit or agent-economy implementation, activation, live
+> transfer, recruitment, financialisation, and Lab promotion may not.
+
 You need one idea and one honest answer:
 
 > What result would make you change your mind?
@@ -22,4 +28,8 @@ Strong criticism of claims, projects, institutions and mechanisms is welcome. Ha
 
 ## Code contributors
 
-Use a `sandbox/*` branch. Do not request a Nexus Lab PR directly; complete a promotion package first.
+Use a `sandbox/*` branch. Check the root emergency status before starting. If
+a contribution touches an active hold, state whether it is `OUT_OF_SCOPE`,
+`ALLOWED_RESEARCH_ONLY`, or `BLOCKED_BY_SBX-SOH-001`. Do not request a Nexus
+Lab PR directly; complete a promotion package first, and never promote a held
+direction while the hold remains active.
