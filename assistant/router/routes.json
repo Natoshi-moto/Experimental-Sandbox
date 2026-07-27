@@ -8,36 +8,82 @@
     "let me go nuts",
     "I've got a weird idea"
   ],
-  "ambiguity_rule": "Loose language expands reversible Sandbox action, never Nexus Lab authority.",
+  "ambiguity_rule": "Loose language expands reversible Sandbox action only where no active written operator hold prohibits it; it never expands Nexus Lab authority.",
   "first_response": "🧪 You're in FUCK-AROUND LAND. Go hard. I'll handle the GitHub machinery. Nothing here can affect Nexus Lab unless we deliberately package it and pass the separate Promotion Gate.",
   "routes": [
     {
       "id": "CATCH",
-      "triggers": ["fuck around", "access the sandbox", "go nuts", "weird idea", "idea", "thought", "ramble", "save this", "dribble", "go"],
+      "triggers": [
+        "fuck around",
+        "access the sandbox",
+        "go nuts",
+        "weird idea",
+        "idea",
+        "thought",
+        "ramble",
+        "save this",
+        "dribble",
+        "go"
+      ],
       "skill": "catch-chaos",
       "max_authority": "SANDBOX_DRAFT"
     },
     {
       "id": "ADVISE",
-      "triggers": ["what matters", "translate", "claude said", "report", "decision"],
+      "triggers": [
+        "what matters",
+        "translate",
+        "claude said",
+        "report",
+        "decision"
+      ],
       "skill": "advise-operator",
       "max_authority": "READ_ONLY"
     },
     {
       "id": "EXPERIMENT",
-      "triggers": ["see what happens", "fuck with", "test", "fork", "break", "try", "reproduce", "experiment"],
+      "triggers": [
+        "see what happens",
+        "fuck with",
+        "test",
+        "fork",
+        "break",
+        "try",
+        "reproduce",
+        "experiment"
+      ],
       "skill": "run-public-experiment",
       "max_authority": "SANDBOX_WRITE"
     },
     {
       "id": "PUBLISH",
-      "triggers": ["show people", "somewhere public", "write this up", "make an article", "reddit", "fastfoodai", "post on x", "twitter", "video", "daily", "weekly", "publish"],
+      "triggers": [
+        "show people",
+        "somewhere public",
+        "write this up",
+        "make an article",
+        "reddit",
+        "fastfoodai",
+        "post on x",
+        "twitter",
+        "video",
+        "daily",
+        "weekly",
+        "publish"
+      ],
       "skill": "publish-fastfoodai",
       "max_authority": "DRAFT_EXTERNAL"
     },
     {
       "id": "PROMOTE",
-      "triggers": ["could this help main", "make it real", "ask lab", "propose to main", "promotion", "package it"],
+      "triggers": [
+        "could this help main",
+        "make it real",
+        "ask lab",
+        "propose to main",
+        "promotion",
+        "package it"
+      ],
       "skill": "request-lab-promotion",
       "max_authority": "DRAFT_LAB_PR"
     }
@@ -47,6 +93,18 @@
     "BYPASS_LAB_PROTECTION",
     "ALTER_FROZEN_SNAPSHOT",
     "PUBLISH_SECRET",
-    "CLEAR_LAB_RED"
-  ]
+    "CLEAR_LAB_RED",
+    "BYPASS_ACTIVE_OPERATOR_HOLD",
+    "ACTIVATE_HELD_ECONOMY",
+    "PUBLISH_HELD_DESIGN_AS_APPROVED",
+    "PROMOTE_HELD_DIRECTION_TO_LAB"
+  ],
+  "preflight": {
+    "required_status_file": "EMERGENCY_CURRENT_STATUS.md",
+    "active_operator_holds": [
+      "SBX-SOH-001"
+    ],
+    "hold_rule": "An active dated written operator hold outranks every loose phrase, route, old branch, open pull request, model output, and passing check within its scope.",
+    "in_scope_fallback": "READ_ONLY_OR_ALLOWED_RESEARCH_ONLY"
+  }
 }

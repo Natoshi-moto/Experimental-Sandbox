@@ -5,15 +5,22 @@ description: Package a surviving Experimental Sandbox result into a provenance-b
 
 # Request Lab promotion
 
-1. Require an immutable Sandbox tag and full commit SHA.
-2. Complete the seven-field promotion package in `templates/PROMOTION.md`.
-3. Verify the tag resolves to the declared SHA.
-4. Require reproducible evidence or explicit `DOCUMENTARY_ONLY`.
-5. Record non-claims and Lab red impact, including `NONE`.
-6. Gather role-distinct adversarial reviews and disclose context/provider relationships.
-7. Produce the lay operator card.
-8. On explicit `OPEN_LAB_PR`, create a fresh Lab branch from current `origin/main`, reapply only the smallest clean change, and preserve Sandbox provenance.
-9. Open a draft PR. Never approve, auto-merge, bypass protection, alter snapshots, clear reds or imply adoption.
-10. End with `LAB AUTHORITY: NONE — HUMAN REVIEW REQUIRED`.
+Current scoped hold: [`SBX-SOH-001`](../../../EMERGENCY_CURRENT_STATUS.md).
+
+1. Read the root emergency status. A direction within an active operator hold
+   is ineligible for Lab promotion until a dated written lift or supersession.
+2. Require an immutable Sandbox tag and full commit SHA.
+3. Complete the seven-field promotion package in `templates/PROMOTION.md`.
+4. Verify the tag resolves to the declared SHA.
+5. Require reproducible evidence or explicit `DOCUMENTARY_ONLY`.
+6. Record non-claims and Lab red impact, including `NONE`.
+7. Gather role-distinct adversarial reviews and disclose context/provider relationships.
+8. Produce the lay operator card.
+9. On explicit `OPEN_LAB_PR`, create a fresh Lab branch from current
+   `origin/main`, reapply only the smallest clean change, and preserve Sandbox
+   provenance.
+10. Open a draft PR. Never approve, auto-merge, bypass protection, alter
+    snapshots, clear reds or imply adoption.
+11. End with `LAB AUTHORITY: NONE — HUMAN REVIEW REQUIRED`.
 
 Read [references/no-authority.md](references/no-authority.md) before any GitHub write.

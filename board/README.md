@@ -6,6 +6,11 @@
 
 **Provenance:** ported from `Natoshi-moto/Lab` `board/`, which sat empty on Lab's protected `main` since 2026-07-23. This board's own premise — "ok to be ugly," "ideas before experiments," no review required — belongs in Experimental Sandbox, not behind Lab's required-review branch protection. See `board/thoughts/2026-07-23-board-moved-to-sandbox.md`.
 
+> [!CAUTION]
+> The board is still open for raw thought, but [`SBX-SOH-001`](../EMERGENCY_CURRENT_STATUS.md)
+> is active. A board post cannot authorise held internal-credit or agent-economy
+> implementation, activation, live transfer, recruitment, or promotion.
+
 This is **not** STATUS. Not a product backlog with liability. Not an investment feed.
 
 It **is** a public firehose for:

@@ -17,6 +17,9 @@ body { margin: 0; background: var(--bg); color: var(--ink); }
 button, textarea { font: inherit; }
 a { color: inherit; }
 .mode-banner { position: sticky; top: 0; z-index: 20; padding: .55rem; color: #10130a; background: var(--acid); text-align: center; font-size: .72rem; font-weight: 900; letter-spacing: .08em; }
+.hold-banner { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem 1rem; padding: .7rem 1rem; border-bottom: 1px solid var(--danger); background: #2a1018; color: var(--ink); font-size: .78rem; }
+.hold-banner strong { color: var(--danger); }
+.hold-banner a { color: var(--acid); font-weight: 800; }
 header { position: sticky; top: 31px; z-index: 19; display: flex; align-items: center; justify-content: space-between; padding: 1rem clamp(1rem,5vw,5rem); border-bottom: 1px solid var(--line); background: rgba(8,10,12,.9); backdrop-filter: blur(16px); }
 .brand { display: flex; align-items: center; gap: .7rem; text-decoration: none; font-weight: 850; }
 .brand span { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; color: #111; background: var(--acid); }

@@ -1,15 +1,33 @@
 # SBX-EXP-001 — Nexus crowdsourced agent-work market
 
 **status_authority:** `NONE`
-**State:** `RUNNING`
+**State:** `OPERATOR_HOLD_RESEARCH_ONLY`
+**Operator hold:** [`SBX-SOH-001`](../../EMERGENCY_CURRENT_STATUS.md) — `ACTIVE`
 **Economic class:** `SIMULATION_ONLY`
 **Publication class:** `PUBLIC_SAFE_METADATA_ONLY`
+
+> [!CAUTION]
+> The executable prototype is frozen evidence. It may be verified, reproduced,
+> or attacked; it may not be expanded into a participant-facing credit system,
+> connected to actual AI-work purchasing, activated for live transfers, or
+> presented as the operator's final economic design while `SBX-SOH-001` is active.
 
 This experiment asks whether Nexus Sim can coordinate a whole coding job—from
 community funding, donated agent capacity, and bidding through bounded agent
 work, three-model review, maintainer acceptance, and settlement—without making
 AI an authority, exposing proprietary inputs, sharing provider credentials, or
 pretending a simulated credit is money.
+
+## Operator-hold boundary
+
+The current `SIM_CREDIT` is closed simulator state and buys no actual service.
+It is not the contemplated future internal service credit. Any future credit
+capable of obtaining actual AI intelligence or work would have functional
+utility even if the official project rejected external redemption and exchange
+infrastructure. That future design remains unapproved.
+
+Permitted work is limited to the classes in the
+[`SBX-SOH-001` order](../../operations/operator-holds/SBX-SOH-001/ORDER.md).
 
 ## Safety freeze
 
@@ -89,7 +107,8 @@ custody, monetary value, production safety, or authorization by Nexus Lab.
 
 ## Current result
 
-`EXECUTABLE_RESEARCH_PROTOTYPE`. Coverage is not complete; the conservative
+`EXECUTABLE_RESEARCH_PROTOTYPE`, currently under
+`OPERATOR_HOLD_RESEARCH_ONLY`. Coverage is not complete; the conservative
 [`reports/FALSIFIER_SCOREBOARD_v0.2.md`](reports/FALSIFIER_SCOREBOARD_v0.2.md)
 keeps partial and untested claims visible. See [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md)
 before interpreting any passing test.
