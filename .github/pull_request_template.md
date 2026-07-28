@@ -12,11 +12,16 @@ This pull request is noncanonical and cannot speak for Nexus Lab.
 - AI/model context disclosed, if applicable:
 - Full Spectrum lesson or `NONE`:
 - Root emergency status read:
-- Active operator hold impact: `OPERATOR_AUTHORIZED_HOLD_ACTIVATION | OUT_OF_SCOPE | ALLOWED_RESEARCH_ONLY | BLOCKED_BY_SBX-SOH-001`
-- If `ALLOWED_RESEARCH_ONLY`, exact permitted class and evidence:
+- Hold classification: `SELECT_ONE_OF_OUT_OF_SCOPE_OR_ALLOWED_RESEARCH_ONLY`
+- Exact hold reason: `REPLACE_WITH_A_SPECIFIC_STRUCTURAL_REASON`
+- Hold evidence/diff anchors: `REPLACE_WITH_path:_repository/path_and_specific_anchor`
 - No participant-facing issuance, live transfer, activation, recruitment, financialisation, or held Lab promotion introduced:
 
-An in-scope PR is `NO_MERGE` until the classification above is explicit and
-consistent with [`SBX-SOH-001`](../operations/operator-holds/SBX-SOH-001/ORDER.md). Use the [classification template](../operations/operator-holds/SBX-SOH-001/CHANGE_CLASSIFICATION.md) for affected work.
+The CI gate enforces record completeness only. Human review must still reject a
+dishonest `OUT_OF_SCOPE` or `ALLOWED_RESEARCH_ONLY` claim. A classification,
+model output, PR body, or passing test never lifts the hold. The historical
+`OPERATOR_AUTHORIZED_HOLD_ACTIVATION` value is forbidden in future PRs.
+See [`SBX-SOH-001`](../operations/operator-holds/SBX-SOH-001/ORDER.md) for the
+active hold and its canonical boundaries.
 
 `status_authority: NONE`

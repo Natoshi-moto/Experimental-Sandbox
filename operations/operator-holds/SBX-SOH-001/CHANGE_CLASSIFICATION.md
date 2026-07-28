@@ -43,4 +43,10 @@ position.
 
 Classification is a merge precondition. It does not lift or weaken the hold.
 
+Repository CI can require a complete classification record and evidence anchors.
+It cannot establish whether a semantic classification is honest, whether prose
+was authored by the Human Operator, or prevent a repository owner from
+deliberately changing policy and tests together. Those remain human-governed
+review and operator-authority questions.
+
 `status_authority: NONE`

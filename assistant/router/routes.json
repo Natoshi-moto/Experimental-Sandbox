@@ -104,6 +104,9 @@
     "active_operator_holds": [
       "SBX-SOH-001"
     ],
+    "operator_hold_states": {
+      "SBX-SOH-001": "ACTIVE"
+    },
     "hold_rule": "An active dated written operator hold outranks every loose phrase, route, old branch, open pull request, model output, and passing check within its scope.",
     "in_scope_fallback": "READ_ONLY_OR_ALLOWED_RESEARCH_ONLY"
   }

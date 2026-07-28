@@ -3,6 +3,7 @@
 **status_authority:** `NONE`
 **State:** `OPERATOR_HOLD_RESEARCH_ONLY`
 **Operator hold:** [`SBX-SOH-001`](../../EMERGENCY_CURRENT_STATUS.md) — `ACTIVE`
+**Operator hold state:** `ACTIVE`
 
 ## Active process boundary
 

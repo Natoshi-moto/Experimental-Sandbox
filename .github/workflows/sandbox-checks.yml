@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: sandbox-${{ github.ref }}
@@ -26,6 +27,12 @@ jobs:
           check-latest: false
       - name: Verify repository boundaries
         run: bash scripts/verify.sh
+      - name: Enforce pull-request hold classification record
+        if: github.event_name == 'pull_request'
+        run: node scripts/verify-pr-classification.mjs --event "$GITHUB_EVENT_PATH"
+      - name: Enforce pull-request hold transition evidence structure
+        if: github.event_name == 'pull_request'
+        run: node scripts/verify-hold-transition.mjs --base-ref "${{ github.event.pull_request.base.sha }}" --head-ref "${{ github.event.pull_request.head.sha }}"
       - name: Explain a red sandbox
         if: failure()
         run: |

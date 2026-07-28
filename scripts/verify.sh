@@ -19,6 +19,10 @@ required=(
   operations/operator-holds/SBX-SOH-001/CHANGE_CLASSIFICATION.md
   operations/operator-holds/SBX-SOH-001/PUBLIC_HOLDING_STATEMENT.md
   scripts/verify-operator-holds.mjs
+  scripts/verify-pr-classification.mjs
+  scripts/verify-hold-transition.mjs
+  scripts/test-hold-integrity.mjs
+  operations/operator-holds/SBX-SOH-001/ACTIVATION_MERGE_RECEIPT.md
   templates/EXPERIMENT.md
   templates/FORK_RESEARCH.md
   templates/PROMOTION.md
@@ -37,6 +41,8 @@ for file in "${required[@]}"; do
 done
 
 node scripts/verify-operator-holds.mjs
+node scripts/verify-hold-transition.mjs
+node scripts/test-hold-integrity.mjs
 node scripts/test-router.mjs
 node experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/tools/verify-documentary.mjs
 node experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/prototype/tests/run-all.mjs

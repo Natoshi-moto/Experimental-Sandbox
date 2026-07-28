@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { readFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -8,6 +9,16 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 function invariant(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+function checkRelativeLinks(relativePath, source) {
+  for (const match of source.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
+    const target = match[1].split('#')[0]
+    if (!target || /^(https?:|mailto:)/.test(target)) continue
+    const resolved = path.resolve(ROOT, path.dirname(relativePath), target)
+    invariant(resolved.startsWith(`${ROOT}${path.sep}`), `${relativePath} has an out-of-repository relative link: ${target}`)
+    invariant(existsSync(resolved), `${relativePath} has a broken relative link: ${target}`)
+  }
 }
 
 async function text(relativePath) {
@@ -60,6 +71,10 @@ const emergency = await text('EMERGENCY_CURRENT_STATUS.md')
 invariant(emergency.includes('**State:** `ACTIVE`'), 'root emergency status is not active')
 invariant(emergency.includes('Scientific/canonical status authority:** `NONE`'), 'root status authority boundary missing')
 invariant(emergency.includes('Nexus Lab impact:** `NONE`'), 'root Lab boundary missing')
+invariant((await text('README.md')).includes('[root emergency status](EMERGENCY_CURRENT_STATUS.md)'), 'README must link to root emergency status')
+invariant(emergency.includes('](operations/operator-holds/SBX-SOH-001/ORDER.md)'), 'root emergency must link to canonical order')
+invariant(emergency.includes('](operations/operator-holds/SBX-SOH-001/STATUS.json)'), 'root emergency must link to machine status')
+checkRelativeLinks('EMERGENCY_CURRENT_STATUS.md', emergency)
 
 const order = await text('operations/operator-holds/SBX-SOH-001/ORDER.md')
 for (const requiredPhrase of [
@@ -79,6 +94,7 @@ invariant(authorization.includes('Merge it into sandbox'), 'written authorizatio
 const routes = JSON.parse(await text('assistant/router/routes.json'))
 invariant(routes.preflight?.required_status_file === 'EMERGENCY_CURRENT_STATUS.md', 'router emergency preflight missing')
 invariant(routes.preflight?.active_operator_holds?.includes('SBX-SOH-001'), 'router active hold missing')
+invariant(routes.preflight?.operator_hold_states?.['SBX-SOH-001'] === 'ACTIVE', 'router hold-state surface missing or inconsistent')
 for (const boundary of [
   'BYPASS_ACTIVE_OPERATOR_HOLD',
   'ACTIVATE_HELD_ECONOMY',
@@ -96,6 +112,7 @@ for (const relativePath of [
   const source = await text(relativePath)
   invariant(source.includes('OPERATOR_HOLD_RESEARCH_ONLY'), `${relativePath} does not expose research-only hold state`)
 }
+invariant((await text('experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/EXPERIMENT.md')).includes('**Operator hold state:** `ACTIVE`'), 'affected experiment hold state is inconsistent')
 
 const knownIssues = await text('experiments/SBX-EXP-001-NEXUS-REASONING-MARKET/KNOWN_ISSUES.md')
 invariant(knownIssues.includes('specific to this frozen simulator'), 'current simulation is not distinguished from future service credit')
