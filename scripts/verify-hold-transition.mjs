@@ -24,7 +24,7 @@ function exactSet(values, expected, label) {
   invariant(new Set(values).size === values.length, `${label} contains duplicates`)
   invariant(values.length === expected.length && values.every((value) => expected.includes(value)), `${label} has missing or unexpected entries`)
 }
-export function validateStatusSurfaceAgreement(snapshot) {
+function statusContext(snapshot) {
   for (const required of REQUIRED_STATUS_SURFACES) invariant(snapshot.files.has(required), `required status surface missing or relocated: ${required}`)
   const status = JSON.parse(snapshot.files.get(STATUS_PATH))
   const routes = JSON.parse(snapshot.files.get(ROUTER_PATH))
@@ -36,9 +36,31 @@ export function validateStatusSurfaceAgreement(snapshot) {
   invariant(stateLine(snapshot.files.get(EMERGENCY_PATH), 'State') === state, 'root emergency surface disagrees with STATUS.json state')
   invariant(stateLine(snapshot.files.get(ORDER_PATH), 'State') === state, 'canonical order disagrees with STATUS.json state')
   invariant(snapshot.files.get(HOLD_INDEX_PATH).includes(`| \`${HOLD_ID}\` | \`${state}\``), 'hold index disagrees with STATUS.json state')
+  return { status, routes, state }
+}
+function statusSurfaceProfile(snapshot) {
+  const routes = JSON.parse(snapshot.files.get(ROUTER_PATH))
+  const hasRouterStateField = Object.prototype.hasOwnProperty.call(routes.preflight ?? {}, 'operator_hold_states')
+  const hasExperimentStateField = stateLine(snapshot.files.get(EXPERIMENT_PATH), 'Operator hold state') !== undefined
+  invariant(hasRouterStateField === hasExperimentStateField, 'status surfaces are partially migrated')
+  return hasRouterStateField ? 'strict' : 'legacy'
+}
+function legacyExperimentState(source) {
+  return source.match(/\*\*Operator hold:\*\*[^\r\n]*—[ \t]*`([A-Z_]+)`/)?.[1]
+}
+export function validateStatusSurfaceAgreement(snapshot) {
+  invariant(statusSurfaceProfile(snapshot) === 'strict', 'strict status-surface schema is required')
+  const { status, routes, state } = statusContext(snapshot)
   invariant(routes.preflight?.operator_hold_states?.[HOLD_ID] === state, 'router preflight disagrees with STATUS.json state')
   invariant(routes.preflight?.active_operator_holds?.includes(HOLD_ID) === (state === 'ACTIVE'), 'router active-hold list disagrees with STATUS.json state')
   invariant(stateLine(snapshot.files.get(EXPERIMENT_PATH), 'Operator hold state') === state, 'affected experiment disagrees with STATUS.json state')
+  return status
+}
+function validateBaseStatusSurfaceAgreement(snapshot) {
+  if (statusSurfaceProfile(snapshot) === 'strict') return validateStatusSurfaceAgreement(snapshot)
+  const { status, routes, state } = statusContext(snapshot)
+  invariant(routes.preflight?.active_operator_holds?.includes(HOLD_ID) === (state === 'ACTIVE'), 'legacy router active-hold list disagrees with STATUS.json state')
+  invariant(legacyExperimentState(snapshot.files.get(EXPERIMENT_PATH)) === state, 'legacy affected experiment disagrees with STATUS.json state')
   return status
 }
 export function verifyCandidateRemainsActive(snapshot) {
@@ -46,7 +68,8 @@ export function verifyCandidateRemainsActive(snapshot) {
   invariant(status.state === 'ACTIVE', 'SBX-HOLD-INTEGRITY-001 must leave SBX-SOH-001 ACTIVE')
 }
 export function validateHoldTransition(base, current) {
-  const baseStatus = validateStatusSurfaceAgreement(base)
+  const baseStatus = validateBaseStatusSurfaceAgreement(base)
+  invariant(statusSurfaceProfile(current) === 'strict', 'current snapshot must use strict status-surface schema')
   const currentStatus = validateStatusSurfaceAgreement(current)
   const baseRecords = transitionRecords(base)
   const currentRecords = transitionRecords(current)

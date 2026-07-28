@@ -18,6 +18,12 @@ function withState(snapshot, state, date = '2026-08-01') {
   result.files.set(EXPERIMENT_PATH, result.files.get(EXPERIMENT_PATH).replace('**Operator hold state:** `ACTIVE`', `**Operator hold state:** \`${state}\``))
   return result
 }
+function legacySnapshot(snapshot) {
+  const result = clone(snapshot)
+  const routes = JSON.parse(result.files.get(ROUTER_PATH)); delete routes.preflight.operator_hold_states; result.files.set(ROUTER_PATH, `${JSON.stringify(routes, null, 2)}\n`)
+  result.files.set(EXPERIMENT_PATH, result.files.get(EXPERIMENT_PATH).replace('**Operator hold state:** `ACTIVE`\n', ''))
+  return result
+}
 const historicalPath = 'operations/operator-holds/transitions/SBX-SOH-001-2026-01-01.json'
 const historical = '{"historical":"byte-stable evidence"}\n'
 function validTransition(base, mutate = (record) => record) {
@@ -28,6 +34,7 @@ function validTransition(base, mutate = (record) => record) {
 }
 const base = await filesystemSnapshot(ROOT)
 base.files.set(historicalPath, historical)
+const legacyBase = legacySnapshot(base)
 
 for (const bad of ['', body('SELECT_ONE_OF_OUT_OF_SCOPE_OR_ALLOWED_RESEARCH_ONLY'), body('OUT_OF_SCOPE | ALLOWED_RESEARCH_ONLY'), body('OUT_OF_SCOPE', ''), body('OUT_OF_SCOPE', undefined, ''), body('BLOCKED_BY_SBX-SOH-001'), body('OPERATOR_AUTHORIZED_HOLD_ACTIVATION')]) reject(() => validatePullRequestClassification(bad), /required|placeholder|multiple|permitted|reserved|meaningful/)
 validatePullRequestClassification(body())
@@ -36,6 +43,13 @@ validatePullRequestClassification(body('ALLOWED_RESEARCH_ONLY'))
 const banana = withState(base, 'BANANA'); reject(() => validateStatusSurfaceAgreement(banana), /unknown hold lifecycle state/)
 const missing = clone(base); missing.files.delete(EMERGENCY_PATH); reject(() => validateStatusSurfaceAgreement(missing), /missing or relocated/)
 const inconsistent = clone(base); inconsistent.files.set(EMERGENCY_PATH, inconsistent.files.get(EMERGENCY_PATH).replace('**State:** `ACTIVE`', '**State:** `LIFTED`')); reject(() => validateStatusSurfaceAgreement(inconsistent), /disagrees/)
+
+validateHoldTransition(legacyBase, clone(base))
+reject(() => validateHoldTransition(legacyBase, legacySnapshot(base)), /current snapshot must use strict/)
+const partiallyMigratedBase = clone(legacyBase); { const routes = JSON.parse(partiallyMigratedBase.files.get(ROUTER_PATH)); routes.preflight.operator_hold_states = { [HOLD_ID]: 'ACTIVE' }; partiallyMigratedBase.files.set(ROUTER_PATH, `${JSON.stringify(routes, null, 2)}\n`) }; reject(() => validateHoldTransition(partiallyMigratedBase, clone(base)), /partially migrated/)
+const contradictoryLegacyRouter = clone(legacyBase); { const routes = JSON.parse(contradictoryLegacyRouter.files.get(ROUTER_PATH)); routes.preflight.active_operator_holds = []; contradictoryLegacyRouter.files.set(ROUTER_PATH, `${JSON.stringify(routes, null, 2)}\n`) }; reject(() => validateHoldTransition(contradictoryLegacyRouter, clone(base)), /legacy router active-hold list/)
+const contradictoryLegacyExperiment = clone(legacyBase); contradictoryLegacyExperiment.files.set(EXPERIMENT_PATH, contradictoryLegacyExperiment.files.get(EXPERIMENT_PATH).replace('— `ACTIVE`', '— `LIFTED`')); reject(() => validateHoldTransition(contradictoryLegacyExperiment, clone(base)), /legacy affected experiment/)
+const contradictoryStrictBase = clone(base); { const routes = JSON.parse(contradictoryStrictBase.files.get(ROUTER_PATH)); routes.preflight.operator_hold_states[HOLD_ID] = 'LIFTED'; contradictoryStrictBase.files.set(ROUTER_PATH, `${JSON.stringify(routes, null, 2)}\n`) }; reject(() => validateHoldTransition(contradictoryStrictBase, clone(base)), /router preflight disagrees/)
 
 const staleRouter = validTransition(base); staleRouter.files.set(ROUTER_PATH, base.files.get(ROUTER_PATH)); reject(() => validateHoldTransition(base, staleRouter), /router preflight disagrees/)
 const deletedHistory = validTransition(base); deletedHistory.files.delete(historicalPath); reject(() => validateHoldTransition(base, deletedHistory), /historical transition record was deleted/)
