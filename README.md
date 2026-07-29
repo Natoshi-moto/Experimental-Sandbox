@@ -6,6 +6,10 @@
 > direction is on hold. Documentary and adversarial research may continue only
 > within the [root emergency status](EMERGENCY_CURRENT_STATUS.md) and
 > [canonical order](operations/operator-holds/SBX-SOH-001/ORDER.md).
+>
+> The Human Operator's [public position](PUBLIC_OPERATOR_POSITION.md) records
+> the direction and boundaries now chosen. Publication does not narrow the
+> hold or authorise implementation.
 
 > **FUCK-AROUND LAND. Public, reversible, noncanonical.**
 >
