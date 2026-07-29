@@ -8,11 +8,16 @@ This record preserves the scriptless static successor to
 - **status_authority:** `NONE`
 - **Nexus Lab impact:** `NONE`
 - **Public site:** <https://nexus-public-workshop.everythingbitesized.chatgpt.site>
-- **Source checkpoint:** `941deed827981831709c2109ff0fe38a167f04bf`
+- **Source checkpoint:** `ed8c281d14914e20e1f2a5762fa11436edf06da0`
 
 [`prototype/`](prototype/) is the exact tracked-source snapshot. It builds
 generated HTML, CSS, local media, a public integrity receipt, and the minimal
-Sites edge gate. The browser artifact contains zero JavaScript.
+Sites edge gate. The generated artifact contains zero JavaScript.
+
+The current shared Sites host can append a Cloudflare browser-detection script
+and cookie and omit the intended complete HTTP-header envelope. The artifact's
+early `script-src 'none'` policy rejects script execution, but the shared
+hostname is not claimed as the final script-free, cookie-free transport.
 
 This publication does not lift or narrow `SBX-SOH-001` and does not activate
 NEX, a wallet, transfers, participants, model purchasing, financialisation, or

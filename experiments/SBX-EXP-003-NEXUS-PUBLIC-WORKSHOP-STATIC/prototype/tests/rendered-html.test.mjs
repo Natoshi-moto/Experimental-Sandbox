@@ -74,7 +74,8 @@ test("renders the all-dark workshop as inert static HTML", async () => {
   assert.match(html, /no live\s+participants/i);
   assert.match(html, /Security posture/i);
   assert.match(html, /Static files only/i);
-  assert.match(html, /zero browser JavaScript/i);
+  assert.match(html, /zero application JavaScript/i);
+  assert.match(html, /shared host can append/i);
   assert.doesNotMatch(html, /<script\b|modulepreload|_rsc|vinext/i);
 });
 

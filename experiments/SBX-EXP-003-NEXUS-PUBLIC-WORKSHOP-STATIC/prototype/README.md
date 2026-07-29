@@ -9,9 +9,9 @@ Reasoning Market is classified `ALLOWED_RESEARCH_ONLY` under the active
 operator hold. Publication does not authorise implementation, live transfers,
 participant recruitment, or the purchase of AI work.
 
-## What ships
+## What the build emits
 
-The browser receives:
+The generated public artifact contains:
 
 - generated HTML;
 - one generated CSS file;
@@ -19,15 +19,27 @@ The browser receives:
 - one local hero image;
 - a favicon and plain-text public records.
 
-It receives no JavaScript, framework runtime, source map, analytics, remote
-resource, cookie, form, login, database connection, or write route. The
-production Content Security Policy includes `script-src 'none'`.
+It contains no JavaScript, framework runtime, source map, analytics, remote
+resource, application cookie, form, login, database connection, or write route.
+The Content Security Policy includes `script-src 'none'`.
 
 The current ChatGPT Sites deployment retains one deliberately tiny edge gate
 because that platform requires a Worker entry. It serves only known static
 files, admits only `GET` and `HEAD`, attaches the security envelope, and returns
 the static 404 page. It does not render pages, hold state, contact another
 service, or execute code in the browser.
+
+That source boundary is not the same as the live hosting boundary. A
+2026-07-29 raw-response check found that the shared Sites edge can append a
+Cloudflare browser-detection snippet and `__cf_bm` cookie after deployment, and
+does not preserve the complete intended HTTP-header envelope on static
+responses. The early meta CSP appears before all page resources and refuses
+script execution, but the current shared hostname is therefore not claimed as
+an end-to-end zero-script or zero-cookie transport.
+
+The final independent host must pass `npm run verify:live -- https://HOST`
+before cutover. That gate rejects any script tag, provider challenge, cookie,
+missing security header, or mismatch from the receipted static HTML.
 
 ## Add a publication
 
@@ -55,6 +67,9 @@ stable `/work/<slug>` route and displays its complete SHA-256 source receipt.
    route drift, weak headers, and receipt mismatches;
 6. exercises the deployed Worker contract for pages, articles, assets, 404s,
    `GET`, `HEAD`, and refused mutation methods.
+
+`npm run verify:live -- https://HOST` separately tests the raw public response.
+It is intentionally not folded into a deterministic source build.
 
 There are no runtime or development package dependencies.
 

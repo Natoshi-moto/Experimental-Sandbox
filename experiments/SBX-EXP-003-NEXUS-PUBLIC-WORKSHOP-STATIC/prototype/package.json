@@ -9,6 +9,7 @@
     "install:ci": "npm ci --ignore-scripts --no-audit --no-fund",
     "build": "bash scripts/build-verified.sh",
     "test": "npm run build",
+    "verify:live": "node scripts/verify-live.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
     "content:compile": "node scripts/compile-content.mjs"
   },

@@ -4,7 +4,7 @@ Date: `2026-07-29`
 
 ## Source and deployment
 
-- Source commit: `941deed827981831709c2109ff0fe38a167f04bf`
+- Source commit: `ed8c281d14914e20e1f2a5762fa11436edf06da0`
 - Public URL:
   <https://nexus-public-workshop.everythingbitesized.chatgpt.site>
 - Access: public, read-only documentary prototype
@@ -39,6 +39,25 @@ meta CSP is emitted before browser resource links. The Sites edge response
 adds the full framing, feature, referrer, MIME, transport, cross-origin, and
 cache envelope.
 
+## Current hosted-transport boundary
+
+A 2026-07-29 unauthenticated raw-response check of the shared Sites hostname
+observed a provider-appended Cloudflare browser-detection script, an `__cf_bm`
+cookie, omission of the intended complete HTTP-header envelope, and live HTML
+bytes that differed from the receipted artifact.
+
+The appended script is after the early `script-src 'none'` meta policy, but the
+wire response is still not literally script-free or cookie-free. The current
+hostname is therefore a public inert-application prototype, not the accepted
+final transport.
+
+`prototype/scripts/verify-live.mjs` enforces the final-host boundary. It imports
+the complete expected header policy, anchors trust to the locally reviewed
+receipt, requires the live receipt to match it byte-for-byte, verifies the live
+home length and SHA-256, and rejects scripts, provider challenges, cookies, and
+remote browser subresources. The current shared hostname fails this gate as
+expected; an independent cutover cannot be called complete until it passes.
+
 ## Independent review
 
 The adversarial review first returned a narrow `HOLD`:
@@ -54,6 +73,11 @@ local route, asset, favicon, navigation link, and canonical URL. A regression
 test covers `/nexus-public-workshop` project Pages output.
 
 The final independent verdict was `PASS`.
+
+After the live-host discovery, a second adversarial review found and repaired
+two verifier gaps: trusting a receipt fetched from the same host, and checking
+only part of the promised header envelope. The final follow-up verdict was
+`PASS`.
 
 ## Honest boundary
 

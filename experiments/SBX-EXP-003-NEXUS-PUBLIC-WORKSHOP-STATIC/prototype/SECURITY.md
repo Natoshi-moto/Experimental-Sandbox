@@ -22,7 +22,7 @@ initial report.
 
 The deployed copy also publishes `/.well-known/security.txt`.
 
-## Browser boundary
+## Generated-artifact boundary
 
 The generated public artifact has:
 
@@ -69,6 +69,30 @@ The current Sites host requires an ESM Worker entry. The edge gate:
 The independent Cloudflare release is designed to omit the Worker `main`
 entirely and deploy only the static asset directory.
 
+## Current hosted-transport boundary
+
+On 2026-07-29, an unauthenticated raw-response audit of the shared
+`chatgpt.site` hostname observed:
+
+- a Cloudflare browser-detection `<script>` appended after the receipted HTML;
+- a provider `__cf_bm` response cookie; and
+- omission of the complete intended HTTP security-header envelope on the
+  static response.
+
+Those additions are not present in the generated artifact or source. The early
+meta CSP precedes page resources and says `script-src 'none'`, so the appended
+script is outside the allowed execution policy. That is still not equivalent
+to an end-to-end script-free, cookie-free response.
+
+The current Sites checkpoint is therefore an inert-application prototype, not
+the final transport claim. The independent-host cutover must fail if a raw
+response contains a script, provider challenge, cookie, missing required
+header, or bytes that no longer match the public receipt. Run:
+
+```sh
+npm run verify:live -- https://HOST
+```
+
 ## Content boundary
 
 Published writing lives under `content/` as one restricted Markdown file per
@@ -86,9 +110,9 @@ The compiler rejects:
 The renderer escapes every value before generating HTML. Allowed Markdown
 tokens are converted by fixed templates, never by raw-HTML insertion.
 
-## Response policy
+## Target response policy
 
-Every host response receives:
+A final-host response must receive:
 
 - the full Content Security Policy;
 - `Cross-Origin-Opener-Policy: same-origin`;
@@ -100,9 +124,11 @@ Every host response receives:
 - MIME-sniffing, framing, DNS-prefetch and cross-domain-policy restrictions.
 
 HTML requires revalidation. Fingerprinted assets are immutable for one year.
-The build also emits `_headers` for a compatible assets-only host. GitHub Pages
-does not provide the same HTTP-header envelope; its early meta CSP is a useful
-fallback, not an equivalent control.
+The build emits `_headers` for a compatible assets-only host and tests the edge
+gate contract locally. Live-wire verification is separate because a provider
+can alter or bypass that envelope after build. GitHub Pages does not provide
+the same HTTP-header envelope; its early meta CSP is a useful fallback, not an
+equivalent control.
 
 ## Integrity and recovery
 

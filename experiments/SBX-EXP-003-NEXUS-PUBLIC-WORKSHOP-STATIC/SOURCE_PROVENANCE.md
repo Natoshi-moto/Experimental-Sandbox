@@ -3,14 +3,14 @@
 [`prototype/`](prototype/) is an exact tracked-source snapshot of NEXUS Public
 Workshop Sites commit:
 
-`941deed827981831709c2109ff0fe38a167f04bf`
+`ed8c281d14914e20e1f2a5762fa11436edf06da0`
 
 The checkpoint was created from a clean Sites checkout after the complete
 static build and security gate passed. It was deployed to:
 
 <https://nexus-public-workshop.everythingbitesized.chatgpt.site>
 
-The snapshot includes all `29` tracked source files. It excludes the source
+The snapshot includes all `30` tracked source files. It excludes the source
 repository's `.git` directory and all ignored dependencies, caches, compiled
 catalogue data, runtime state, and generated build output.
 

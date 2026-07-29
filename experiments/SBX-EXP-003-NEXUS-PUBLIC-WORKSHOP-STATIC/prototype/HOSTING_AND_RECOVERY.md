@@ -29,10 +29,16 @@ Official references:
 
 ## Present checkpoint
 
-The ChatGPT Sites deployment now serves generated HTML, CSS and local media with
-zero browser JavaScript. Sites still requires a tiny edge Worker for static
-path mapping and headers. That checkpoint proves the source and visual system
-can operate scriptlessly; it is not the final independent-provider cutover.
+The ChatGPT Sites source now builds generated HTML, CSS and local media with
+zero application JavaScript. Sites still requires a tiny edge Worker for static
+path mapping and its shared edge can alter the final response.
+
+A 2026-07-29 raw-response check found a provider-appended Cloudflare
+browser-detection script, an `__cf_bm` cookie, and omission of the intended
+complete HTTP-header envelope on the static response. The early meta CSP
+refuses script execution, but this means the current shared hostname is not
+claimed as end-to-end script-free or cookie-free. It remains the public
+prototype, not the final independent-provider cutover.
 
 ## One-sentence publishing workflow
 
@@ -63,6 +69,10 @@ Cloudflare Workers Static Assets should deploy `dist/client` only.
 - Pin third-party GitHub Actions to complete commit SHAs.
 - Retain the provider `_headers` file and verify every live response after
   cutover.
+- Do not enable a browser-challenge or bot feature that rewrites HTML or sets a
+  browser-detection cookie on this static publication.
+- Require `npm run verify:live -- https://HOST` to pass before changing the
+  canonical domain.
 
 Cloudflare's current static-site guidance:
 

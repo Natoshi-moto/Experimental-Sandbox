@@ -174,10 +174,10 @@ const securityControls = [
       "No browser editor, form, account system, upload route, write API, database, or site-held credential.",
   },
   {
-    state: "Forbidden",
-    title: "No browser scripts",
+    state: "Source-zero",
+    title: "No application scripts",
     copy:
-      "The browser receives zero JavaScript. A restrictive policy refuses scripts, connections, frames, forms, and workers.",
+      "The generated artifact contains zero JavaScript. Its early policy refuses scripts, connections, frames, forms, and workers.",
   },
   {
     state: "Absent",
@@ -400,7 +400,9 @@ ${renderCards(
           <p>
             No website is untouchable. This one is built to make silent
             alteration difficult, compromise unrewarding, and restoration from
-            a known-good record fast.
+            a known-good record fast. The current shared host can append its
+            own blocked browser-detection snippet and cookie; the independent
+            cutover will not pass until raw responses contain neither.
           </p>
           <a href="${vulnerabilityReport}" target="_blank" rel="noopener noreferrer">
             Report a vulnerability privately <span aria-hidden="true">↗</span>
@@ -465,7 +467,7 @@ ${renderCards(
 
       <footer>
         <span>NEXUS // PUBLIC WORKSHOP</span>
-        <span>Static release // zero browser JavaScript // recoverable by record.</span>
+        <span>Static source // zero application JavaScript // recoverable by record.</span>
       </footer>
     </main>`;
 

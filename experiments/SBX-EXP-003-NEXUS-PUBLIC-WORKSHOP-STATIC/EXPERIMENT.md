@@ -6,7 +6,7 @@
 **Operator hold:** [`SBX-SOH-001`](../../EMERGENCY_CURRENT_STATUS.md) — `ACTIVE`
 **Nexus Lab impact:** `NONE`
 **Public checkpoint:** <https://nexus-public-workshop.everythingbitesized.chatgpt.site>
-**Sites source checkpoint:** `941deed827981831709c2109ff0fe38a167f04bf`
+**Sites source checkpoint:** `ed8c281d14914e20e1f2a5762fa11436edf06da0`
 
 ## Active process boundary
 
@@ -25,7 +25,7 @@ publication route.
 ## Object-level result
 
 [`prototype/`](prototype/) is the exact tracked source of the deployed static
-successor. The browser receives:
+successor. Its generated public artifact contains:
 
 - generated HTML;
 - one fingerprinted stylesheet;
@@ -34,10 +34,18 @@ successor. The browser receives:
 - zero JavaScript, WebAssembly, source maps, remote browser resources, forms,
   cookies, analytics, or framework hydration.
 
-The current Sites provider requires a small edge Worker. It maps a strict
+The current Sites package requires a small edge Worker. It maps a strict
 allowlist to already-built static files, admits only `GET` and `HEAD`, attaches
-security headers, and returns the static 404. It performs no rendering,
-persistence, authentication, mutation, or outbound fetch.
+security headers, and returns the static 404 when requests reach that gate. It
+performs no rendering, persistence, authentication, mutation, or outbound
+fetch.
+
+A raw-response audit found that the shared Sites edge can append a Cloudflare
+browser-detection script and `__cf_bm` cookie and omit the intended complete
+HTTP-header envelope on static responses. The early meta CSP precedes page
+resources and says `script-src 'none'`, but the current hostname is therefore
+not claimed as an end-to-end script-free or cookie-free transport. A
+local-receipt-anchored live acceptance gate now makes that boundary executable.
 
 An assets-only Cloudflare configuration with no Worker `main` is included for
 the planned independent cutover. GitHub project Pages base-path and canonical
@@ -62,7 +70,7 @@ The static-successor claim fails if the reviewed source or generated artifact:
 ## Evidence
 
 - Sites source checkpoint:
-  `941deed827981831709c2109ff0fe38a167f04bf`
+  `ed8c281d14914e20e1f2a5762fa11436edf06da0`
 - Production gate: `16` tests passed, `0` failed.
 - Package surface: `0` runtime dependencies and `0` development dependencies.
 - Dependency audit: `0` vulnerabilities from `npm audit --omit=dev`.
@@ -70,6 +78,10 @@ The static-successor claim fails if the reviewed source or generated artifact:
   TypeScript/JSX output.
 - Independent adversarial review: initial narrow `HOLD`, both issues repaired,
   final `PASS`.
+- Live-wire audit: the current shared host correctly fails the final-host gate
+  on provider injection, cookie, missing headers, and changed bytes.
+- Live verifier review: two trust/envelope gaps repaired; final independent
+  verdict `PASS`.
 - Clean bundle restore drill: valid complete bundle, clean clone, successful
   build, `16/16` tests, and byte-identical public receipt.
 - Dedicated path-scoped GitHub Actions gate: verifies the preserved-source

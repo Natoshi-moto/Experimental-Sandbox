@@ -33,6 +33,7 @@ an economy, admitting participants, or promoting the experiment to Lab.
 
 - `prototype/site/templates.mjs`
 - `prototype/scripts/build-static.mjs`
+- `prototype/scripts/verify-live.mjs`
 - `prototype/scripts/validate-artifact.sh`
 - `prototype/security/policy.mjs`
 - `prototype/tests/architecture-guard.test.mjs`

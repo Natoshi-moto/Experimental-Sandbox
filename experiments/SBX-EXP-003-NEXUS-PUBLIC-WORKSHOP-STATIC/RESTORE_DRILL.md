@@ -17,16 +17,16 @@ Result: `PASS`
 ## Result
 
 - Restored commit:
-  `941deed827981831709c2109ff0fe38a167f04bf`
+  `ed8c281d14914e20e1f2a5762fa11436edf06da0`
 - Bundle verification: complete history, `PASS`
 - Restored build: `PASS`
 - Restored tests: `16/16`
 - Receipt comparison: byte-identical
 - Elapsed time in the local test environment: `1` second
 - Bundle SHA-256:
-  `5791a56753917d3320d05a82ca4cb89338b8910082a13752d2714fc372c02f0a`
+  `a30b3dba785443eb3668f1beb02c86150004706a897a50c94df4f84ca6c8e5a6`
 - Restored public receipt file SHA-256:
-  `4a9e19e4cfde5194d4f3d47fefb901f4e2ed9b128d5afc8be39447b86e003579`
+  `d9da2fde28ac9d3aa41d2090c3f72bbb40a1b2d1a14e1112681a353cd278ab94`
 
 ## Boundary
 
