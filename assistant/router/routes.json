@@ -41,6 +41,27 @@
       "max_authority": "READ_ONLY"
     },
     {
+      "id": "TERMINOLOGY",
+      "triggers": [
+        "is that the right word",
+        "what do I mean by",
+        "check my terminology",
+        "how will people read this",
+        "better wording",
+        "democratic",
+        "decentralised",
+        "consensus",
+        "governance",
+        "market",
+        "currency",
+        "value",
+        "permissionless",
+        "bitcoin sense"
+      ],
+      "skill": "check-terminology",
+      "max_authority": "READ_ONLY"
+    },
+    {
       "id": "EXPERIMENT",
       "triggers": [
         "see what happens",
