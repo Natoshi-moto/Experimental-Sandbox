@@ -1,0 +1,21 @@
+# Generated and local-only state
+/dist/
+/.generated/
+/node_modules/
+/.wrangler/
+/.sites-runtime/
+/outputs/
+/work/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Test and tool output
+/coverage/
+npm-debug.log*
+*.tsbuildinfo
+.DS_Store
