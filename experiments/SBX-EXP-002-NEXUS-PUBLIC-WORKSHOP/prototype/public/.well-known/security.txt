@@ -1,0 +1,5 @@
+Contact: https://github.com/Natoshi-moto/Quantum-Nexus/security/advisories/new
+Expires: 2027-07-29T00:00:00Z
+Preferred-Languages: en
+Canonical: https://nexus-public-workshop.everythingbitesized.chatgpt.site/.well-known/security.txt
+Policy: https://nexus-public-workshop.everythingbitesized.chatgpt.site/#security
