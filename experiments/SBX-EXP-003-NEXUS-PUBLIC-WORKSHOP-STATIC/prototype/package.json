@@ -1,0 +1,20 @@
+{
+  "name": "nexus-public-workshop",
+  "version": "0.2.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0 <25"
+  },
+  "scripts": {
+    "install:ci": "npm ci --ignore-scripts --no-audit --no-fund",
+    "build": "bash scripts/build-verified.sh",
+    "test": "npm run build",
+    "verify:live": "node scripts/verify-live.mjs",
+    "validate:artifact": "bash scripts/validate-artifact.sh",
+    "content:compile": "node scripts/compile-content.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "type": "module",
+  "displayName": "NEXUS Public Workshop"
+}

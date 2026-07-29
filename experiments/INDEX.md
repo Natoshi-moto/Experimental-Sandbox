@@ -4,6 +4,7 @@
 |---|---|---|---|
 | [`SBX-EXP-001`](SBX-EXP-001-NEXUS-REASONING-MARKET/) | `OPERATOR_HOLD_RESEARCH_ONLY` | Nexus crowdsourced agent-work market | `NONE` |
 | [`SBX-EXP-002`](SBX-EXP-002-NEXUS-PUBLIC-WORKSHOP/) | `OPERATOR_HOLD_RESEARCH_ONLY` | NEXUS Public Workshop documentary prototype | `NONE` |
+| [`SBX-EXP-003`](SBX-EXP-003-NEXUS-PUBLIC-WORKSHOP-STATIC/) | `OPERATOR_HOLD_RESEARCH_ONLY` | NEXUS Public Workshop scriptless static successor | `NONE` |
 
 IDs use:
 
