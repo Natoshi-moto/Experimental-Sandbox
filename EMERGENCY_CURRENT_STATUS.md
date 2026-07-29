@@ -15,8 +15,12 @@ AI-work direction is under a temporary operator hold.
 This is **not** a blanket shutdown of Experimental Sandbox and it is **not** a
 rejection of the research. It prevents exploratory material from becoming an
 official economic commitment, participant-facing system, public launch, or
-Lab proposal before the operator has published the governing position,
-boundaries, powers, enforcement standard, and failure conditions.
+Lab proposal without a separate, explicit authorisation.
+
+The Human Operator's [public position](PUBLIC_OPERATOR_POSITION.md) now records
+the chosen direction and boundaries. Publishing that statement does **not**
+lift, narrow, supersede, or reclassify this hold; authorise implementation; or
+complete the separate prerequisites for a later transition.
 
 The full order is [`operations/operator-holds/SBX-SOH-001/ORDER.md`](operations/operator-holds/SBX-SOH-001/ORDER.md).
 The machine-readable state is [`STATUS.json`](operations/operator-holds/SBX-SOH-001/STATUS.json).
