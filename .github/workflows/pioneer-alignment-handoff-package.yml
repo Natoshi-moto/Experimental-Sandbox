@@ -1,0 +1,201 @@
+name: Pioneer Alignment website handoff package
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/pioneer-alignment-handoff-package.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pioneer-alignment-handoff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BASELINE_SHA: 090fa369296f82cd9ee6136d9d43dfe5a4275160
+      SOURCE_PATH: experiments/SBX-EXP-003-NEXUS-PUBLIC-WORKSHOP-STATIC/prototype
+      RECORD_PATH: experiments/SBX-EXP-003-NEXUS-PUBLIC-WORKSHOP-STATIC
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Check out packaging branch
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Pin verification runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.14.0
+          check-latest: false
+
+      - name: Verify immutable accepted baseline
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASELINE_SHA}^{commit}"
+          test "$(git rev-parse "${BASELINE_SHA}")" = "${BASELINE_SHA}"
+          cd "${RECORD_PATH}"
+          sha256sum --check MANIFEST.sha256
+          cd prototype
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+
+      - name: Assemble exact source and handoff records
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/PioneerAlignment-Website-Handoff"
+          site="${root}/site"
+          records="${root}/checkpoint-records"
+          mkdir -p "${site}" "${records}"
+
+          git archive "${BASELINE_SHA}" "${SOURCE_PATH}" \
+            | tar -x -C "${site}" --strip-components=3
+
+          for file in \
+            EXPERIMENT.md \
+            HOLD_CLASSIFICATION.md \
+            MANIFEST.sha256 \
+            OPERATOR_INSTRUCTION_RAW.md \
+            PUBLICATION_EXCLUSIONS.md \
+            README.md \
+            RELEASE_EVIDENCE.md \
+            RESTORE_DRILL.md \
+            SOURCE_PROVENANCE.md; do
+            git show "${BASELINE_SHA}:${RECORD_PATH}/${file}" > "${records}/${file}"
+          done
+
+          cat > "${root}/HANDOFF.md" <<'EOF'
+          # Pioneer Alignment website continuation handoff
+
+          ## Continuation rule
+
+          Treat `site/` as the accepted visual and implementation baseline. Recover and continue it. Do not redesign, simplify, summarise, recreate, or replace it unless the Human Operator explicitly asks.
+
+          ## Identity and checkpoint
+
+          - Current Site display name: `NEXUS Public Workshop`
+          - Current Site slug: `nexus-public-workshop`
+          - Current live URL: `https://nexus-public-workshop.everythingbitesized.chatgpt.site`
+          - ChatGPT Sites project ID: `appgprj_6a6a1e656f1481918a3f8a158985a4a4`
+          - Accepted Sites source checkpoint: `ed8c281d14914e20e1f2a5762fa11436edf06da0`
+          - Preserved Sandbox commit: `090fa369296f82cd9ee6136d9d43dfe5a4275160`
+          - Source location at that commit: `experiments/SBX-EXP-003-NEXUS-PUBLIC-WORKSHOP-STATIC/prototype`
+
+          ## Implemented
+
+          - Accepted all-dark metallic/radioactive visual system and responsive layout.
+          - Static homepage, publication route, static 404, navigation, evidence, security, principles, experiment, and about surfaces.
+          - Restricted Markdown publication compiler with source SHA-256 receipts.
+          - Scriptless browser artifact: generated HTML, fingerprinted CSS, two local Geist fonts, local hero media, favicon, robots file, security.txt, and public artifact receipt.
+          - Zero runtime and zero development package dependencies.
+          - Strict content, architecture, route, header, receipt, and edge-contract regression tests.
+          - `.openai/hosting.json` preserving the existing ChatGPT Site identity.
+          - Assets-only Cloudflare configuration and GitHub Pages base-path support for later independent hosting.
+
+          ## Unfinished
+
+          - Rebrand/continue the accepted surface for Pioneer Alignment only when explicitly directed; do not invent a replacement design.
+          - Connect `pioneeralignment.com` and perform the planned independent assets-only host cutover.
+          - Make the independent live host pass `verify:live`; the current shared `chatgpt.site` edge may append a Cloudflare browser-detection script/cookie and omit part of the intended header envelope.
+          - Establish the dedicated canonical website repository, native GitHub Pages mirror, account/domain hardening, and durable off-provider backups.
+          - Add future Pioneer Alignment content, Relay, research, and community surfaces without weakening the static publication trust boundary.
+
+          ## Run and verify
+
+          Requires Node `>=22.13.0 <25`.
+
+          From `site/`:
+
+          ```sh
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+          ```
+
+          The generated static browser artifact is `dist/client/`. The minimal ChatGPT Sites edge package is under `dist/server/`, and the build copies `.openai/hosting.json` into `dist/.openai/hosting.json`.
+
+          Verify a rebuilt independent origin after setting its canonical URL:
+
+          ```sh
+          SITE_URL=https://pioneeralignment.com npm run build
+          npm run verify:live -- https://pioneeralignment.com
+          ```
+
+          Build the existing GitHub project-Pages mirror shape with:
+
+          ```sh
+          SITE_URL=https://natoshi-moto.github.io SITE_BASE_PATH=/nexus-public-workshop npm run build
+          ```
+
+          ## Deploy
+
+          - ChatGPT Sites continuation: retain `site/.openai/hosting.json` and use the authorised Sites publishing flow against the existing project ID. Do not create a new Site identity accidentally.
+          - Independent Cloudflare target: build with `SITE_URL=https://pioneeralignment.com`, deploy `dist/client/` using `wrangler.assets-only.json`, and do not declare cutover complete until `npm run verify:live -- https://pioneeralignment.com` passes.
+          - Never deploy `node_modules`, `.generated`, `dist` from an unverified build, `.sites-runtime`, `.wrangler`, environment files, credentials, or API keys as source.
+          EOF
+          sed -i 's/^          //' "${root}/HANDOFF.md"
+
+          cat > "${root}/CHECKPOINT.json" <<'EOF'
+          {
+            "package": "PioneerAlignment-Website-Handoff",
+            "accepted_visual_and_implementation_baseline": true,
+            "site_name": "NEXUS Public Workshop",
+            "site_slug": "nexus-public-workshop",
+            "live_url": "https://nexus-public-workshop.everythingbitesized.chatgpt.site",
+            "chatgpt_sites_project_id": "appgprj_6a6a1e656f1481918a3f8a158985a4a4",
+            "sites_source_checkpoint": "ed8c281d14914e20e1f2a5762fa11436edf06da0",
+            "sandbox_commit": "090fa369296f82cd9ee6136d9d43dfe5a4275160",
+            "source_subdirectory": "experiments/SBX-EXP-003-NEXUS-PUBLIC-WORKSHOP-STATIC/prototype",
+            "generated_at_utc": "2026-07-30T00:16:00Z"
+          }
+          EOF
+          sed -i 's/^          //' "${root}/CHECKPOINT.json"
+
+          forbidden="$(find "${site}" -type d \( -name node_modules -o -name dist -o -name .generated -o -name .sites-runtime -o -name .wrangler -o -name coverage \) -print)"
+          test -z "${forbidden}"
+          if find "${site}" -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' \) -print -quit | grep -q .; then
+            echo "Forbidden secret-like file entered package" >&2
+            exit 1
+          fi
+
+          (cd "${root}" && find . -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+
+          python3 - "${root}" "${RUNNER_TEMP}/PioneerAlignment-Website-Accepted-Baseline-090fa369.zip" <<'PY'
+          from pathlib import Path
+          import sys
+          import zipfile
+
+          source = Path(sys.argv[1])
+          output = Path(sys.argv[2])
+          fixed = (2026, 7, 30, 0, 16, 0)
+          with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+              for path in sorted(source.rglob("*")):
+                  if not path.is_file():
+                      continue
+                  relative = Path(source.name) / path.relative_to(source)
+                  info = zipfile.ZipInfo(relative.as_posix(), fixed)
+                  info.compress_type = zipfile.ZIP_DEFLATED
+                  info.external_attr = (0o755 if path.suffix == ".sh" else 0o644) << 16
+                  archive.writestr(info, path.read_bytes())
+          PY
+
+          sha256sum "${RUNNER_TEMP}/PioneerAlignment-Website-Accepted-Baseline-090fa369.zip" \
+            > "${RUNNER_TEMP}/PioneerAlignment-Website-Accepted-Baseline-090fa369.zip.sha256"
+          unzip -t "${RUNNER_TEMP}/PioneerAlignment-Website-Accepted-Baseline-090fa369.zip"
+
+      - name: Upload immutable handoff package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: PioneerAlignment-Website-Accepted-Baseline-090fa369
+          path: |
+            ${{ runner.temp }}/PioneerAlignment-Website-Accepted-Baseline-090fa369.zip
+            ${{ runner.temp }}/PioneerAlignment-Website-Accepted-Baseline-090fa369.zip.sha256
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
